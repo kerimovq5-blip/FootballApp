@@ -1,135 +1,172 @@
-//
-//  SignInController.swift
-//  FootballApp
-//
-//  Created by Servan on 24.09.26.
-//
-
 import UIKit
 
-final class SignInController: UIViewController, UISheetPresentationControllerDelegate {
+final class SignInController: UIViewController {
+
+    var onSignInTapped: (() -> Void)?
+    var onSignUpTapped: (() -> Void)?
+    var onForgotPasswordTapped: (() -> Void)?
+
+    private enum Metrics {
+        static let fieldHeight: CGFloat = 56
+        static let buttonHeight: CGFloat = 63
+        static let checkboxSize: CGFloat = 22
+    }
+
     private lazy var welcomeLabel: UILabel = {
         let label = UILabel()
         label.text = "Welcome"
-        label.textColor = .white
-        label.font = .systemFont(ofSize: 28, weight: .semibold)
+        label.textColor = .titleColor
+        label.font = AppFonts.title.font
         label.textAlignment = .center
         return label
     }()
-    private lazy var emailTextField: UITextField = {
-        let textField = UITextField()
-        textField.attributedPlaceholder = NSAttributedString(
-            string: "Email",
+
+    private lazy var emailField = AppTextField(
+        placeholder: "Email",
+        leftIcon: UIImage(named: "emailicon")
+    )
+
+    private lazy var passwordField: AppTextField = {
+        let toggleButton = UIButton()
+        toggleButton.setImage(UIImage(named: "hidepassword"), for: .normal)
+        toggleButton.addTarget(self, action: #selector(togglePasswordVisibility), for: .touchUpInside)
+
+        return AppTextField(
+            placeholder: "Password",
+            isSecure: true,
+            rightView: toggleButton,
+            leftIcon: UIImage(
+                named: "passwordicon"
+            )
+        )
+    }()
+
+    private lazy var rememberMeCheckbox: UIButton = {
+        let button = UIButton(type: .system)
+        button.layer.borderWidth = 1
+        button.layer.borderColor = UIColor.gray.cgColor
+        button.layer.cornerRadius = 6
+        button.addTarget(self, action: #selector(toggleRememberMe), for: .touchUpInside)
+        return button
+    }()
+
+    private lazy var rememberMeLabel: UILabel = {
+        let label = UILabel()
+        label.text = "Remember me"
+        label.textColor = UIColor.gray
+        label.font = AppFonts.regularBody.font
+        return label
+    }()
+
+    private lazy var forgotPasswordButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.setTitle("Forgot Password", for: .normal)
+        button.setTitleColor(.buttonTitlecolor, for: .normal)
+        button.titleLabel?.font = AppFonts.regularBody.font
+        button.addTarget(self, action: #selector(forgotPasswordTapped), for: .touchUpInside)
+        return button
+    }()
+
+    private lazy var signInButton: AppButton = {
+        let button = AppButton(title: "Sign in", backgroundColor: .accent)
+        button.onTap = { [weak self] in
+            self?.onSignInTapped?()
+        }
+        return button
+    }()
+
+    private lazy var signUpPromptButton: UIButton = {
+        let button = UIButton(type: .system)
+        let text = NSMutableAttributedString(
+            string: "Don’t have account? ",
             attributes: [
-                .font: UIFont.systemFont(ofSize: 14, weight: .semibold),
-                .foregroundColor: UIColor.gray
+                .foregroundColor: UIColor.buttonTitlecolor,
+                .font: AppFonts.regularBody.font
             ]
         )
-        textField.textColor = .white
-        textField.layer.cornerRadius = 16
-        textField.keyboardType = .emailAddress
-        let imageView = UIImageView(image: UIImage(named: "emailicon"))
-            
-            imageView.frame = CGRect(
-                x: 0,
-                y: 0,
-                width: 24,
-                height: 24
-            )
-            let container = UIView(
-                frame: CGRect(
-                    x: 0,
-                    y: 0,
-                    width: 48,
-                    height: 64
-                )
-            )
-            imageView.center = container.center
-            container.addSubview(imageView)
-
-            textField.leftView = container
-            textField.leftViewMode = .always
-        textField.backgroundColor = AssetColors.background.color
-        return textField
-    }()
-    private lazy var passwordTextField: UITextField = {
-        let textField = UITextField()
-        textField.attributedPlaceholder = NSAttributedString(
-            string: "Password",
+        text.append(NSAttributedString(
+            string: "Sign UP",
             attributes: [
-                .font: UIFont.systemFont(ofSize: 14, weight: .semibold),
-                .foregroundColor: UIColor.gray
+                .foregroundColor: UIColor.accent,
+                .font: AppFonts.semiBold.font
             ]
-        )
-        textField.textColor = .white
-        textField.layer.cornerRadius = 16
-        textField.isSecureTextEntry = true
-        let imageView = UIImageView(image: UIImage(named: "passwordicon"))
-            imageView.frame = CGRect(
-                x: 0,
-                y: 0,
-                width: 24,
-                height: 24
-            )
-            let container = UIView(
-                frame: CGRect(
-                    x: 0,
-                    y: 0,
-                    width: 48,
-                    height: 64
-                )
-            )
-            imageView.center = container.center
-            container.addSubview(imageView)
-
-            textField.leftView = container
-            textField.leftViewMode = .always
-        let imageView1 = UIImageView(image: UIImage(named: "hidepassword"))
-            imageView1.frame = CGRect(
-                x: 0,
-                y: 0,
-                width: 24,
-                height: 24
-            )
-        let gesture = UITapGestureRecognizer(target: self, action: #selector(hidepassword))
-        imageView1.addGestureRecognizer(gesture)
-        imageView1.isUserInteractionEnabled = true
-        
-            let container1 = UIView(
-                frame: CGRect(
-                    x: 0,
-                    y: 0,
-                    width: 48,
-                    height: 64
-                )
-            )
-            imageView1.center = container1.center
-            container1.addSubview(imageView1)
-
-            textField.rightView = container1
-            textField.rightViewMode = .always
-        textField.backgroundColor = AssetColors.background.color
-        return textField
+        ))
+        button.setAttributedTitle(text, for: .normal)
+        button.addTarget(self, action: #selector(signUpTapped), for: .touchUpInside)
+        return button
     }()
-    @objc func hidepassword(){
-        passwordTextField.isSecureTextEntry.toggle()
-    }
+
     override func viewDidLoad() {
         super.viewDidLoad()
+        setupHierarchy()
+        setupLayout()
+    }
+
+    private func setupHierarchy() {
         view.backgroundColor = UIColor(named: "mbappeback")
-        view.addSubviews(welcomeLabel,emailTextField,passwordTextField)
+        view.addSubviews(
+            welcomeLabel, emailField, passwordField,
+            rememberMeCheckbox, rememberMeLabel, forgotPasswordButton,
+            signInButton, signUpPromptButton
+        )
+    }
+
+    private func setupLayout() {
         welcomeLabel
-            .leading(view.leadingAnchor,24).0
-            .top(view.safeAreaLayoutGuide.topAnchor,40)
-        emailTextField
-            .leading(view.leadingAnchor,24).0
-            .trailing(view.trailingAnchor,-24).0
-            .top(welcomeLabel.bottomAnchor,70).0
-            .height(75)
-        passwordTextField
-            .leading(view.leadingAnchor,24).0
-            .trailing(view.trailingAnchor,-24).0
-            .top(emailTextField.bottomAnchor,36).0
-            .height(75)
+            .leading(view.leadingAnchor, AppLayout.screenPadding.value).0
+            .top(view.safeAreaLayoutGuide.topAnchor, AppLayout.spacing.value)
+
+        emailField
+            .leading(view.leadingAnchor, AppLayout.screenPadding.value).0
+            .trailing(view.trailingAnchor, -AppLayout.screenPadding.value).0
+            .top(welcomeLabel.bottomAnchor, AppLayout.largeSpacing.value).0
+            .height(Metrics.fieldHeight)
+
+        passwordField
+            .leading(view.leadingAnchor, AppLayout.screenPadding.value).0
+            .trailing(view.trailingAnchor, -AppLayout.screenPadding.value).0
+            .top(emailField.bottomAnchor, AppLayout.mediumSpacing.value).0
+            .height(Metrics.fieldHeight)
+
+        rememberMeCheckbox
+            .leading(view.leadingAnchor, AppLayout.screenPadding.value).0
+            .top(passwordField.bottomAnchor, AppLayout.mediumSpacing.value).0
+            .width(Metrics.checkboxSize).0
+            .height(Metrics.checkboxSize)
+
+        rememberMeLabel
+            .centerY(rememberMeCheckbox.centerYAnchor).0
+            .leading(rememberMeCheckbox.trailingAnchor, AppLayout.smallSpacing.value)
+
+        forgotPasswordButton
+            .centerY(rememberMeCheckbox.centerYAnchor).0
+            .trailing(view.trailingAnchor, -AppLayout.screenPadding.value)
+
+        signInButton
+            .leading(view.leadingAnchor, AppLayout.screenPadding.value).0
+            .trailing(view.trailingAnchor, -AppLayout.screenPadding.value).0
+            .top(rememberMeCheckbox.bottomAnchor, AppLayout.largeSpacing.value).0
+            .height(Metrics.buttonHeight)
+
+        signUpPromptButton
+            .centerX(view.centerXAnchor).0
+            .top(signInButton.bottomAnchor, AppLayout.mediumSpacing.value)
+    }
+
+    @objc private func togglePasswordVisibility() {
+        passwordField.textField.isSecureTextEntry.toggle()
+    }
+
+    @objc private func toggleRememberMe() {
+        rememberMeCheckbox.isSelected.toggle()
+        rememberMeCheckbox.backgroundColor = rememberMeCheckbox.isSelected ? .accent : .clear
+    }
+
+    @objc private func forgotPasswordTapped() {
+        onForgotPasswordTapped?()
+    }
+
+    @objc private func signUpTapped() {
+        onSignUpTapped?()
     }
 }

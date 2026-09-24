@@ -5,19 +5,16 @@ enum AppLayout {
     case mediumSpacing
     case spacing
     case largeSpacing
-    
-    
- 
+    case screenPadding
     
     var value: CGFloat {
         switch self {
         case .smallSpacing: return 8
         case .mediumSpacing : return 30
-        case .spacing: return 20
+        case .spacing , .screenPadding: return 20
         case .largeSpacing: return 50
-       
         
-        }
+      }
     }
 }
 
