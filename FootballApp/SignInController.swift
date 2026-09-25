@@ -23,7 +23,12 @@ final class SignInController: UIViewController {
 
     private lazy var emailField = AppTextField(
         placeholder: "Email",
-        leftIcon: UIImage(named: "emailicon")
+        
+        leftIcon: UIImage(
+            named: "emailicon"
+                          
+        )
+        
     )
 
     private lazy var passwordField: AppTextField = {
@@ -34,10 +39,8 @@ final class SignInController: UIViewController {
         return AppTextField(
             placeholder: "Password",
             isSecure: true,
-            rightView: toggleButton,
-            leftIcon: UIImage(
-                named: "passwordicon"
-            )
+            leftIcon: UIImage(named: "passwordicon"),
+            rightView: toggleButton
         )
     }()
 
@@ -68,7 +71,11 @@ final class SignInController: UIViewController {
     }()
 
     private lazy var signInButton: AppButton = {
-        let button = AppButton(title: "Sign in", backgroundColor: .accent)
+        let button = AppButton(
+            title: "Sign in",
+            backgroundColor: .accent,
+            titleColor: .titleColor
+        )
         button.onTap = { [weak self] in
             self?.onSignInTapped?()
         }

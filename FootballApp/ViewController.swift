@@ -54,7 +54,9 @@ class ViewController: UIViewController {
     private lazy var signInButton: AppButton = {
         let button = AppButton(
             title: "Sign in",
-            backgroundColor: .accent
+            backgroundColor: .accent,
+            titleColor: .titleColor
+            
             
         )
         button.onTap = { [weak self] in

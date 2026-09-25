@@ -2,19 +2,25 @@ import CoreGraphics
 
 enum AppLayout {
     case smallSpacing
-    case mediumSpacing
     case spacing
+    case mediumSpacing
+    case sectionSpacing
+    case topSpacing
     case largeSpacing
+    case largeTopSpacing
     case screenPadding
-    
+
     var value: CGFloat {
         switch self {
         case .smallSpacing: return 8
-        case .mediumSpacing : return 30
-        case .spacing , .screenPadding: return 20
+        case .spacing: return 20
+        case .mediumSpacing: return 30
+        case .sectionSpacing: return 36
+        case .topSpacing: return 40
         case .largeSpacing: return 50
-        
-      }
+        case .largeTopSpacing: return 70
+        case .screenPadding: return 24
+        }
     }
 }
 

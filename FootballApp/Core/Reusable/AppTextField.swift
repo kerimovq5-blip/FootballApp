@@ -12,10 +12,13 @@ final class AppTextField: UIView {
     private enum Layout {
         static let fontSize: CGFloat = 18
         static let leftPadding: CGFloat = 12
+        static let leftIconSize: CGFloat = 24
+        static let leftContainerWidth: CGFloat = 48
         static let rightContainerWidth: CGFloat = 45
         static let rightContainerHeight: CGFloat = 30
         static let rightButtonSize: CGFloat = 30
         static let cornerRadius: CGFloat = 16
+        static let height: CGFloat = 56
     }
 
     private lazy var mainTextField: UITextField = {
@@ -30,10 +33,10 @@ final class AppTextField: UIView {
         placeholder: String,
         isSecure: Bool = false,
         backgroundColor: AssetColors? = nil,
-        textColor: AssetColors = .buttonTitlecolor,
+        textColor: AssetColors? = nil,
         delegate: UITextFieldDelegate? = nil,
-        rightView: UIButton? = nil ,
-        leftIcon : UIImage? = nil
+        leftIcon: UIImage? = nil,
+        rightView: UIButton? = nil
     ) {
         super.init(frame: .zero)
         configure(
@@ -42,10 +45,8 @@ final class AppTextField: UIView {
             backgroundColor: backgroundColor,
             textColor: textColor,
             delegate: delegate,
-            rightView: rightView ,
-            leftIcon: leftIcon
-            
-            
+            leftIcon: leftIcon,
+            rightView: rightView
         )
         setupHierarchy()
         setupLayout()
@@ -59,19 +60,34 @@ final class AppTextField: UIView {
         placeholder: String,
         isSecure: Bool,
         backgroundColor: AssetColors?,
-        textColor: AssetColors,
+        textColor: AssetColors?,
         delegate: UITextFieldDelegate?,
-        rightView: UIButton? ,
-        leftIcon : UIImage?
+        leftIcon: UIImage?,
+        rightView: UIButton?
     ) {
-        mainTextField.placeholder = placeholder
+        mainTextField.attributedPlaceholder = NSAttributedString(
+            string: placeholder,
+            attributes: [
+                .font: AppFonts.regularBody.font,
+                .foregroundColor: UIColor.textSecondary
+            ]
+        )
         mainTextField.isSecureTextEntry = isSecure
         mainTextField.backgroundColor = (backgroundColor ?? .background).color
-        mainTextField.textColor = textColor.color
+        mainTextField.textColor = textColor?.color
         mainTextField.delegate = delegate
 
-        let leftPadding = UIView(frame: CGRect(x: 0, y: 0, width: Layout.leftPadding, height: 0))
-        mainTextField.leftView = leftPadding
+        if let leftIcon = leftIcon {
+            let iconView = UIImageView(image: leftIcon)
+            iconView.frame = CGRect(x: 0, y: 0, width: Layout.leftIconSize, height: Layout.leftIconSize)
+            let container = UIView(frame: CGRect(x: 0, y: 0, width: Layout.leftContainerWidth, height: Layout.height))
+            iconView.center = container.center
+            container.addSubview(iconView)
+            mainTextField.leftView = container
+        } else {
+            let leftPadding = UIView(frame: CGRect(x: 0, y: 0, width: Layout.leftPadding, height: 0))
+            mainTextField.leftView = leftPadding
+        }
         mainTextField.leftViewMode = .always
 
         if let rightButton = rightView {
