@@ -21,27 +21,31 @@ final class SignInController: UIViewController {
         return label
     }()
 
-    private lazy var emailField = AppTextField(
+    private lazy var emailField : AppTextField = {
+        let emailField = AppTextField(
         placeholder: "Email",
+        textColor: .labelColor,
         
-        leftIcon: UIImage(
-            named: "emailicon"
-                          
+        leftIcon: UIImage(named: "emailicon")
         )
+        return emailField
         
-    )
+    } ()
 
     private lazy var passwordField: AppTextField = {
         let toggleButton = UIButton()
         toggleButton.setImage(UIImage(named: "hidepassword"), for: .normal)
         toggleButton.addTarget(self, action: #selector(togglePasswordVisibility), for: .touchUpInside)
-
-        return AppTextField(
-            placeholder: "Password",
-            isSecure: true,
-            leftIcon: UIImage(named: "passwordicon"),
-            rightView: toggleButton
-        )
+      let passwordField = AppTextField(
+    placeholder: "Password",
+    isSecure: true,
+    textColor: .labelColor,
+    leftIcon: UIImage(named: "passwordicon"),
+    rightView: toggleButton
+      )
+        return passwordField
+            
+        
     }()
 
     private lazy var rememberMeCheckbox: UIButton = {
@@ -64,7 +68,7 @@ final class SignInController: UIViewController {
     private lazy var forgotPasswordButton: UIButton = {
         let button = UIButton(type: .system)
         button.setTitle("Forgot Password", for: .normal)
-        button.setTitleColor(.buttonTitlecolor, for: .normal)
+        button.setTitleColor(.titleColor, for: .normal)
         button.titleLabel?.font = AppFonts.regularBody.font
         button.addTarget(self, action: #selector(forgotPasswordTapped), for: .touchUpInside)
         return button
@@ -87,7 +91,7 @@ final class SignInController: UIViewController {
         let text = NSMutableAttributedString(
             string: "Don’t have account? ",
             attributes: [
-                .foregroundColor: UIColor.buttonTitlecolor,
+                .foregroundColor: AssetColors.labelColor.color,
                 .font: AppFonts.regularBody.font
             ]
         )
@@ -112,9 +116,14 @@ final class SignInController: UIViewController {
     private func setupHierarchy() {
         view.backgroundColor = UIColor(named: "mbappeback")
         view.addSubviews(
-            welcomeLabel, emailField, passwordField,
-            rememberMeCheckbox, rememberMeLabel, forgotPasswordButton,
-            signInButton, signUpPromptButton
+            welcomeLabel,
+            emailField,
+            passwordField,
+            rememberMeCheckbox,
+            rememberMeLabel,
+            forgotPasswordButton,
+            signInButton,
+            signUpPromptButton
         )
     }
 

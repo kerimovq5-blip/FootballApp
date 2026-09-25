@@ -68,7 +68,7 @@ class ViewController: UIViewController {
     private lazy var signUpButton: AppButton = {
         let button = AppButton(
             title: "Sign Up",
-            titleColor: .buttonTitlecolor
+            titleColor: .titleColor
         )
         button.onTap = { [weak self] in
             self?.onSignUpTapped?()

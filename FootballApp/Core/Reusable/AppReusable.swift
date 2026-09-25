@@ -23,7 +23,7 @@ enum AssetColors : String{
     case textSecondary  = "TextSecondary"
     case accent = "AccentColor"
     case buttonTitlecolor , titleColor = "ButtonTitleColor"
-    
+    case labelColor = "LabelColor"
    
     
     var color : UIColor {
