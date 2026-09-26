@@ -35,9 +35,9 @@ final class AuthCoordinator: Coordinator {
                 self?.presentSignUp()
             }
         }
-        vc.onForgotPasswordTapped = { [weak self] in
-            // TODO: Forgot password ekranı
-        }
+//        vc.onForgotPasswordTapped = { [weak self] in
+//            // TODO: Forgot password ekranı
+//        }
 
         configureSheet(for: nav)
         navigationController.present(nav, animated: true)

@@ -21,39 +21,29 @@ final class SignInController: UIViewController {
         return label
     }()
 
-    private lazy var emailField : AppTextField = {
-        let emailField = AppTextField(
+    private let emailField = AppTextField(
         placeholder: "Email",
         textColor: .labelColor,
-        
         leftIcon: UIImage(named: "emailicon")
-        )
-        emailField.textField.attributedPlaceholder = NSAttributedString(string: "Email", attributes: [.foregroundColor: UIColor(named: "placeholdercolor")])
-        return emailField
-        
-    } ()
+    )
 
     private lazy var passwordField: AppTextField = {
-        let toggleButton = UIButton()
-        toggleButton.setImage(UIImage(named: "hidepassword"), for: .normal)
-        toggleButton.addTarget(self, action: #selector(togglePasswordVisibility), for: .touchUpInside)
-      let passwordField = AppTextField(
-    placeholder: "Password",
-    isSecure: true,
-    textColor: .labelColor,
-    leftIcon: UIImage(named: "passwordicon"),
-    rightView: toggleButton
-      )
-        passwordField.textField.attributedPlaceholder = NSAttributedString(string: "Password", attributes: [.foregroundColor: UIColor(named: "placeholdercolor")])
-        return passwordField
-            
+        let toggleButton = makePasswordToggleButton(action: #selector(togglePasswordVisibility))
         
+        let passwordField = AppTextField(
+            placeholder: "Password",
+            isSecure: true,
+            textColor: .labelColor,
+            leftIcon: UIImage(named: "passwordicon"),
+            rightView: toggleButton
+        )
+        return passwordField
     }()
 
     private lazy var rememberMeCheckbox: UIButton = {
         let button = UIButton(type: .system)
         button.layer.borderWidth = 1
-        button.layer.borderColor = UIColor.gray.cgColor
+        button.layer.borderColor = UIColor.labelColor.cgColor
         button.layer.cornerRadius = 6
         button.addTarget(self, action: #selector(toggleRememberMe), for: .touchUpInside)
         return button
@@ -62,7 +52,7 @@ final class SignInController: UIViewController {
     private lazy var rememberMeLabel: UILabel = {
         let label = UILabel()
         label.text = "Remember me"
-        label.textColor = UIColor.gray
+        label.textColor = .labelColor
         label.font = AppFonts.regularBody.font
         return label
     }()
@@ -132,8 +122,8 @@ final class SignInController: UIViewController {
     private func setupLayout() {
         welcomeLabel
             .leading(view.leadingAnchor, AppLayout.screenPadding.value).0
-            //.trailing(view.trailingAnchor, -AppLayout.screenPadding.value).0
-            .top(view.topAnchor,AppLayout.mediumSpacing.value)
+            .trailing(view.trailingAnchor, -AppLayout.screenPadding.value).0
+            .top(view.safeAreaLayoutGuide.topAnchor, AppLayout.mediumSpacing.value)
 
         emailField
             .leading(view.leadingAnchor, AppLayout.screenPadding.value).0

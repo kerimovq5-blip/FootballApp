@@ -160,3 +160,12 @@ extension UIView {
         return (self, constraint)
     }
 }
+
+extension UIViewController {
+    func makePasswordToggleButton(action: Selector) -> UIButton {
+        let button = UIButton()
+        button.setImage(UIImage(named: "hidepassword"), for: .normal)
+        button.addTarget(self, action: action, for: .touchUpInside)
+        return button
+    }
+}

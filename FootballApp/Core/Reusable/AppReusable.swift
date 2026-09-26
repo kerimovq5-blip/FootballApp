@@ -1,13 +1,9 @@
 //
 //  AppColor.swift
-//  SilentMoon
+//  FootballApp
 //
 //  Created by Kerimov Qehreman on 25.06.26.
 //
-
-//
-
-
 
 import UIKit
 
@@ -16,30 +12,25 @@ enum ImagePosition {
     case trailing
 }
 
-enum AssetColors : String{
-    
+enum AssetColors: String {
+
     case background = "Background"
     case textPrimary = "TextPrimary"
-    case textSecondary  = "TextSecondary"
+    case textSecondary = "TextSecondary"
     case accent = "AccentColor"
     case buttonTitlecolor , titleColor = "ButtonTitleColor"
     case labelColor = "LabelColor"
-   
-    
-    var color : UIColor {
+
+    var color: UIColor {
         return UIColor(named: self.rawValue) ?? .clear
-        
     }
-    
 }
 
-extension UIColor  {
-    func assetColor( _ colorName : AssetColors) -> UIColor {
+extension UIColor {
+    func assetColor(_ colorName: AssetColors) -> UIColor {
         return colorName.color
     }
-    
 }
-
 
 extension UIColor {
     static var background: UIColor { AssetColors.background.color }
@@ -48,8 +39,7 @@ extension UIColor {
     static var accent: UIColor { AssetColors.accent.color }
     static var buttonTitlecolor: UIColor { AssetColors.buttonTitlecolor.color }
     static var titleColor: UIColor { AssetColors.titleColor.color }
-    
-    
+    static var labelColor: UIColor { AssetColors.labelColor.color }
 }
 
 enum AppFonts {
@@ -61,6 +51,7 @@ enum AppFonts {
     case litletitle
     case semiBold
     case mediumTitle
+
     var font: UIFont {
         switch self {
         case .title:
@@ -77,28 +68,29 @@ enum AppFonts {
             return UIFont.systemFont(ofSize: 12, weight: .regular)
         case .semiBold:
             return UIFont.systemFont(ofSize: 18, weight: .semibold)
-        case .mediumTitle :
+        case .mediumTitle:
             return UIFont.systemFont(ofSize: 13, weight: .medium)
         }
     }
 }
-enum AppRadius{
-        case buttonRadius
-        case buttonRadiusSmall
-        case buttonRadiusMedium
-        case buttonRadiusLarge
-        case sessionPlayButtonRadius
-        var radius: CGFloat {
-            
-            switch self {
-            case .buttonRadius:
-                return 30
-            case .buttonRadiusSmall:
-                return 16
-            case .buttonRadiusMedium:
-                return 20
-            case .buttonRadiusLarge , .sessionPlayButtonRadius:
-                return 25
-            }
+
+enum AppRadius {
+    case buttonRadius
+    case buttonRadiusSmall
+    case buttonRadiusMedium
+    case buttonRadiusLarge
+    case sessionPlayButtonRadius
+
+    var radius: CGFloat {
+        switch self {
+        case .buttonRadius:
+            return 30
+        case .buttonRadiusSmall:
+            return 16
+        case .buttonRadiusMedium:
+            return 20
+        case .buttonRadiusLarge, .sessionPlayButtonRadius:
+            return 25
         }
     }
+}

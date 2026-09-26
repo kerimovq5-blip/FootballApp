@@ -4,6 +4,7 @@ final class SignUpController: UIViewController {
 
     var onSignUpTapped: (() -> Void)?
     var onSignInTapped: (() -> Void)?
+    var onBackTapped: (() -> Void)?
 
     private enum Metrics {
         static let fieldHeight: CGFloat = 56
@@ -19,73 +20,76 @@ final class SignUpController: UIViewController {
         label.textAlignment = .center
         return label
     }()
-    
-    private lazy var usernameField: AppTextField = {
-        let field = AppTextField(
-            placeholder: "Username",
-            textColor: .labelColor,
-            leftIcon: UIImage(named: "usericon")?.withRenderingMode(.alwaysTemplate)
-        )
-        field.textField.attributedPlaceholder = NSAttributedString(string: "Username", attributes: [.foregroundColor: UIColor(named: "placeholdercolor")])
-        return field
-    }()
 
-    private lazy var emailField: AppTextField = {
-        let field = AppTextField(
-            placeholder: "Email",
-            textColor: .labelColor,
-            leftIcon: UIImage(named: "emailicon")
-        )
-        field.textField.attributedPlaceholder = NSAttributedString(string: "Email", attributes: [.foregroundColor: UIColor(named: "placeholdercolor")])
-        return field
-    }()
+    private lazy var usernameField = AppTextField(
+        placeholder: "Username",
+        textColor: .labelColor,
+        leftIcon: UIImage(named: "usericon")?.withRenderingMode(.alwaysTemplate)
+    )
+
+    private lazy var emailField = AppTextField(
+        placeholder: "Email",
+        textColor: .labelColor,
+        leftIcon: UIImage(named: "emailicon")
+    )
 
     private lazy var passwordField: AppTextField = {
-        let toggleButton = UIButton()
-        toggleButton.setImage(UIImage(named: "hidepassword"), for: .normal)
-        toggleButton.addTarget(self, action: #selector(togglePasswordVisibility), for: .touchUpInside)
-        let field = AppTextField(
+        let toggleButton = makePasswordToggleButton(
+            action: #selector(togglePasswordVisibility))
+        let passwordField = AppTextField(
             placeholder: "Password",
             isSecure: true,
             textColor: .labelColor,
             leftIcon: UIImage(named: "passwordicon"),
-            rightView: toggleButton
-        )
-        field.textField.attributedPlaceholder = NSAttributedString(string: "Password", attributes: [.foregroundColor: UIColor(named: "placeholdercolor")])
-        return field
+            rightView: toggleButton)
+        return passwordField
     }()
 
     private lazy var confirmPasswordField: AppTextField = {
-        let toggleButton = UIButton()
-        toggleButton.setImage(UIImage(named: "hidepassword"), for: .normal)
-        toggleButton.addTarget(self, action: #selector(toggleConfirmPasswordVisibility), for: .touchUpInside)
-        let field = AppTextField(
+        let toggleButton = makePasswordToggleButton(action: #selector(toggleConfirmPasswordVisibility))
+        
+        let confirmPasswordField = AppTextField(
             placeholder: "Confirm password",
             isSecure: true,
             textColor: .labelColor,
             leftIcon: UIImage(named: "passwordicon"),
             rightView: toggleButton
         )
-        field.textField.attributedPlaceholder = NSAttributedString(string: "Confirm password", attributes: [.foregroundColor: UIColor(named: "placeholdercolor")])
-        return field
+        return confirmPasswordField
     }()
-    
+
     private lazy var agreementLabel: UILabel = {
         let label = UILabel()
-        let attributed = NSMutableAttributedString(string: "I have read the ",attributes: [.foregroundColor: UIColor(named: "placeholdercolor"),.font: UIFont.systemFont(ofSize: 16,weight: .semibold)])
-        attributed.append(NSAttributedString(string: "Privace Policy",attributes: [.foregroundColor: UIColor.systemBlue,.font: UIFont.systemFont(ofSize: 16,weight: .semibold)]))
+        let attributed = NSMutableAttributedString(
+            string: "I have read the ",
+            attributes: [
+                .foregroundColor: AssetColors.labelColor.color,
+                .font: AppFonts.semiBold.font
+            ]
+        )
+        attributed.append(
+            NSAttributedString(
+                string: "Privacy Policy",
+                attributes: [
+                    .foregroundColor: UIColor.accent,
+                    .font: AppFonts.semiBold.font
+                ]
+            )
+        )
         label.attributedText = attributed
         label.numberOfLines = 0
         return label
     }()
+
     private lazy var agreementButton: UIButton = {
         let button = UIButton(type: .system)
         button.layer.borderWidth = 1
-        button.layer.borderColor = UIColor.gray.cgColor
+        button.layer.borderColor = UIColor.labelColor.cgColor
         button.layer.cornerRadius = 6
         button.addTarget(self, action: #selector(toggleAgreement), for: .touchUpInside)
         return button
     }()
+
     private lazy var signUpButton: AppButton = {
         let button = AppButton(
             title: "Sign up",
@@ -118,11 +122,7 @@ final class SignUpController: UIViewController {
         button.addTarget(self, action: #selector(signInTapped), for: .touchUpInside)
         return button
     }()
-    
-    @objc func toggleAgreement() {
-        agreementButton.isSelected.toggle()
-        agreementButton.backgroundColor = agreementButton.isSelected ? .accent : .clear
-    }
+
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = UIColor(named: "mbappeback")
@@ -142,15 +142,9 @@ final class SignUpController: UIViewController {
 
     private func setupHierarchy() {
         view.addSubviews(
-            welcomeLabel,
-            usernameField,
-            emailField,
-            passwordField,
-            confirmPasswordField,
-            agreementLabel,
-            agreementButton,
-            signUpButton,
-            signInPromptButton
+            welcomeLabel, usernameField, emailField, passwordField,
+            confirmPasswordField, agreementLabel, agreementButton,
+            signUpButton, signInPromptButton
         )
     }
 
@@ -159,11 +153,13 @@ final class SignUpController: UIViewController {
             .leading(view.leadingAnchor, AppLayout.screenPadding.value).0
             .trailing(view.trailingAnchor, -AppLayout.screenPadding.value).0
             .top(view.safeAreaLayoutGuide.topAnchor, AppLayout.spacing.value)
+
         usernameField
             .leading(view.leadingAnchor, AppLayout.screenPadding.value).0
             .trailing(view.trailingAnchor, -AppLayout.screenPadding.value).0
             .top(welcomeLabel.bottomAnchor, AppLayout.largeSpacing.value).0
             .height(Metrics.fieldHeight)
+
         emailField
             .leading(view.leadingAnchor, AppLayout.screenPadding.value).0
             .trailing(view.trailingAnchor, -AppLayout.screenPadding.value).0
@@ -181,15 +177,18 @@ final class SignUpController: UIViewController {
             .trailing(view.trailingAnchor, -AppLayout.screenPadding.value).0
             .top(passwordField.bottomAnchor, AppLayout.mediumSpacing.value).0
             .height(Metrics.fieldHeight)
+
         agreementLabel
             .leading(view.leadingAnchor, AppLayout.screenPadding.value).0
-            .trailing(view.trailingAnchor, -AppLayout.screenPadding.value).0
+            .trailing(agreementButton.leadingAnchor, -AppLayout.smallSpacing.value).0
             .top(confirmPasswordField.bottomAnchor, AppLayout.mediumSpacing.value)
+
         agreementButton
-            .trailing(view.trailingAnchor, -AppLayout.mediumSpacing.value).0
+            .trailing(view.trailingAnchor, -AppLayout.screenPadding.value).0
             .centerY(agreementLabel.centerYAnchor).0
             .width(Metrics.checkboxSize).0
             .height(Metrics.checkboxSize)
+
         signUpButton
             .leading(view.leadingAnchor, AppLayout.screenPadding.value).0
             .trailing(view.trailingAnchor, -AppLayout.screenPadding.value).0
@@ -203,6 +202,7 @@ final class SignUpController: UIViewController {
 
     private func handleSignUpTapped() {
         guard
+            let username = usernameField.textField.text, !username.isEmpty,
             let email = emailField.textField.text, !email.isEmpty,
             let password = passwordField.textField.text, !password.isEmpty,
             let confirmPassword = confirmPasswordField.textField.text, !confirmPassword.isEmpty
@@ -211,12 +211,20 @@ final class SignUpController: UIViewController {
         }
 
         guard password == confirmPassword else {
-            
+            return
+        }
+
+        guard agreementButton.isSelected else {
             return
         }
 
         // TODO: AuthService ilə qeydiyyat
         onSignUpTapped?()
+    }
+
+    @objc private func toggleAgreement() {
+        agreementButton.isSelected.toggle()
+        agreementButton.backgroundColor = agreementButton.isSelected ? .accent : .clear
     }
 
     @objc private func togglePasswordVisibility() {
@@ -228,7 +236,7 @@ final class SignUpController: UIViewController {
     }
 
     @objc private func backTapped() {
-        dismiss(animated: true)
+        onBackTapped?()
     }
 
     @objc private func signInTapped() {

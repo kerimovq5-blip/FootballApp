@@ -30,7 +30,7 @@ final class AppTextField: UIView {
     }()
 
     init(
-        placeholder: String,
+        placeholder: String?,
         isSecure: Bool = false,
         backgroundColor: AssetColors? = nil,
         textColor: AssetColors? = nil,
@@ -57,7 +57,7 @@ final class AppTextField: UIView {
     }
 
     private func configure(
-        placeholder: String,
+        placeholder: String?,
         isSecure: Bool,
         backgroundColor: AssetColors?,
         textColor: AssetColors?,
@@ -66,20 +66,20 @@ final class AppTextField: UIView {
         rightView: UIButton?
     ) {
         mainTextField.attributedPlaceholder = NSAttributedString(
-            string: placeholder,
+            string: placeholder ?? "",
             attributes: [
                 .font: AppFonts.regularBody.font,
-                .foregroundColor: UIColor.textSecondary
+                
             ]
         )
         mainTextField.isSecureTextEntry = isSecure
         mainTextField.backgroundColor = (backgroundColor ?? .background).color
-        mainTextField.textColor = textColor?.color
+        mainTextField.textColor = (textColor ?? .textPrimary).color
         mainTextField.delegate = delegate
 
         if let leftIcon = leftIcon {
             let iconView = UIImageView(image: leftIcon)
-            iconView.tintColor = UIColor(named: "placeholdercolor")
+            iconView.tintColor = AssetColors.labelColor.color
             iconView.frame = CGRect(x: 0, y: 0, width: Layout.leftIconSize, height: Layout.leftIconSize)
             let container = UIView(frame: CGRect(x: 0, y: 0, width: Layout.leftContainerWidth, height: Layout.height))
             iconView.center = container.center
