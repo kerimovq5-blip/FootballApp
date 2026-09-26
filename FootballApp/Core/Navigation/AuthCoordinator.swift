@@ -15,27 +15,55 @@ final class AuthCoordinator: Coordinator {
     }
 
     func start(showSignUp: Bool) {
-        presentSignIn()
+        if showSignUp {
+            presentSignUp()
+        } else {
+            presentSignIn()
+        }
     }
 
     private func presentSignIn() {
         let vc = SignInController()
+        let nav = UINavigationController(rootViewController: vc)
 
         vc.onSignInTapped = { [weak self] in
             // TODO: AuthService ilə giriş yoxlanışı
             self?.navigationController.dismiss(animated: true)
         }
         vc.onSignUpTapped = { [weak self] in
-            vc.dismiss(animated: true) {
-                self?.start(showSignUp: true)
+            self?.navigationController.dismiss(animated: true) {
+                self?.presentSignUp()
             }
         }
         vc.onForgotPasswordTapped = { [weak self] in
             // TODO: Forgot password ekranı
         }
 
-        vc.modalPresentationStyle = .pageSheet
-        if let sheet = vc.sheetPresentationController {
+        configureSheet(for: nav)
+        navigationController.present(nav, animated: true)
+    }
+
+    private func presentSignUp() {
+        let vc = SignUpController()
+        let nav = UINavigationController(rootViewController: vc)
+        nav.modalPresentationStyle = .fullScreen
+
+        vc.onSignUpTapped = { [weak self] in
+            // TODO: AuthService ilə qeydiyyat
+            self?.navigationController.dismiss(animated: true)
+        }
+        vc.onSignInTapped = { [weak self] in
+            self?.navigationController.dismiss(animated: true) {
+                self?.presentSignIn()
+            }
+        }
+
+        navigationController.present(nav, animated: true)
+    }
+
+    private func configureSheet(for nav: UINavigationController) {
+        nav.modalPresentationStyle = .pageSheet
+        if let sheet = nav.sheetPresentationController {
             sheet.detents = [
                 .custom(identifier: halfDetentID) { context in
                     context.maximumDetentValue * 0.65
@@ -46,7 +74,5 @@ final class AuthCoordinator: Coordinator {
             sheet.preferredCornerRadius = 30
             sheet.prefersGrabberVisible = true
         }
-
-        navigationController.present(vc, animated: true)
     }
 }

@@ -79,6 +79,7 @@ final class AppTextField: UIView {
 
         if let leftIcon = leftIcon {
             let iconView = UIImageView(image: leftIcon)
+            iconView.tintColor = UIColor(named: "placeholdercolor")
             iconView.frame = CGRect(x: 0, y: 0, width: Layout.leftIconSize, height: Layout.leftIconSize)
             let container = UIView(frame: CGRect(x: 0, y: 0, width: Layout.leftContainerWidth, height: Layout.height))
             iconView.center = container.center

@@ -28,6 +28,7 @@ final class SignInController: UIViewController {
         
         leftIcon: UIImage(named: "emailicon")
         )
+        emailField.textField.attributedPlaceholder = NSAttributedString(string: "Email", attributes: [.foregroundColor: UIColor(named: "placeholdercolor")])
         return emailField
         
     } ()
@@ -43,6 +44,7 @@ final class SignInController: UIViewController {
     leftIcon: UIImage(named: "passwordicon"),
     rightView: toggleButton
       )
+        passwordField.textField.attributedPlaceholder = NSAttributedString(string: "Password", attributes: [.foregroundColor: UIColor(named: "placeholdercolor")])
         return passwordField
             
         
@@ -99,7 +101,7 @@ final class SignInController: UIViewController {
             string: "Sign UP",
             attributes: [
                 .foregroundColor: UIColor.accent,
-                .font: AppFonts.semiBold.font
+                .font: AppFonts.regularBody.font
             ]
         ))
         button.setAttributedTitle(text, for: .normal)
@@ -130,12 +132,13 @@ final class SignInController: UIViewController {
     private func setupLayout() {
         welcomeLabel
             .leading(view.leadingAnchor, AppLayout.screenPadding.value).0
-            .top(view.safeAreaLayoutGuide.topAnchor, AppLayout.spacing.value)
+            //.trailing(view.trailingAnchor, -AppLayout.screenPadding.value).0
+            .top(view.topAnchor,AppLayout.mediumSpacing.value)
 
         emailField
             .leading(view.leadingAnchor, AppLayout.screenPadding.value).0
             .trailing(view.trailingAnchor, -AppLayout.screenPadding.value).0
-            .top(welcomeLabel.bottomAnchor, AppLayout.largeSpacing.value).0
+            .top(welcomeLabel.bottomAnchor, AppLayout.mediumSpacing.value).0
             .height(Metrics.fieldHeight)
 
         passwordField
