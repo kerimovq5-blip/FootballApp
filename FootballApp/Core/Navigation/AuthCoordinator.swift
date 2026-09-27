@@ -3,7 +3,7 @@ import UIKit
 final class AuthCoordinator: Coordinator {
     let navigationController: UINavigationController
     var childCoordinators: [Coordinator] = []
-
+    var onFinish: (() -> Void)?
     private let halfDetentID = UISheetPresentationController.Detent.Identifier("half")
 
     init(navigationController: UINavigationController) {
@@ -29,10 +29,12 @@ final class AuthCoordinator: Coordinator {
         vc.onSignInTapped = { [weak self] in
             // TODO: AuthService ilə giriş yoxlanışı
             self?.navigationController.dismiss(animated: true)
+                self?.onFinish?()
         }
         vc.onSignUpTapped = { [weak self] in
             self?.navigationController.dismiss(animated: true) {
                 self?.presentSignUp()
+                self?.onFinish?()
             }
         }
 //        vc.onForgotPasswordTapped = { [weak self] in
@@ -66,7 +68,7 @@ final class AuthCoordinator: Coordinator {
         if let sheet = nav.sheetPresentationController {
             sheet.detents = [
                 .custom(identifier: halfDetentID) { context in
-                    context.maximumDetentValue * 0.65
+                    context.maximumDetentValue * 0.6
                 },
                 .large()
             ]

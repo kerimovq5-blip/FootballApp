@@ -33,6 +33,17 @@ final class AppCoordinator: Coordinator {
     private func startAuth(showSignUp: Bool) {
         let authCoordinator = AuthCoordinator(navigationController: navigationController)
         childCoordinators.append(authCoordinator)
+        
+        authCoordinator.onFinish = { [weak self, weak authCoordinator] in
+            self?.childCoordinators.removeAll{ $0 === authCoordinator }
+            self?.showMain()
+        }
+        
         authCoordinator.start(showSignUp: showSignUp)
+    }
+    private func showMain() {
+        let tabBarCoordinator = MainTabBarCoordinator(navigationController: navigationController)
+        childCoordinators.append(tabBarCoordinator)
+        tabBarCoordinator.start()
     }
 }

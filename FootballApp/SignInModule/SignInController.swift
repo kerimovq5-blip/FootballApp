@@ -122,8 +122,8 @@ final class SignInController: UIViewController {
     private func setupLayout() {
         welcomeLabel
             .leading(view.leadingAnchor, AppLayout.screenPadding.value).0
-            .trailing(view.trailingAnchor, -AppLayout.screenPadding.value).0
-            .top(view.safeAreaLayoutGuide.topAnchor, AppLayout.mediumSpacing.value)
+            //.trailing(view.trailingAnchor, -AppLayout.screenPadding.value).0
+            .top(view.topAnchor, AppLayout.mediumSpacing.value)
 
         emailField
             .leading(view.leadingAnchor, AppLayout.screenPadding.value).0
