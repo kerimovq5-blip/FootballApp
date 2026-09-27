@@ -68,13 +68,15 @@ final class AppTextField: UIView {
         mainTextField.attributedPlaceholder = NSAttributedString(
             string: placeholder ?? "",
             attributes: [
-                .font: AppFonts.regularBody.font,
+                .font: AppFonts.body.font,
+                .foregroundColor : AssetColors.labelColor.color
+
                 
             ]
         )
         mainTextField.isSecureTextEntry = isSecure
         mainTextField.backgroundColor = (backgroundColor ?? .background).color
-        mainTextField.textColor = (textColor ?? .textPrimary).color
+        mainTextField.textColor = (textColor ?? .labelColor).color
         mainTextField.delegate = delegate
 
         if let leftIcon = leftIcon {

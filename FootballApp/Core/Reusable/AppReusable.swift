@@ -20,6 +20,7 @@ enum AssetColors: String {
     case accent = "AccentColor"
     case buttonTitlecolor , titleColor = "ButtonTitleColor"
     case labelColor = "LabelColor"
+    case placeholderColor = "placeholdercolor"
 
     var color: UIColor {
         return UIColor(named: self.rawValue) ?? .clear
