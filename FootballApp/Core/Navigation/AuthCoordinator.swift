@@ -28,13 +28,13 @@ final class AuthCoordinator: Coordinator {
 
         vc.onSignInTapped = { [weak self] in
             // TODO: AuthService ilə giriş yoxlanışı
-            self?.navigationController.dismiss(animated: true)
+            self?.navigationController.dismiss(animated: true){
                 self?.onFinish?()
+            }
         }
         vc.onSignUpTapped = { [weak self] in
             self?.navigationController.dismiss(animated: true) {
                 self?.presentSignUp()
-                self?.onFinish?()
             }
         }
 //        vc.onForgotPasswordTapped = { [weak self] in
@@ -52,7 +52,9 @@ final class AuthCoordinator: Coordinator {
 
         vc.onSignUpTapped = { [weak self] in
             // TODO: AuthService ilə qeydiyyat
-            self?.navigationController.dismiss(animated: true)
+            self?.navigationController.dismiss(animated: true) {
+                self?.onFinish?()
+            }
         }
         vc.onSignInTapped = { [weak self] in
             self?.navigationController.dismiss(animated: true) {

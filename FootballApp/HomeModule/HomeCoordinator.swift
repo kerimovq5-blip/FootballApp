@@ -16,6 +16,26 @@ final class HomeCoordinator: Coordinator {
 
     func start() {
         let vc = HomeController()
+        
+        vc.onSearchTapped = { [weak self] in
+            self?.showSearch()
+        }
+        vc.onNotificationTapped = { [weak self] in
+            self?.showNotifications( )
+        }
+        
         navigationController.setViewControllers([vc], animated: false)
+        
+        
+    }
+    private func showSearch() {
+        let vc = SearchController()
+        vc.hidesBottomBarWhenPushed = true
+        navigationController.pushViewController(vc, animated: true)
+    }
+    private func showNotifications() {
+        let vc = NotificationsController()
+        vc.hidesBottomBarWhenPushed = true
+        navigationController.pushViewController(vc, animated: true)
     }
 }
