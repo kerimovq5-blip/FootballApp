@@ -25,7 +25,7 @@ final class AuthCoordinator: Coordinator {
     private func presentSignIn() {
         let vc = SignInController()
         let nav = UINavigationController(rootViewController: vc)
-
+      
         vc.onSignInTapped = { [weak self] in
             // TODO: AuthService ilə giriş yoxlanışı
             self?.navigationController.dismiss(animated: true){
@@ -49,7 +49,11 @@ final class AuthCoordinator: Coordinator {
         let vc = SignUpController()
         let nav = UINavigationController(rootViewController: vc)
         nav.modalPresentationStyle = .fullScreen
-
+        
+        vc.onBackTapped = { [weak self] in
+            self?.navigationController.dismiss(animated: true)
+            
+        }
         vc.onSignUpTapped = { [weak self] in
             // TODO: AuthService ilə qeydiyyat
             self?.navigationController.dismiss(animated: true) {

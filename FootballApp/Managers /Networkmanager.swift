@@ -40,28 +40,26 @@ final class NetworkManager {
             }
             switch urlRequest {
             case .success(let urlRequest):
-                session.dataTask(with: urlRequest) { (data, response, error) in
-                    if let error = error {
-                        callback(.failure(error))
-                        return
+                session.dataTask(with: urlRequest) { data, response, error in
+                    if let error { callback(.failure(error)); return }
+                    guard let http = response as? HTTPURLResponse else {
+                        callback(.failure(LocalError.invalidResponse)); return
                     }
-                    guard let data else {
-                        callback(.failure(LocalError.noData))
-                        return
-                    }
-                    
-                    if let result = try? JSONDecoder().decode(T.self, from: data){
-                        callback(.success(result))
-                    }else {
-                        do {
-                            let model = try
-                            JSONDecoder().decode(ErrorModel.self, from: data)
-                            callback(.failure(LocalError.backEndError (model.self)))
-                        } catch{
-                            callback(.failure(error))
+                    guard let data else { callback(.failure(LocalError.noData)); return }
+                    guard (200..<300).contains(http.statusCode) else {
+                        if var model = try? JSONDecoder().decode(ErrorModel.self, from: data) {
+                            model.setStatusCode(statusCode: http.statusCode)
+                            callback(.failure(LocalError.backEndError(model)))
+                        } else {
+                            callback(.failure(LocalError.invalidResponse))
                         }
+                        return
                     }
-                    
+                    do {
+                        callback(.success(try JSONDecoder().decode(T.self, from: data)))
+                    } catch {
+                        callback(.failure(LocalError.invalidDecode))
+                    }
                 }.resume()
             case .failure(let error):
                 callback(.failure(error))

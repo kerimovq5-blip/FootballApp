@@ -142,9 +142,15 @@ final class SignUpController: UIViewController {
 
     private func setupHierarchy() {
         view.addSubviews(
-            welcomeLabel, usernameField, emailField, passwordField,
-            confirmPasswordField, agreementLabel, agreementButton,
-            signUpButton, signInPromptButton
+            welcomeLabel,
+            usernameField,
+            emailField,
+            passwordField,
+            confirmPasswordField,
+            agreementLabel,
+            agreementButton,
+            signUpButton,
+            signInPromptButton
         )
     }
 

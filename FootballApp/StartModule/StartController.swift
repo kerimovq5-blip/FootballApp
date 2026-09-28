@@ -8,7 +8,7 @@
 
 import UIKit
 
-class ViewController: UIViewController {
+final class StartController: UIViewController {
 
     var onSignUpTapped: (() -> Void)?
     var onSignInTapped: (() -> Void)?
