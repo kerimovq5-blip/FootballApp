@@ -61,8 +61,9 @@ final class HomeController: UIViewController {
             ]),
             League(name: "Premier League", country: "England", flag: "🏴󠁧󠁢󠁥󠁮󠁧󠁿", matches: [
                 Match(home: "Aston Villa", away: "Liverpool", homeScore: 2, awayScore: 3, status: .finished)
-            ])
-        ]
+            ]),
+            League(name: "Trendyol Süper Lig", country: "Turkey", flag: "🇹🇷", matches: [Match(home: "Besiktas", away: "Fenerbahce", homeScore: 3, awayScore: 1, status: .live(minute: "21'")),Match(home: "Trabzonspor", away: "Galatasaray", homeScore: 0, awayScore: 1, status: .live(minute: "21'"))]
+    )]
     private lazy var headLabel: UILabel = {
         let label = UILabel()
         label.text = "QSscore"
