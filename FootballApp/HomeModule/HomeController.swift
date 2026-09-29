@@ -13,13 +13,35 @@ final class HomeController: UIViewController {
     
     private enum Section {
         case banner
+        case filter
+        case league(index: Int)
+    }
+    
+    private var selectedFilter: MatchFilter = .all {
+        didSet { collectionView.reloadData() }
+    }
+    
+    private var filteredLeagues: [League] {
+        switch selectedFilter {
+        case .all:
+            return leagues
+        case .live:
+            return leagues.compactMap{ leauge in
+                let liveMatches = leauge.matches.filter{$0.status.isLive}
+                    guard !liveMatches.isEmpty else { return nil }
+                return League(name: leauge.name, country: leauge.country, flag: leauge.flag, matches: liveMatches)
+                
+            }
+        }
+        
     }
     
     private enum Metrics {
         static let iconSize: CGFloat = 28
     }
     
-    private let sections: [Section] = [.banner]
+    private var sections: [Section] {
+        [.banner, .filter] + filteredLeagues.indices.map{Section.league(index: $0)} }
     
     private let banners = [Banner(
         categoryTitle: "Football",
@@ -32,6 +54,15 @@ final class HomeController: UIViewController {
         dateText: "3 August 2024",
         image: UIImage(named: "besiktaswin")
     )]
+    private let leagues: [League] = [
+            League(name: "La Liga", country: "Spain", flag: "🇪🇸", matches: [
+                Match(home: "Barcelona", away: "Real Madrid", homeScore: 1, awayScore: 2, status: .live(minute: "63'")),
+                Match(home: "Sevilla", away: "Valencia", homeScore: nil, awayScore: nil, status: .scheduled(kickoff: "22:00"))
+            ]),
+            League(name: "Premier League", country: "England", flag: "🏴󠁧󠁢󠁥󠁮󠁧󠁿", matches: [
+                Match(home: "Aston Villa", away: "Liverpool", homeScore: 2, awayScore: 3, status: .finished)
+            ])
+        ]
     private lazy var headLabel: UILabel = {
         let label = UILabel()
         label.text = "QSscore"
@@ -61,6 +92,11 @@ final class HomeController: UIViewController {
         cv.showsVerticalScrollIndicator = false
         cv.dataSource = self
         cv.register(BannerCell.self, forCellWithReuseIdentifier: BannerCell.reuseID)
+        cv.register(MatchCell.self, forCellWithReuseIdentifier: MatchCell.reuseID)
+        cv.register(MatchFilterCell.self, forCellWithReuseIdentifier: MatchFilterCell.reuseID)
+        cv.register(LeagueHeaderView.self,
+                           forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader,
+                           withReuseIdentifier: LeagueHeaderView.reuseID)
         return cv
     }()
     
@@ -106,6 +142,8 @@ final class HomeController: UIViewController {
             guard let self else { return nil }
             switch self.sections[sectionIndex] {
             case .banner: return self.bannerSection()
+            case .filter: return self.filterSection()
+            case .league: return self.leagueSection()
             }
         }
     }
@@ -130,6 +168,31 @@ final class HomeController: UIViewController {
         
         return section
     }
+    private func filterSection() -> NSCollectionLayoutSection {
+            let size = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .absolute(44))
+            let item = NSCollectionLayoutItem(layoutSize: size)
+            let group = NSCollectionLayoutGroup.horizontal(layoutSize: size, subitems: [item])
+            let section = NSCollectionLayoutSection(group: group)
+            section.contentInsets = .init(top: 0, leading: AppLayout.screenPadding.value,
+                                          bottom: 16, trailing: AppLayout.screenPadding.value)
+            return section
+        }
+
+        private func leagueSection() -> NSCollectionLayoutSection {
+            let size = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .estimated(64))
+            let item = NSCollectionLayoutItem(layoutSize: size)
+            let group = NSCollectionLayoutGroup.vertical(layoutSize: size, subitems: [item])
+            let section = NSCollectionLayoutSection(group: group)
+            section.interGroupSpacing = 10
+            section.contentInsets = .init(top: 0, leading: AppLayout.screenPadding.value,
+                                          bottom: 20, trailing: AppLayout.screenPadding.value)
+
+            let header = NSCollectionLayoutBoundarySupplementaryItem(
+                layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(44)),
+                elementKind: UICollectionView.elementKindSectionHeader, alignment: .top)
+            section.boundarySupplementaryItems = [header]
+            return section
+        }
 }
 
 extension HomeController: UICollectionViewDataSource {
@@ -141,6 +204,8 @@ extension HomeController: UICollectionViewDataSource {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         switch sections[section] {
         case .banner: return banners.count
+        case .filter: return 1
+        case .league(let index): return filteredLeagues[index].matches.count
         }
     }
     
@@ -153,6 +218,37 @@ extension HomeController: UICollectionViewDataSource {
             ) as? BannerCell else { return UICollectionViewCell() }
             cell.configure(with: banners[indexPath.item])
             return cell
+        case .filter:
+                    guard let cell = collectionView.dequeueReusableCell(
+                        withReuseIdentifier: MatchFilterCell.reuseID, for: indexPath) as? MatchFilterCell
+                    else { return UICollectionViewCell() }
+                    cell.configure(selected: selectedFilter)
+                    cell.onFilterChanged = { [weak self] filter in
+                        self?.selectedFilter = filter
+                    }
+                    return cell
+
+        
+        case .league(let index):
+            guard let cell = collectionView.dequeueReusableCell(
+                            withReuseIdentifier: MatchCell.reuseID, for: indexPath) as? MatchCell
+                        else { return UICollectionViewCell() }
+                        cell.configure(with: filteredLeagues[index].matches[indexPath.item])
+                        return cell
+        }
+        
+        }
+    func collectionView(_ collectionView: UICollectionView,
+                            viewForSupplementaryElementOfKind kind: String,
+                            at indexPath: IndexPath) -> UICollectionReusableView {
+            guard let header = collectionView.dequeueReusableSupplementaryView(
+                ofKind: kind, withReuseIdentifier: LeagueHeaderView.reuseID, for: indexPath
+            ) as? LeagueHeaderView else { return UICollectionReusableView() }
+
+            if case .league(let index) = sections[indexPath.section] {
+                header.configure(with: filteredLeagues[index])
+            }
+            return header
         }
     }
-}
+

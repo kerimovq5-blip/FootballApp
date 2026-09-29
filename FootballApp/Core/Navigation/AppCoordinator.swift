@@ -20,7 +20,7 @@ final class AppCoordinator: Coordinator {
     }
 
     private func showOnboarding() {
-        let vc = ViewController()
+        let vc = StartController()
         vc.onSignUpTapped = { [weak self] in
             self?.startAuth(showSignUp: true)
         }
@@ -33,7 +33,7 @@ final class AppCoordinator: Coordinator {
     private func startAuth(showSignUp: Bool) {
         let authCoordinator = AuthCoordinator(navigationController: navigationController)
         childCoordinators.append(authCoordinator)
-        childCoordinators.removeAll { $0 is AuthCoordinator }
+        //childCoordinators.removeAll { $0 is AuthCoordinator }
         authCoordinator.onFinish = { [weak self, weak authCoordinator] in
             self?.childCoordinators.removeAll{ $0 === authCoordinator }
             self?.showMain()
