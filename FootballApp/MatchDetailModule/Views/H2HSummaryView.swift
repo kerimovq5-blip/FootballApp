@@ -1,0 +1,122 @@
+//
+//  MatchDetailView.swift
+//  FootballApp
+//
+//  Created by Kerimov Qehreman on 30.09.26.
+//
+
+import UIKit
+
+final class H2HSummaryView: UIView {
+
+    private enum Layout {
+        static let barHeight: CGFloat = 8
+        static let barCornerRadius: CGFloat = 4
+    }
+
+    private lazy var homeCountLabel = countLabel()
+    private lazy var drawCountLabel = countLabel()
+    private lazy var awayCountLabel = countLabel()
+
+    private lazy var homeCaptionLabel = captionLabel(text: "Wins")
+    private lazy var drawCaptionLabel = captionLabel(text: "Draws")
+    private lazy var awayCaptionLabel = captionLabel(text: "Wins")
+
+    private lazy var homeBar: UIView = {
+        let v = UIView()
+        v.backgroundColor = .accent
+        return v
+    }()
+    private lazy var drawBar: UIView = {
+        let v = UIView()
+        v.backgroundColor = UIColor.textPrimary.withAlphaComponent(0.15)
+        return v
+    }()
+    private lazy var awayBar: UIView = {
+        let v = UIView()
+        v.backgroundColor = UIColor.textPrimary.withAlphaComponent(0.35)
+        return v
+    }()
+
+    private lazy var barStack: UIStackView = {
+        let s = UIStackView(arrangedSubviews: [homeBar, drawBar, awayBar])
+        s.axis = .horizontal
+        s.spacing = 2
+        s.layer.cornerRadius = Layout.barCornerRadius
+        s.clipsToBounds = true
+        return s
+    }()
+
+    private lazy var countsStack: UIStackView = {
+        let homeStack = UIStackView(arrangedSubviews: [homeCountLabel, homeCaptionLabel])
+        homeStack.axis = .vertical
+        homeStack.alignment = .center
+
+        let drawStack = UIStackView(arrangedSubviews: [drawCountLabel, drawCaptionLabel])
+        drawStack.axis = .vertical
+        drawStack.alignment = .center
+
+        let awayStack = UIStackView(arrangedSubviews: [awayCountLabel, awayCaptionLabel])
+        awayStack.axis = .vertical
+        awayStack.alignment = .center
+
+        let s = UIStackView(arrangedSubviews: [homeStack, drawStack, awayStack])
+        s.axis = .horizontal
+        s.distribution = .equalSpacing
+        return s
+    }()
+
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        addSubviews(countsStack, barStack)
+        countsStack
+            .top(topAnchor).0
+            .leading(leadingAnchor).0
+            .trailing(trailingAnchor)
+        barStack
+            .top(countsStack.bottomAnchor, AppLayout.smallSpacing.value).0
+            .leading(leadingAnchor).0
+            .trailing(trailingAnchor).0
+            .bottom(bottomAnchor).0
+            .height(Layout.barHeight)
+    }
+
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+
+    func configure(homeWins: Int, draws: Int, awayWins: Int) {
+        homeCountLabel.text = "\(homeWins)"
+        drawCountLabel.text = "\(draws)"
+        awayCountLabel.text = "\(awayWins)"
+
+        let total = max(homeWins + draws + awayWins, 1)
+        homeBar.widthAnchor.constraint(
+            equalTo: barStack.widthAnchor,
+            multiplier: CGFloat(homeWins) / CGFloat(total)
+        ).isActive = true
+        drawBar.widthAnchor.constraint(
+            equalTo: barStack.widthAnchor,
+            multiplier: CGFloat(draws) / CGFloat(total)
+        ).isActive = true
+        awayBar.widthAnchor.constraint(
+            equalTo: barStack.widthAnchor,
+            multiplier: CGFloat(awayWins) / CGFloat(total)
+        ).isActive = true
+    }
+
+    private func countLabel() -> UILabel {
+        let l = UILabel()
+        l.font = AppFonts.titleBold.font
+        l.textColor = .titleColor
+        return l
+    }
+
+    private func captionLabel(text: String) -> UILabel {
+        let l = UILabel()
+        l.text = text
+        l.font = AppFonts.litletitle.font
+        l.textColor = .labelColor
+        return l
+    }
+}

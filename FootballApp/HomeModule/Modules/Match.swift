@@ -49,3 +49,19 @@ enum MatchFilter: CaseIterable {
         }
     }
 }
+
+struct HeadToHead {
+    let homeWins: Int
+    let draws: Int
+    let awayWins: Int
+    let meetings: [H2HMatch]
+}
+
+struct H2HMatch {
+    let date: String
+    let competition: String
+    let homeTeam: String
+    let awayTeam: String
+    let homeScore: Int
+    let awayScore: Int
+}

@@ -36,10 +36,6 @@ final class HomeController: UIViewController {
         
     }
     
-    private enum Metrics {
-        static let iconSize: CGFloat = 28
-    }
-    
     private var sections: [Section] {
         [.banner, .filter] + filteredLeagues.indices.map{Section.league(index: $0)} }
     
