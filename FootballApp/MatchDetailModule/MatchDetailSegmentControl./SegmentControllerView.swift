@@ -7,20 +7,8 @@
 
 import UIKit
 
-enum MatchDetailsTab :  CaseIterable {
-    case matchDetail
-    case lineUp
-    case h2h
-    
-    var title: String {
-        switch self {
-        case .matchDetail: return "Match Detail"
-        case .lineUp: return "Line Up"
-        case .h2h: return "H2H"
-        }
-    }
-    
-    final class MatchDetailsTabView: UIView {
+
+    final class MatchDetailSegmentControl: UIView {
         var onTabSelected: ((MatchDetailsTab) -> Void)?
         
         private var buttons: [UIButton] = []
@@ -76,4 +64,4 @@ enum MatchDetailsTab :  CaseIterable {
             }
         }
     }
-}
+

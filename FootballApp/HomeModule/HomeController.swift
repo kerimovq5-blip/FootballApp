@@ -10,6 +10,7 @@ import UIKit
 final class HomeController: UIViewController {
     var onSearchTapped: (() -> Void)?
     var onNotificationTapped: (() -> Void)?
+    var onMatchTapped: ((Match) -> Void)?
     
     private enum Section {
         case banner
@@ -88,6 +89,7 @@ final class HomeController: UIViewController {
         cv.backgroundColor = .clear
         cv.showsVerticalScrollIndicator = false
         cv.dataSource = self
+        cv.delegate = self
         cv.register(BannerCell.self, forCellWithReuseIdentifier: BannerCell.reuseID)
         cv.register(MatchCell.self, forCellWithReuseIdentifier: MatchCell.reuseID)
         cv.register(MatchFilterCell.self, forCellWithReuseIdentifier: MatchFilterCell.reuseID)
@@ -190,6 +192,14 @@ final class HomeController: UIViewController {
             section.boundarySupplementaryItems = [header]
             return section
         }
+}
+
+extension HomeController: UICollectionViewDelegate {
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        guard case .league(let index) = sections[indexPath.section] else { return }
+        let match = filteredLeagues[index].matches[indexPath.item]
+        onMatchTapped?(match)
+    }
 }
 
 extension HomeController: UICollectionViewDataSource {
