@@ -106,7 +106,7 @@ final class SignInController: UIViewController {
     }
 
     private func setupHierarchy() {
-        view.backgroundColor = UIColor(named: "mbappeback")
+        view.backgroundColor = AssetColors.backgroundColor2.color
         view.addSubviews(
             welcomeLabel,
             emailField,

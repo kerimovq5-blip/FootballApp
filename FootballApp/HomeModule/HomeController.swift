@@ -70,7 +70,8 @@ final class HomeController: UIViewController {
     }()
     private lazy var notificationButton: UIButton = {
         let button = UIButton(type: .system)
-        button.setImage(UIImage(named: "notificationicon")?.withRenderingMode(.alwaysOriginal), for: .normal)
+        button.setImage(UIImage(named: "notificationicon")?.withRenderingMode(.alwaysOriginal),
+                        for: .normal)
         button.addTarget(self, action: #selector(notificationTapped), for: .touchUpInside)
         return button
     }()
@@ -102,7 +103,7 @@ final class HomeController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = UIColor(named: "mbappeback")
+        view.backgroundColor = AssetColors.backgroundColor2.color
         setupLayout()
     }
     override func viewWillAppear(_ animated: Bool) {
@@ -152,8 +153,12 @@ final class HomeController: UIViewController {
             widthDimension: .fractionalWidth(1),
             heightDimension: .fractionalHeight(1)
         ))
-        item.contentInsets = .init(top: 0, leading: AppLayout.screenPadding.value,
-                                   bottom: 0, trailing: AppLayout.screenPadding.value)
+        item.contentInsets = .init(
+            top: 0,
+            leading: AppLayout.screenPadding.value,
+            bottom: 0,
+            trailing: AppLayout.screenPadding.value
+        )
         let group = NSCollectionLayoutGroup.horizontal(
             layoutSize: .init(
                 widthDimension: .fractionalWidth(1),
@@ -162,7 +167,12 @@ final class HomeController: UIViewController {
             subitems: [item]
         )
         let section = NSCollectionLayoutSection(group: group)
-        section.contentInsets = .init(top: 16, leading: 0, bottom: 24, trailing: 0)
+        section.contentInsets = .init(
+            top: 16,
+            leading: 0,
+            bottom: 24,
+            trailing: 0
+        )
         section.orthogonalScrollingBehavior = .groupPaging
         
         return section
@@ -172,8 +182,12 @@ final class HomeController: UIViewController {
             let item = NSCollectionLayoutItem(layoutSize: size)
             let group = NSCollectionLayoutGroup.horizontal(layoutSize: size, subitems: [item])
             let section = NSCollectionLayoutSection(group: group)
-            section.contentInsets = .init(top: 0, leading: AppLayout.screenPadding.value,
-                                          bottom: 16, trailing: AppLayout.screenPadding.value)
+        section.contentInsets = .init(
+            top: 0,
+            leading: AppLayout.screenPadding.value,
+            bottom: 16,
+            trailing: AppLayout.screenPadding.value
+        )
             return section
         }
 
@@ -183,12 +197,21 @@ final class HomeController: UIViewController {
             let group = NSCollectionLayoutGroup.vertical(layoutSize: size, subitems: [item])
             let section = NSCollectionLayoutSection(group: group)
             section.interGroupSpacing = 10
-            section.contentInsets = .init(top: 0, leading: AppLayout.screenPadding.value,
-                                          bottom: 20, trailing: AppLayout.screenPadding.value)
+            section.contentInsets = .init(
+                top: 0,
+                leading: AppLayout.screenPadding.value,
+                bottom: 20,
+                trailing: AppLayout.screenPadding.value
+            )
 
             let header = NSCollectionLayoutBoundarySupplementaryItem(
-                layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(44)),
-                elementKind: UICollectionView.elementKindSectionHeader, alignment: .top)
+                layoutSize: .init(
+                    widthDimension: .fractionalWidth(1),
+                    heightDimension: .estimated(44)
+                ),
+                elementKind: UICollectionView.elementKindSectionHeader,
+                alignment: .top
+            )
             section.boundarySupplementaryItems = [header]
             return section
         }

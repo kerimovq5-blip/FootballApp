@@ -15,7 +15,7 @@ final class StartController: UIViewController {
 
     private lazy var backview: UIView = {
         let view = UIView()
-        view.backgroundColor = UIColor(named: "mbappeback")
+        view.backgroundColor = AssetColors.backgroundColor2.color
         view.layer.cornerRadius = 58
         return view
     }()
