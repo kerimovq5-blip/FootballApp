@@ -28,14 +28,14 @@ final class H2HSummaryView: UIView {
         return v
     }()
     private lazy var drawBar: UIView = {
-        let v = UIView()
-        v.backgroundColor = UIColor.textPrimary.withAlphaComponent(0.15)
-        return v
+        let view = UIView()
+        view.backgroundColor = .textPrimary.withAlphaComponent(0.15)
+        return view
     }()
     private lazy var awayBar: UIView = {
-        let v = UIView()
-        v.backgroundColor = UIColor.textPrimary.withAlphaComponent(0.35)
-        return v
+        let view = UIView()
+        view.backgroundColor = .textPrimary.withAlphaComponent(0.35)
+        return view
     }()
 
     private lazy var barStack: UIStackView = {

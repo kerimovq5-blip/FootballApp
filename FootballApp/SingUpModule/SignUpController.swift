@@ -125,7 +125,7 @@ final class SignUpController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = UIColor(named: "mbappeback")
+        view.backgroundColor = AssetColors.backgroundColor2.color
         configureNavbar()
         setupHierarchy()
         setupLayout()

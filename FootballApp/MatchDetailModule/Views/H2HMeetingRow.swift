@@ -70,10 +70,6 @@ final class H2HMeetingRow: UIView {
         matchupLabel.text = "\(meeting.homeTeam) vs \(meeting.awayTeam)"
         scoreLabel.text = "\(meeting.homeScore) - \(meeting.awayScore)"
     }
-}//
-//  H2HMeetingRow.swift
-//  FootballApp
-//
-//  Created by Kerimov Qehreman on 30.09.26.
-//
+}
+
 

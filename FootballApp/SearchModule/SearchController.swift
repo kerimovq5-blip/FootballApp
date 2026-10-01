@@ -11,6 +11,6 @@ final class SearchController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         title = "Search"
-        view.backgroundColor = UIColor(named: "mbappeback")
+        view.backgroundColor = AssetColors.backgroundColor2.color
     }
 }

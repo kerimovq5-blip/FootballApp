@@ -31,7 +31,7 @@ final class LineUpView: UIView {
 
     private lazy var pitchView: UIView = {
         let v = UIView()
-        v.backgroundColor = UIColor(red: 0.15, green: 0.45, blue: 0.25, alpha: 1)
+        v.backgroundColor = UIColor.green
         v.layer.cornerRadius = Layout.pitchCornerRadius
         v.clipsToBounds = true
         return v
@@ -77,7 +77,6 @@ final class LineUpView: UIView {
 
         rowsStack.arrangedSubviews.forEach { $0.removeFromSuperview() }
 
-        // Ən öndə hücumçular görünsün deyə sıranı tərsinə çeviririk
         for row in formation.reversed() {
             let rowStack = UIStackView()
             rowStack.axis = .horizontal
