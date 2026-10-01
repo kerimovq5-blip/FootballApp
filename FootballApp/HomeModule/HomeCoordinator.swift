@@ -20,10 +20,17 @@ final class HomeCoordinator: Coordinator {
         vc.onMatchTapped = { [weak self] match in
             self?.showMatchDetail(for: match)
         }
-
+        vc.onLeagueHeaderTapped = { [weak self] league in
+                self?.showLeagueDetail(for: league)
+            }
         navigationController.setViewControllers([vc], animated: false)
     }
-
+    private func showLeagueDetail(for league: League) {
+        let vc = LeagueDetailController(league: league)
+        vc.hidesBottomBarWhenPushed = true
+        navigationController.pushViewController(vc, animated: true)
+    }
+    
     private func showSearch() {
         let vc = SearchController()
         vc.hidesBottomBarWhenPushed = true

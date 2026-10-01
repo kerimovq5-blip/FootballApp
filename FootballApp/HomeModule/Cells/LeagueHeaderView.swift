@@ -11,6 +11,8 @@ final class LeagueHeaderView: UICollectionReusableView {
 
     static let reuseID = "LeagueHeaderView"
 
+    var onTap: (() -> Void)?
+    
     private lazy var flagLabel: UILabel = {
         let l = UILabel()
         l.font = AppFonts.titleBold.font
@@ -48,8 +50,11 @@ final class LeagueHeaderView: UICollectionReusableView {
         textStack
             .leading(flagLabel.trailingAnchor, 10).0
             .centerY(flagLabel.centerYAnchor)
+        
+        isUserInteractionEnabled = true
+                addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(tapped)))
     }
-
+    @objc private func tapped() { onTap?() }
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }

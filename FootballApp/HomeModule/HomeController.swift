@@ -11,7 +11,7 @@ final class HomeController: UIViewController {
     var onSearchTapped: (() -> Void)?
     var onNotificationTapped: (() -> Void)?
     var onMatchTapped: ((Match) -> Void)?
-    
+    var onLeagueHeaderTapped: ((League) -> Void)?
     private enum Section {
         case banner
         case filter
@@ -253,7 +253,11 @@ extension HomeController: UICollectionViewDataSource {
             ) as? LeagueHeaderView else { return UICollectionReusableView() }
 
             if case .league(let index) = sections[indexPath.section] {
-                header.configure(with: filteredLeagues[index])
+                let league = filteredLeagues[index]
+                    header.configure(with: league)
+                    header.onTap = { [weak self] in
+                        self?.onLeagueHeaderTapped?(league)
+                    }
             }
             return header
         }

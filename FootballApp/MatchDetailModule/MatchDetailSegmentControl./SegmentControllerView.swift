@@ -59,8 +59,8 @@ import UIKit
         private func updateAppearance() {
             for (index, button) in buttons.enumerated() {
                 let isSelected = MatchDetailsTab.allCases[index] == selectedTab
-                button.backgroundColor = isSelected ? .accent : UIColor.textPrimary.withAlphaComponent(0.1)
-                button.setTitleColor(isSelected ? .buttonTitlecolor : .titleColor, for: .normal)
+                button.backgroundColor = isSelected ? .white : UIColor.white.withAlphaComponent(0.12)
+                button.setTitleColor(isSelected ? .black : .white, for: .normal)
             }
         }
     }
