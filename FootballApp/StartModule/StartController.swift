@@ -10,8 +10,7 @@ import UIKit
 
 final class StartController: UIViewController {
 
-    var onSignUpTapped: (() -> Void)?
-    var onSignInTapped: (() -> Void)?
+    weak var coordinator : OnboardingNavigating?
 
     private lazy var backview: UIView = {
         let view = UIView()
@@ -52,30 +51,28 @@ final class StartController: UIViewController {
     }()
 
     private lazy var signInButton: AppButton = {
-        let button = AppButton(
-            title: "Sign in",
-            backgroundColor: .accent,
-            titleColor: .titleColor
-            
-            
-        )
-        button.onTap = { [weak self] in
-            self?.onSignInTapped?()
-        }
-        return button
-    }()
+           let button = AppButton(
+               title: "Sign in",
+               backgroundColor: .accent,
+               titleColor: .titleColor
+           )
+           button.onTap = { [weak self] in
+               self?.coordinator?.showSignIn()
+           }
+           return button
+       }()
 
-    private lazy var signUpButton: AppButton = {
-        let button = AppButton(
-            title: "Sign Up",
-            titleColor: .titleColor
-        )
-        button.onTap = { [weak self] in
-            self?.onSignUpTapped?()
-        }
-        return button
-    }()
-
+       private lazy var signUpButton: AppButton = {
+           let button = AppButton(
+               title: "Sign Up",
+               titleColor: .titleColor
+           )
+           button.onTap = { [weak self] in
+               self?.coordinator?.showSignUp()
+           }
+           return button
+       }()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = AssetColors.background.color

@@ -8,10 +8,8 @@
 import UIKit
 
 final class HomeController: UIViewController {
-    var onSearchTapped: (() -> Void)?
-    var onNotificationTapped: (() -> Void)?
-    var onMatchTapped: ((Match) -> Void)?
-    var onLeagueHeaderTapped: ((League) -> Void)?
+    
+    weak var coordinator : HomeNavigating?
     private enum Section {
         case banner
         case filter
@@ -83,8 +81,8 @@ final class HomeController: UIViewController {
         return button
     }()
 
-    @objc private func searchTapped() { onSearchTapped?() }
-    @objc private func notificationTapped() { onNotificationTapped?() }
+    
+    
     private lazy var collectionView: UICollectionView = {
         let cv = UICollectionView(frame: .zero, collectionViewLayout: makeLayout())
         cv.backgroundColor = .clear
@@ -137,6 +135,12 @@ final class HomeController: UIViewController {
             .trailing(view.trailingAnchor).0
             .bottom(view.bottomAnchor)
     }
+    
+    
+    @objc private func searchTapped() { coordinator?.showSearch() }
+    @objc private func notificationTapped() { coordinator?.showNotifications() }
+    
+    
     private func makeLayout() -> UICollectionViewCompositionalLayout {
         UICollectionViewCompositionalLayout { [weak self] sectionIndex, _ in
             guard let self else { return nil }
@@ -221,7 +225,7 @@ extension HomeController: UICollectionViewDelegate {
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         guard case .league(let index) = sections[indexPath.section] else { return }
         let match = filteredLeagues[index].matches[indexPath.item]
-        onMatchTapped?(match)
+                coordinator?.showMatchDetail(for: match)
     }
 }
 
@@ -278,8 +282,8 @@ extension HomeController: UICollectionViewDataSource {
             if case .league(let index) = sections[indexPath.section] {
                 let league = filteredLeagues[index]
                     header.configure(with: league)
-                    header.onTap = { [weak self] in
-                        self?.onLeagueHeaderTapped?(league)
+                header.onTap = { [weak self] in
+                    self?.coordinator?.showLeagueDetail(for: league)
                     }
             }
             return header

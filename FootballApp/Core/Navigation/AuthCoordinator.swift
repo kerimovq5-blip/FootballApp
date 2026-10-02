@@ -1,6 +1,8 @@
 import UIKit
 
-final class AuthCoordinator: Coordinator {
+final class AuthCoordinator: Coordinator, AuthNavigating {
+    
+
     let navigationController: UINavigationController
     var childCoordinators: [Coordinator] = []
     var onFinish: (() -> Void)?
@@ -10,63 +12,51 @@ final class AuthCoordinator: Coordinator {
         self.navigationController = navigationController
     }
 
-    func start() {
-        start(showSignUp: false)
-    }
-
     func start(showSignUp: Bool) {
-        if showSignUp {
-            presentSignUp()
+        showSignUp ? self.showSignUp() : self.showSignIn()
+    }
+    func start() {
+            start(showSignUp: false)
+        }
+
+    func showSignIn() {
+        presentAfterDismissingCurrent { [weak self] in
+            guard let self else { return }
+            let vc = SignInController()
+            vc.coordinator = self
+            let nav = UINavigationController(rootViewController: vc)
+            self.configureSheet(for: nav)
+            self.navigationController.present(nav, animated: true)
+        }
+    }
+
+    func showSignUp() {
+        presentAfterDismissingCurrent { [weak self] in
+            guard let self else { return }
+            let vc = SignUpController()
+            vc.coordinator = self
+            let nav = UINavigationController(rootViewController: vc)
+            nav.modalPresentationStyle = .fullScreen
+            self.navigationController.present(nav, animated: true)
+        }
+    }
+
+    func dismissAuth() {
+        navigationController.dismiss(animated: true)
+    }
+
+    func authFinished() {
+        navigationController.dismiss(animated: true) { [weak self] in
+            self?.onFinish?()
+        }
+    }
+
+    private func presentAfterDismissingCurrent(_ present: @escaping () -> Void) {
+        if navigationController.presentedViewController != nil {
+            navigationController.dismiss(animated: true, completion: present)
         } else {
-            presentSignIn()
+            present()
         }
-    }
-
-    private func presentSignIn() {
-        let vc = SignInController()
-        let nav = UINavigationController(rootViewController: vc)
-      
-        vc.onSignInTapped = { [weak self] in
-            // TODO: AuthService ilə giriş yoxlanışı
-            self?.navigationController.dismiss(animated: true){
-                self?.onFinish?()
-            }
-        }
-        vc.onSignUpTapped = { [weak self] in
-            self?.navigationController.dismiss(animated: true) {
-                self?.presentSignUp()
-            }
-        }
-//        vc.onForgotPasswordTapped = { [weak self] in
-//            // TODO: Forgot password ekranı
-//        }
-
-        configureSheet(for: nav)
-        navigationController.present(nav, animated: true)
-    }
-
-    private func presentSignUp() {
-        let vc = SignUpController()
-        let nav = UINavigationController(rootViewController: vc)
-        nav.modalPresentationStyle = .fullScreen
-        
-        vc.onBackTapped = { [weak self] in
-            self?.navigationController.dismiss(animated: true)
-            
-        }
-        vc.onSignUpTapped = { [weak self] in
-            // TODO: AuthService ilə qeydiyyat
-            self?.navigationController.dismiss(animated: true) {
-                self?.onFinish?()
-            }
-        }
-        vc.onSignInTapped = { [weak self] in
-            self?.navigationController.dismiss(animated: true) {
-                self?.presentSignIn()
-            }
-        }
-
-        navigationController.present(nav, animated: true)
     }
 
     private func configureSheet(for nav: UINavigationController) {

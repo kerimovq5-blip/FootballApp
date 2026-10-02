@@ -1,6 +1,6 @@
 import UIKit
 
-final class HomeCoordinator: Coordinator {
+final class HomeCoordinator: Coordinator, HomeNavigating {
     let navigationController: UINavigationController
     var childCoordinators: [Coordinator] = []
 
@@ -10,40 +10,29 @@ final class HomeCoordinator: Coordinator {
 
     func start() {
         let vc = HomeController()
-
-        vc.onSearchTapped = { [weak self] in
-            self?.showSearch()
-        }
-        vc.onNotificationTapped = { [weak self] in
-            self?.showNotifications()
-        }
-        vc.onMatchTapped = { [weak self] match in
-            self?.showMatchDetail(for: match)
-        }
-        vc.onLeagueHeaderTapped = { [weak self] league in
-                self?.showLeagueDetail(for: league)
-            }
+        vc.coordinator = self
         navigationController.setViewControllers([vc], animated: false)
     }
-    private func showLeagueDetail(for league: League) {
-        let vc = LeagueDetailController(league: league)
-        vc.hidesBottomBarWhenPushed = true
-        navigationController.pushViewController(vc, animated: true)
-    }
-    
-    private func showSearch() {
+
+    func showSearch() {
         let vc = SearchController()
         vc.hidesBottomBarWhenPushed = true
         navigationController.pushViewController(vc, animated: true)
     }
 
-    private func showNotifications() {
+    func showNotifications() {
         let vc = NotificationsController()
         vc.hidesBottomBarWhenPushed = true
         navigationController.pushViewController(vc, animated: true)
     }
 
-    private func showMatchDetail(for match: Match) {
+    func showLeagueDetail(for league: League) {
+        let vc = LeagueDetailController(league: league)
+        vc.hidesBottomBarWhenPushed = true
+        navigationController.pushViewController(vc, animated: true)
+    }
+
+    func showMatchDetail(for match: Match) {
         let data = MatchDetailData(
             competitionName: "UEFA Champions League",
             homeName: match.home,
@@ -76,7 +65,6 @@ final class HomeCoordinator: Coordinator {
                 ]
             )
         )
-
         let vc = MatchDetailController(data: data)
         vc.hidesBottomBarWhenPushed = true
         navigationController.pushViewController(vc, animated: true)

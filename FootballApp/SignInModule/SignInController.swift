@@ -2,9 +2,7 @@ import UIKit
 
 final class SignInController: UIViewController {
 
-    var onSignInTapped: (() -> Void)?
-    var onSignUpTapped: (() -> Void)?
-    var onForgotPasswordTapped: (() -> Void)?
+    weak var coordinator : AuthNavigating?
 
     private enum Metrics {
         static let fieldHeight: CGFloat = 56
@@ -73,7 +71,7 @@ final class SignInController: UIViewController {
             titleColor: .titleColor
         )
         button.onTap = { [weak self] in
-            self?.onSignInTapped?()
+            self?.coordinator?.authFinished()
         }
         return button
     }()
@@ -172,10 +170,10 @@ final class SignInController: UIViewController {
     }
 
     @objc private func forgotPasswordTapped() {
-        onForgotPasswordTapped?()
+       
     }
 
     @objc private func signUpTapped() {
-        onSignUpTapped?()
+        coordinator?.showSignUp()
     }
 }
