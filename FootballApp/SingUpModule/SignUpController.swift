@@ -2,9 +2,7 @@ import UIKit
 
 final class SignUpController: UIViewController {
 
-    var onSignUpTapped: (() -> Void)?
-    var onSignInTapped: (() -> Void)?
-    var onBackTapped: (() -> Void)?
+    weak var coordinator : AuthNavigating?
 
     private enum Metrics {
         static let fieldHeight: CGFloat = 56
@@ -224,8 +222,7 @@ final class SignUpController: UIViewController {
             return
         }
 
-        // TODO: AuthService ilə qeydiyyat
-        onSignUpTapped?()
+        coordinator?.authFinished()
     }
 
     @objc private func toggleAgreement() {
@@ -242,10 +239,10 @@ final class SignUpController: UIViewController {
     }
 
     @objc private func backTapped() {
-        onBackTapped?()
+        coordinator?.dismissAuth()
     }
 
     @objc private func signInTapped() {
-        onSignInTapped?()
+        coordinator?.showSignIn()
     }
 }
