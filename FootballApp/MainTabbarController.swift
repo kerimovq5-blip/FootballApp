@@ -2,16 +2,14 @@
 //  MainTabbarController.swift
 //  FootballApp
 //
-//  Created by Servan on 27.09.26.
+//  Created by Kerimov Qehreman on 03.10.26.
 //
 
 import UIKit
 
-final class MainTabbarController: UITabBarController {
-    
+final class MainTabbarController : UITabBarController {
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = AssetColors.backgroundColor2.color
+        view.backgroundColor = .systemBackground
     }
-
 }
