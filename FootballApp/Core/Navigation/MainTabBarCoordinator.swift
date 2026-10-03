@@ -1,6 +1,9 @@
+
+
+
 import UIKit
 
-final class MainTabBarCoordinator: Coordinator, ExploreNavigating , StandingNavigating {
+final class MainTabBarCoordinator: Coordinator  {
     var childCoordinators: [Coordinator] = []
     let tabBarController: UITabBarController
 
@@ -12,7 +15,8 @@ final class MainTabBarCoordinator: Coordinator, ExploreNavigating , StandingNavi
         tabBarController.viewControllers = [
             makeHomeTab(),
             makeExploreTab(),
-            makeStandingTab()
+            makeStandingTab(),
+            makeAccountTab()
             
         ]
     }
@@ -26,13 +30,29 @@ final class MainTabBarCoordinator: Coordinator, ExploreNavigating , StandingNavi
         homeCoordinator.start()
         homeCoordinator.navigationController.tabBarItem = UITabBarItem(
             title: "Home",
-            image: UIImage(systemName: "house"),
-            selectedImage: UIImage(systemName: "house.fill")
+            image: UIImage(named: "home"),
+            tag: 0
         )
         childCoordinators.append(homeCoordinator)
         return homeCoordinator.navigationController
     }
 
+    private func makeAccountTab() -> UINavigationController {
+        //        let accountController = AccountViewController()
+        //        let navigation = UINavigationController(rootViewController: accountController)
+        //        navigation.tabBarItem = UITabBarItem(
+        //            title: "Account",
+        //            image: UIImage(named: "Account"),
+        //            tag: 3
+        //        )
+        //        return navigation
+        //
+        return UINavigationController()
+    }
+}
+
+extension MainTabBarCoordinator : ExploreNavigating {
+    
     private func makeExploreTab() -> UINavigationController {
         let exploreController = ExploreViewController()
         exploreController.coordinator = self
@@ -40,11 +60,14 @@ final class MainTabBarCoordinator: Coordinator, ExploreNavigating , StandingNavi
         navigation.tabBarItem = UITabBarItem(
             title: "Explore",
             image: UIImage(named: "Explore"),
-            selectedImage: UIImage(systemName: "safari.fill")
+            tag: 1
         )
         return navigation
     }
     
+}
+
+extension MainTabBarCoordinator : StandingNavigating {
     private func makeStandingTab() -> UINavigationController {
         let standingController = StandingViewController()
         standingController.coordinator = self
@@ -52,8 +75,9 @@ final class MainTabBarCoordinator: Coordinator, ExploreNavigating , StandingNavi
         navigation.tabBarItem = UITabBarItem(
             title: "Standing",
             image: UIImage(named: "Standing"),
-            selectedImage: UIImage(systemName: "person.fill")
+            tag: 2
         )
         return navigation
     }
+    
 }
