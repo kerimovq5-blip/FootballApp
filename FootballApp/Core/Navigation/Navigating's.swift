@@ -22,7 +22,7 @@ protocol AuthNavigating: AnyObject {
 protocol HomeNavigating: AnyObject {
     func showSearch()
     func showNotifications()
-    func showMatchDetail(for match: Match)
+    func showMatchDetail(matchID: Int)
     func showLeagueDetail(for league: League)
 }
 
@@ -33,3 +33,6 @@ protocol ExploreNavigating: AnyObject {
 protocol StandingNavigating: AnyObject {
     
 }
+
+/// Nav bar-ı gizli olan ekranlar (öz header-i var). Qərarı HomeCoordinator verir.
+protocol HidesNavigationBar: UIViewController {}

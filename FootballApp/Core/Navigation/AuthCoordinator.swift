@@ -1,11 +1,14 @@
 import UIKit
 
-final class AuthCoordinator: Coordinator, AuthNavigating {
-    
+final class AuthCoordinator: NSObject, Coordinator, AuthNavigating {
 
     let navigationController: UINavigationController
     var childCoordinators: [Coordinator] = []
+
     var onFinish: (() -> Void)?
+   
+    var onCancel: (() -> Void)?
+
     private let halfDetentID = UISheetPresentationController.Detent.Identifier("half")
 
     init(navigationController: UINavigationController) {
@@ -15,9 +18,10 @@ final class AuthCoordinator: Coordinator, AuthNavigating {
     func start(showSignUp: Bool) {
         showSignUp ? self.showSignUp() : self.showSignIn()
     }
+
     func start() {
-            start(showSignUp: false)
-        }
+        start(showSignUp: false)
+    }
 
     func showSignIn() {
         presentAfterDismissingCurrent { [weak self] in
@@ -26,7 +30,7 @@ final class AuthCoordinator: Coordinator, AuthNavigating {
             vc.coordinator = self
             let nav = UINavigationController(rootViewController: vc)
             self.configureSheet(for: nav)
-            self.navigationController.present(nav, animated: true)
+            self.present(nav)
         }
     }
 
@@ -37,12 +41,15 @@ final class AuthCoordinator: Coordinator, AuthNavigating {
             vc.coordinator = self
             let nav = UINavigationController(rootViewController: vc)
             nav.modalPresentationStyle = .fullScreen
-            self.navigationController.present(nav, animated: true)
+            self.present(nav)
         }
     }
 
+    /// Back düyməsi: auth ləğv olundu.
     func dismissAuth() {
-        navigationController.dismiss(animated: true)
+        navigationController.dismiss(animated: true) { [weak self] in
+            self?.onCancel?()
+        }
     }
 
     func authFinished() {
@@ -51,8 +58,18 @@ final class AuthCoordinator: Coordinator, AuthNavigating {
         }
     }
 
+    // MARK: - Private
+
+    private func present(_ nav: UINavigationController) {
+        // Delegate bütün present-lərdə qurulur ki, əl ilə bağlanma həmişə tutulsun.
+        nav.presentationController?.delegate = self
+        navigationController.present(nav, animated: true)
+    }
+
     private func presentAfterDismissingCurrent(_ present: @escaping () -> Void) {
         if navigationController.presentedViewController != nil {
+            // Proqramlı dismiss presentationControllerDidDismiss-i çağırmır,
+            // ona görə sign in <-> sign up keçidi yalançı "cancel" yaratmır.
             navigationController.dismiss(animated: true, completion: present)
         } else {
             present()
@@ -72,5 +89,14 @@ final class AuthCoordinator: Coordinator, AuthNavigating {
             sheet.preferredCornerRadius = 30
             sheet.prefersGrabberVisible = true
         }
+    }
+}
+
+// MARK: - UIAdaptivePresentationControllerDelegate
+
+extension AuthCoordinator: UIAdaptivePresentationControllerDelegate {
+    /// Yalnız istifadəçi sheet-i özü (swipe ilə) bağlayanda çağırılır.
+    func presentationControllerDidDismiss(_ presentationController: UIPresentationController) {
+        onCancel?()
     }
 }

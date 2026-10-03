@@ -10,55 +10,17 @@ import UIKit
 final class HomeController: UIViewController {
     
     weak var coordinator : HomeNavigating?
-    private enum Section {
-        case banner
-        case filter
-        case league(index: Int)
+    private let viewModel: HomeViewModel
+
+    init(viewModel: HomeViewModel) {
+        self.viewModel = viewModel
+        super.init(nibName: nil, bundle: nil)
     }
-    
-    private var selectedFilter: MatchFilter = .all {
-        didSet { collectionView.reloadData() }
+
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
     }
-    
-    private var filteredLeagues: [League] {
-        switch selectedFilter {
-        case .all:
-            return leagues
-        case .live:
-            return leagues.compactMap{ leauge in
-                let liveMatches = leauge.matches.filter{$0.status.isLive}
-                    guard !liveMatches.isEmpty else { return nil }
-                return League(name: leauge.name, country: leauge.country, flag: leauge.flag, matches: liveMatches)
-                
-            }
-        }
-        
-    }
-    
-    private var sections: [Section] {
-        [.banner, .filter] + filteredLeagues.indices.map{Section.league(index: $0)} }
-    
-    private let banners = [Banner(
-        categoryTitle: "Football",
-        title: "Fransa defeated Turkey",
-        dateText: "Yesterday, 06.30 PM",
-        image: UIImage(named: "trophyCelebration")
-    ),.init(
-        categoryTitle: "Football",
-        title: "Besiktas Win 5-0 Over Galatasaray",
-        dateText: "3 August 2024",
-        image: UIImage(named: "besiktaswin")
-    )]
-    private let leagues: [League] = [
-            League(name: "La Liga", country: "Spain", flag: "🇪🇸", matches: [
-                Match(home: "Barcelona", away: "Real Madrid", homeScore: 1, awayScore: 2, status: .live(minute: "63'")),
-                Match(home: "Sevilla", away: "Valencia", homeScore: nil, awayScore: nil, status: .scheduled(kickoff: "22:00"))
-            ]),
-            League(name: "Premier League", country: "England", flag: "🏴󠁧󠁢󠁥󠁮󠁧󠁿", matches: [
-                Match(home: "Aston Villa", away: "Liverpool", homeScore: 2, awayScore: 3, status: .finished)
-            ]),
-            League(name: "Trendyol Süper Lig", country: "Turkey", flag: "🇹🇷", matches: [Match(home: "Besiktas", away: "Fenerbahce", homeScore: 3, awayScore: 1, status: .live(minute: "21'")),Match(home: "Trabzonspor", away: "Galatasaray", homeScore: 0, awayScore: 1, status: .live(minute: "21'"))]
-    )]
+
     private lazy var headLabel: UILabel = {
         let label = UILabel()
         label.text = "QSscore"
@@ -103,15 +65,19 @@ final class HomeController: UIViewController {
         super.viewDidLoad()
         view.backgroundColor = AssetColors.backgroundColor2.color
         setupLayout()
-    }
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        navigationController?.setNavigationBarHidden(true, animated: animated)
+        bindViewModel()
+        viewModel.load()
     }
 
-    override func viewWillDisappear(_ animated: Bool) {
-        super.viewWillDisappear(animated)
-        navigationController?.setNavigationBarHidden(false, animated: animated)
+    private func bindViewModel() {
+        viewModel.onChange = { [weak self] in
+            self?.collectionView.reloadData()
+        }
+        viewModel.onFailed = { [weak self] message in
+            let alert = UIAlertController(title: "Error", message: message, preferredStyle: .alert)
+            alert.addAction(UIAlertAction(title: "OK", style: .default))
+            self?.present(alert, animated: true)
+        }
     }
     private func setupLayout() {
         view.addSubviews(headLabel,notificationButton,searchButton,collectionView)
@@ -144,7 +110,7 @@ final class HomeController: UIViewController {
     private func makeLayout() -> UICollectionViewCompositionalLayout {
         UICollectionViewCompositionalLayout { [weak self] sectionIndex, _ in
             guard let self else { return nil }
-            switch self.sections[sectionIndex] {
+            switch self.viewModel.sections[sectionIndex] {
             case .banner: return self.bannerSection()
             case .filter: return self.filterSection()
             case .league: return self.leagueSection()
@@ -223,51 +189,51 @@ final class HomeController: UIViewController {
 
 extension HomeController: UICollectionViewDelegate {
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        guard case .league(let index) = sections[indexPath.section] else { return }
-        let match = filteredLeagues[index].matches[indexPath.item]
-                coordinator?.showMatchDetail(for: match)
+        guard let match = viewModel.match(at: indexPath) else { return }
+        coordinator?.showMatchDetail(matchID: match.id)
     }
 }
 
 extension HomeController: UICollectionViewDataSource {
     
     func numberOfSections(in collectionView: UICollectionView) -> Int {
-        sections.count
+        viewModel.sections.count
     }
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        switch sections[section] {
-        case .banner: return banners.count
+        switch viewModel.sections[section] {
+        case .banner: return viewModel.banners.count
         case .filter: return 1
-        case .league(let index): return filteredLeagues[index].matches.count
+        case .league: return viewModel.league(inSection: section)?.matches.count ?? 0
         }
     }
     
     func collectionView(_ collectionView: UICollectionView,
                         cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        switch sections[indexPath.section] {
+        switch viewModel.sections[indexPath.section] {
         case .banner:
             guard let cell = collectionView.dequeueReusableCell(
                 withReuseIdentifier: BannerCell.reuseID, for: indexPath
             ) as? BannerCell else { return UICollectionViewCell() }
-            cell.configure(with: banners[indexPath.item])
+            cell.configure(with: viewModel.banners[indexPath.item])
             return cell
         case .filter:
                     guard let cell = collectionView.dequeueReusableCell(
                         withReuseIdentifier: MatchFilterCell.reuseID, for: indexPath) as? MatchFilterCell
                     else { return UICollectionViewCell() }
-                    cell.configure(selected: selectedFilter)
+                    cell.configure(selected: viewModel.selectedFilter)
                     cell.onFilterChanged = { [weak self] filter in
-                        self?.selectedFilter = filter
+                        self?.viewModel.selectFilter(filter)
                     }
                     return cell
 
         
-        case .league(let index):
+        case .league:
             guard let cell = collectionView.dequeueReusableCell(
-                            withReuseIdentifier: MatchCell.reuseID, for: indexPath) as? MatchCell
+                            withReuseIdentifier: MatchCell.reuseID, for: indexPath) as? MatchCell,
+                  let match = viewModel.match(at: indexPath)
                         else { return UICollectionViewCell() }
-                        cell.configure(with: filteredLeagues[index].matches[indexPath.item])
+                        cell.configure(with: match)
                         return cell
         }
         
@@ -279,8 +245,7 @@ extension HomeController: UICollectionViewDataSource {
                 ofKind: kind, withReuseIdentifier: LeagueHeaderView.reuseID, for: indexPath
             ) as? LeagueHeaderView else { return UICollectionReusableView() }
 
-            if case .league(let index) = sections[indexPath.section] {
-                let league = filteredLeagues[index]
+            if let league = viewModel.league(inSection: indexPath.section) {
                     header.configure(with: league)
                 header.onTap = { [weak self] in
                     self?.coordinator?.showLeagueDetail(for: league)
@@ -290,3 +255,4 @@ extension HomeController: UICollectionViewDataSource {
         }
     }
 
+extension HomeController: HidesNavigationBar {}

@@ -23,7 +23,8 @@ enum MatchStatus {
     }
 }
 
-struct Match {
+struct Match: Identifiable {
+    let id: Int
     let home: String
     let away: String
     let homeScore: Int?
@@ -31,7 +32,8 @@ struct Match {
     let status: MatchStatus
 }
 
-struct League {
+struct League: Identifiable {
+    let id: Int
     let name: String
     let country: String
     let flag: String

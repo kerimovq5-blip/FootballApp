@@ -1,15 +1,24 @@
 import UIKit
 
-final class HomeCoordinator: Coordinator, HomeNavigating {
+final class HomeCoordinator: NSObject, NavigationCoordinator, HomeNavigating {
     let navigationController: UINavigationController
     var childCoordinators: [Coordinator] = []
 
-    init(navigationController: UINavigationController) {
+    private let homeService: HomeProviding
+    private let matchDetailService: MatchDetailProviding
+
+    init(navigationController: UINavigationController,
+         homeService: HomeProviding = MockHomeService(),
+         matchDetailService: MatchDetailProviding = MockMatchDetailService()) {
         self.navigationController = navigationController
+        self.homeService = homeService
+        self.matchDetailService = matchDetailService
+        super.init()
+        navigationController.delegate = self
     }
 
     func start() {
-        let vc = HomeController()
+        let vc = HomeController(viewModel: HomeViewModel(service: homeService))
         vc.coordinator = self
         navigationController.setViewControllers([vc], animated: false)
     }
@@ -32,41 +41,34 @@ final class HomeCoordinator: Coordinator, HomeNavigating {
         navigationController.pushViewController(vc, animated: true)
     }
 
-    func showMatchDetail(for match: Match) {
-        let data = MatchDetailData(
-            competitionName: "UEFA Champions League",
-            homeName: match.home,
-            awayName: match.away,
-            homeCrest: nil,
-            awayCrest: nil,
-            score: "\(match.homeScore ?? 0) - \(match.awayScore ?? 0)",
-            minuteOrStatus: "90.15",
-            stats: [
-                .init(title: "Shooting", homeValue: "8", awayValue: "12"),
-                .init(title: "Attacks", homeValue: "22", awayValue: "29"),
-                .init(title: "Possesion", homeValue: "42", awayValue: "58"),
-                .init(title: "Cards", homeValue: "3", awayValue: "5"),
-                .init(title: "Corners", homeValue: "8", awayValue: "7")
-            ],
-            formationName: "4-2-3-1",
-            formation: [
-                [.init(number: 1, name: "Leno")],
-                [.init(number: 3, name: "Tierney"), .init(number: 22, name: "Pablo Mari"), .init(number: 16, name: "Holding"), .init(number: 2, name: "Bellerin")],
-                [.init(number: 34, name: "Xhaka"), .init(number: 8, name: "Dani Ceballos")],
-                [.init(number: 14, name: "Aubameyang"), .init(number: 9, name: "Lacazette"), .init(number: 7, name: "Saka")]
-            ],
-            headToHead: HeadToHead(
-                homeWins: 4,
-                draws: 3,
-                awayWins: 3,
-                meetings: [
-                    .init(date: "12.03.2025", competition: "UCL", homeTeam: match.home, awayTeam: match.away, homeScore: 2, awayScore: 3),
-                    .init(date: "05.11.2024", competition: "UCL", homeTeam: match.away, awayTeam: match.home, homeScore: 1, awayScore: 1)
-                ]
-            )
-        )
-        let vc = MatchDetailController(data: data)
+    func showMatchDetail(matchID: Int) {
+        let viewModel = MatchDetailViewModel(matchID: matchID, service: matchDetailService)
+        let vc = MatchDetailController(viewModel: viewModel)
         vc.hidesBottomBarWhenPushed = true
         navigationController.pushViewController(vc, animated: true)
+    }
+}
+
+// MARK: - UINavigationControllerDelegate
+
+extension HomeCoordinator: UINavigationControllerDelegate {
+    func navigationController(_ navigationController: UINavigationController,
+                              willShow viewController: UIViewController,
+                              animated: Bool) {
+        let hidesBar = viewController is HidesNavigationBar
+        navigationController.setNavigationBarHidden(hidesBar, animated: animated)
+
+        // Bar gizli olanda UIKit swipe-back jestini söndürür; burada qaytarırıq.
+        // View bu nöqtədə yüklənib, ona görə recognizer artıq mövcuddur.
+        navigationController.interactivePopGestureRecognizer?.delegate = self
+    }
+}
+
+// MARK: - UIGestureRecognizerDelegate
+
+extension HomeCoordinator: UIGestureRecognizerDelegate {
+    /// Root ekranda jest başlamasın (yoxsa UI donur).
+    func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {
+        navigationController.viewControllers.count > 1
     }
 }

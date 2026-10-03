@@ -1,11 +1,11 @@
-
-
-
 import UIKit
 
-final class MainTabBarCoordinator: Coordinator  {
+final class MainTabBarCoordinator: Coordinator {
     var childCoordinators: [Coordinator] = []
     let tabBarController: UITabBarController
+
+    /// İstifadəçi çıxış edəndə AppCoordinator-a xəbər verir; tab-ları sökmək onun işidir.
+    var onLogout: (() -> Void)?
 
     init(tabBarController: UITabBarController) {
         self.tabBarController = tabBarController
@@ -13,71 +13,38 @@ final class MainTabBarCoordinator: Coordinator  {
 
     func start() {
         tabBarController.viewControllers = [
-            makeHomeTab(),
-            makeExploreTab(),
-            makeStandingTab(),
+            makeTab(HomeCoordinator(navigationController: UINavigationController()),
+                    title: "Home", imageName: "home", tag: 0),
+            makeTab(ExploreCoordinator(),
+                    title: "Explore", imageName: "Explore", tag: 1),
+            makeTab(StandingCoordinator(),
+                    title: "Standing", imageName: "Standing", tag: 2),
             makeAccountTab()
-            
         ]
     }
 
-    private var activeNavigationController: UINavigationController? {
-        tabBarController.selectedViewController as? UINavigationController
+    /// Account tab-ı hazır olanda onun coordinator-u bunu çağıracaq.
+    func logout() {
+        onLogout?()
     }
 
-    private func makeHomeTab() -> UINavigationController {
-        let homeCoordinator = HomeCoordinator(navigationController: UINavigationController())
-        homeCoordinator.start()
-        homeCoordinator.navigationController.tabBarItem = UITabBarItem(
-            title: "Home",
-            image: UIImage(named: "home"),
-            tag: 0
+    /// Hər tab eyni qaydada qurulur: coordinator start olur, tab item qoyulur, saxlanılır.
+    private func makeTab(_ coordinator: NavigationCoordinator,
+                         title: String,
+                         imageName: String,
+                         tag: Int) -> UINavigationController {
+        coordinator.start()
+        coordinator.navigationController.tabBarItem = UITabBarItem(
+            title: title,
+            image: UIImage(named: imageName),
+            tag: tag
         )
-        childCoordinators.append(homeCoordinator)
-        return homeCoordinator.navigationController
+        childCoordinators.append(coordinator)
+        return coordinator.navigationController
     }
 
     private func makeAccountTab() -> UINavigationController {
-        //        let accountController = AccountViewController()
-        //        let navigation = UINavigationController(rootViewController: accountController)
-        //        navigation.tabBarItem = UITabBarItem(
-        //            title: "Account",
-        //            image: UIImage(named: "Account"),
-        //            tag: 3
-        //        )
-        //        return navigation
-        //
-        return UINavigationController()
+        // TODO: AccountViewController hazır olanda AccountCoordinator ilə makeTab(...) istifadə et.
+        UINavigationController()
     }
-}
-
-extension MainTabBarCoordinator : ExploreNavigating {
-    
-    private func makeExploreTab() -> UINavigationController {
-        let exploreController = ExploreViewController()
-        exploreController.coordinator = self
-        let navigation = UINavigationController(rootViewController: exploreController)
-        navigation.tabBarItem = UITabBarItem(
-            title: "Explore",
-            image: UIImage(named: "Explore"),
-            tag: 1
-        )
-        return navigation
-    }
-    
-}
-
-extension MainTabBarCoordinator : StandingNavigating {
-    private func makeStandingTab() -> UINavigationController {
-        let standingController = StandingViewController()
-        standingController.coordinator = self
-        let navigation = UINavigationController(rootViewController: standingController)
-        navigation.tabBarItem = UITabBarItem(
-            title: "Standing",
-            image: UIImage(named: "Standing"),
-            tag: 2
-        )
-        return navigation
-    }
-    
 }

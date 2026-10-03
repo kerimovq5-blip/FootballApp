@@ -126,29 +126,29 @@ final class NetworkManager {
     }
 }
     
-    enum LocalError : Error {
-        case invalidURL
-        case invalidResponse
-        case invalidData
-        case invalidDecode
-        case backEndError(ErrorModel)
-        case noData
-        
-    var localizedDescription: String {
+enum LocalError: LocalizedError {
+    case invalidURL
+    case invalidResponse
+    case invalidData
+    case invalidDecode
+    case backEndError(ErrorModel)
+    case noData
+
+    /// `error.localizedDescription` (Error tipi üzərindən) məhz bunu qaytarır.
+    var errorDescription: String? {
         switch self {
         case .invalidURL:
-            return " Invalid URL"
-        case .invalidResponse :
-           return "Invalid Response"
-        case .invalidData :
-            return "Invalid Data"
-        case .invalidDecode :
-            return "Invalid Decode "
-        
-        case . noData :
-            return "No Data"
-        case  .backEndError(let error) :
-            return error.localizedDescription
+            return "Invalid URL"
+        case .invalidResponse:
+            return "Invalid response"
+        case .invalidData:
+            return "Invalid data"
+        case .invalidDecode:
+            return "Could not read the server response"
+        case .noData:
+            return "No data"
+        case .backEndError(let error):
+            return error.errorDescription
         }
     }
 }

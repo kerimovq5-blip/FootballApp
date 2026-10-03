@@ -10,10 +10,10 @@ import UIKit
 
 final class MatchDetailController: UIViewController {
 
-    private let data: MatchDetailData
+    private let viewModel: MatchDetailViewModel
 
-    init(data: MatchDetailData) {
-        self.data = data
+    init(viewModel: MatchDetailViewModel) {
+        self.viewModel = viewModel
         super.init(nibName: nil, bundle: nil)
     }
 
@@ -29,26 +29,53 @@ final class MatchDetailController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = UIColor(named: "mbappeback")
-        configureNavbar()
+        view.backgroundColor = UIColor(named: "backgroundColor2")
+        navigationItem.backButtonDisplayMode = .minimal
         setupHierarchy()
         setupLayout()
-        configureContent()
-        showTab(.matchDetail)
+
+        // Data gələnə qədər boş ekran görünməsin.
+        [headerView, segmentControl, statsView, lineUpView, h2hView].forEach { $0.isHidden = true }
 
         segmentControl.onTabSelected = { [weak self] tab in
             self?.showTab(tab)
         }
+        bindViewModel()
+        viewModel.load()
     }
 
-    private func configureNavbar() {
+    private func bindViewModel() {
+        viewModel.onLoaded = { [weak self] data in
+            self?.apply(data)
+        }
+        viewModel.onFailed = { [weak self] message in
+            self?.showError(message)
+        }
+    }
+
+    private func apply(_ data: MatchDetailData) {
         navigationItem.title = data.competitionName
-        navigationItem.leftBarButtonItem = UIBarButtonItem(
-            image: UIImage(systemName: "chevron.left"),
-            style: .plain,
-            target: self,
-            action: #selector(backTapped)
+        headerView.configure(
+            homeName: data.homeName,
+            awayName: data.awayName,
+            homeCrest: data.homeCrest,
+            awayCrest: data.awayCrest,
+            score: data.score,
+            minuteOrStatus: data.minuteOrStatus
         )
+        statsView.configure(with: data.stats)
+        lineUpView.configure(formationName: data.formationName, formation: data.formation)
+        h2hView.configure(with: data.headToHead)
+
+        headerView.isHidden = false
+        segmentControl.isHidden = false
+        showTab(.matchDetail)
+    }
+
+    private func showError(_ message: String) {
+        let alert = UIAlertController(title: "Error", message: message, preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "OK", style: .default))
+        present(alert, animated: true)
     }
 
     private func setupHierarchy() {
@@ -75,27 +102,9 @@ final class MatchDetailController: UIViewController {
         }
     }
 
-    private func configureContent() {
-        headerView.configure(
-            homeName: data.homeName,
-            awayName: data.awayName,
-            homeCrest: data.homeCrest,
-            awayCrest: data.awayCrest,
-            score: data.score,
-            minuteOrStatus: data.minuteOrStatus
-        )
-        statsView.configure(with: data.stats)
-        lineUpView.configure(formationName: data.formationName, formation: data.formation)
-        h2hView.configure(with: data.headToHead)
-    }
-
     private func showTab(_ tab: MatchDetailsTab) {
         statsView.isHidden = tab != .matchDetail
         lineUpView.isHidden = tab != .lineUp
         h2hView.isHidden = tab != .h2h
-    }
-
-    @objc private func backTapped() {
-        navigationController?.popViewController(animated: true)
     }
 }

@@ -88,7 +88,6 @@ final class LeagueDetailController: UIViewController {
 
         let position = make("#", .center); position.width(16).0
 
-        // teamStack-ın BİREBİR eyni strukturu: crestView yerinə eyni enli boş view
         let crestSpacer = UIView()
         crestSpacer.width(20)
 
@@ -126,17 +125,10 @@ final class LeagueDetailController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = UIColor(named: "mbappeback")
+        view.backgroundColor = UIColor(named: "backgroundColor2")
         setupLayout()
         updateFilterAppearance()
         
-    }
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        configureNavbar()
-    }
-    private func configureNavbar() {
-        navigationController?.navigationBar.isHidden = true
     }
     private func setupLayout() {
         view.addSubviews(backButton, titleLabel, crestView, leagueNameLabel,
@@ -217,3 +209,5 @@ extension LeagueDetailController {
         Standing(position: 7, teamName: "Granada", crestImageName: nil, played: 11, wins: 3, draws: 3, losses: 7, goalsFor: 31, goalsAgainst: 20,  zone: .relegation)
     ]
 }
+
+extension LeagueDetailController: HidesNavigationBar {}

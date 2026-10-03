@@ -27,7 +27,7 @@ enum RequestBody {
     case dictionary([String: Encodable])
 }
 
-struct ErrorModel : Error, Decodable {
+struct ErrorModel : LocalizedError, Decodable {
     let statusmessage: String?
     private(set) var statuscode: Int?
     let success: Bool?
@@ -46,15 +46,13 @@ struct ErrorModel : Error, Decodable {
         }
     }
     
-    var localizedDescription: String {
-        if let statusmessage = statusmessage {
+    var errorDescription: String? {
+        if let statusmessage, !statusmessage.isEmpty {
             return statusmessage
-        }else if let statuscode = statuscode {
-           return  "Error with status code : \(statuscode)"
-            
         }
-        return " Unknown Error"
-        
+        if let statuscode {
+            return "Error with status code: \(statuscode)"
+        }
+        return "Unknown error"
     }
-    
 }

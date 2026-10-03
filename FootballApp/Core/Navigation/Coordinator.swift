@@ -12,3 +12,8 @@ public protocol Coordinator: AnyObject {
     var childCoordinators: [Coordinator] { get set }
     func start()
 }
+
+/// Öz UINavigationController-i olan coordinator (tab-lar üçün).
+public protocol NavigationCoordinator: Coordinator {
+    var navigationController: UINavigationController { get }
+}
