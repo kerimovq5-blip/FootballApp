@@ -34,5 +34,15 @@ protocol StandingNavigating: AnyObject {
     
 }
 
+protocol ProfileNavigating: AnyObject {
+    func showEditProfile()
+    func logout()
+}
+
+protocol EditProfileNavigating: AnyObject {
+    func didSaveProfile(_ profile: ProfileInfo)
+    func cancelEditProfile()
+}
+
 /// Nav bar-ı gizli olan ekranlar (öz header-i var). Qərarı HomeCoordinator verir.
 protocol HidesNavigationBar: UIViewController {}

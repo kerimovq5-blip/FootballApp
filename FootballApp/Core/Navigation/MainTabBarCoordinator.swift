@@ -14,16 +14,17 @@ final class MainTabBarCoordinator: Coordinator {
     func start() {
         tabBarController.viewControllers = [
             makeTab(HomeCoordinator(navigationController: UINavigationController()),
-                    title: "Home", imageName: "home", tag: 0),
+                    title: "Home", image: UIImage(named: "home"), tag: 0),
             makeTab(ExploreCoordinator(),
-                    title: "Explore", imageName: "Explore", tag: 1),
+                    title: "Explore", image: UIImage(named: "Explore"), tag: 1),
             makeTab(StandingCoordinator(),
-                    title: "Standing", imageName: "Standing", tag: 2),
-            makeAccountTab()
+                    title: "Standing", image: UIImage(named: "Standing"), tag: 2),
+            makeTab(makeAccountCoordinator(),
+                    title: "Account", image: UIImage(systemName: "person"), tag: 3)
         ]
     }
 
-    /// Account tab-ı hazır olanda onun coordinator-u bunu çağıracaq.
+    /// AccountCoordinator çıxış edəndə bunu çağırır.
     func logout() {
         onLogout?()
     }
@@ -31,26 +32,23 @@ final class MainTabBarCoordinator: Coordinator {
     /// Hər tab eyni qaydada qurulur: coordinator start olur, tab item qoyulur, saxlanılır.
     private func makeTab(_ coordinator: NavigationCoordinator,
                          title: String,
-                         imageName: String,
+                         image: UIImage?,
                          tag: Int) -> UINavigationController {
         coordinator.start()
         coordinator.navigationController.tabBarItem = UITabBarItem(
             title: title,
-            image: UIImage(named: imageName),
+            image: image,
             tag: tag
         )
         childCoordinators.append(coordinator)
         return coordinator.navigationController
     }
 
-    private func makeAccountTab() -> UINavigationController {
-        // TODO: AccountViewController hazır olanda AccountCoordinator ilə makeTab(...) istifadə et.
-        let navigationController = UINavigationController()
-        navigationController.tabBarItem = UITabBarItem(
-            title: "Account",
-            image: UIImage(systemName: "person"),
-            tag: 3
-        )
-        return navigationController
+    private func makeAccountCoordinator() -> AccountCoordinator {
+        let coordinator = AccountCoordinator()
+        coordinator.onLogout = { [weak self] in
+            self?.logout()
+        }
+        return coordinator
     }
 }
