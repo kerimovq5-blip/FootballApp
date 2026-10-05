@@ -13,8 +13,7 @@ protocol SessionStoring {
     func clear()
 }
 
-/// Müvəqqəti implementasiya. UserDefaults şifrələnmir, ona görə real token gələndən əvvəl
-/// bu tipin yerinə Keychain istifadə edən implementasiya yazılmalıdır (protokol eyni qalır).
+
 struct UserDefaultsSessionStore: SessionStoring {
     private let key = "session.token"
     private let defaults = UserDefaults.standard
