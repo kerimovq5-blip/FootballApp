@@ -37,7 +37,7 @@ final class AppCoordinator: Coordinator, OnboardingNavigating {
     }
 
     private func startAuth(showSignUp: Bool) {
-        let authCoordinator = AuthCoordinator(navigationController: navigationController)
+        let authCoordinator = AuthCoordinator(navigationController: navigationController, sessionStore: sessionStore)
         childCoordinators.append(authCoordinator)
 
         authCoordinator.onFinish = { [weak self, weak authCoordinator] in
@@ -51,8 +51,7 @@ final class AppCoordinator: Coordinator, OnboardingNavigating {
     }
 
     private func didAuthenticate() {
-        // TODO: real auth gələndə API-dən gələn token burada saxlanılacaq.
-        sessionStore.save(token: "mock-token")
+        // Token artıq SignIn/SignUp ViewModel-də sessionStore-a yazılıb.
         showMain(animated: true)
     }
 

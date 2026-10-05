@@ -40,7 +40,7 @@ struct MockMatchDetailService: MatchDetailProviding {
             stats: [
                 .init(title: "Shooting", homeValue: "8", awayValue: "12"),
                 .init(title: "Attacks", homeValue: "22", awayValue: "29"),
-                .init(title: "Possesion", homeValue: "42", awayValue: "58"),
+                .init(title: "Possession", homeValue: "42", awayValue: "58"),
                 .init(title: "Cards", homeValue: "3", awayValue: "5"),
                 .init(title: "Corners", homeValue: "8", awayValue: "7")
             ],

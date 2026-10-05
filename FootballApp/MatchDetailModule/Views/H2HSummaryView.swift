@@ -66,6 +66,8 @@ final class H2HSummaryView: UIView {
         return s
     }()
 
+    private var barConstraints: [NSLayoutConstraint] = []
+
     override init(frame: CGRect) {
         super.init(frame: frame)
         addSubviews(countsStack, barStack)
@@ -90,19 +92,29 @@ final class H2HSummaryView: UIView {
         drawCountLabel.text = "\(draws)"
         awayCountLabel.text = "\(awayWins)"
 
-        let total = max(homeWins + draws + awayWins, 1)
-        homeBar.widthAnchor.constraint(
-            equalTo: barStack.widthAnchor,
-            multiplier: CGFloat(homeWins) / CGFloat(total)
-        ).isActive = true
-        drawBar.widthAnchor.constraint(
-            equalTo: barStack.widthAnchor,
-            multiplier: CGFloat(draws) / CGFloat(total)
-        ).isActive = true
-        awayBar.widthAnchor.constraint(
-            equalTo: barStack.widthAnchor,
-            multiplier: CGFloat(awayWins) / CGFloat(total)
-        ).isActive = true
+        NSLayoutConstraint.deactivate(barConstraints)
+        barConstraints.removeAll()
+
+        let bars: [(view: UIView, value: Int)] = [(homeBar, homeWins), (drawBar, draws), (awayBar, awayWins)]
+        bars.forEach { $0.view.isHidden = $0.value == 0 }
+
+        let visible = bars.filter { $0.value > 0 }
+        let total = visible.reduce(0) { $0 + $1.value }
+        guard total > 0 else { return }
+
+        // Sonuncu bar qalan yeri tutur; qalanlara nisbi en verilir (aralıq boşluğu çıxılır).
+        let gaps = barStack.spacing * CGFloat(visible.count - 1)
+        for item in visible.dropLast() {
+            let fraction = CGFloat(item.value) / CGFloat(total)
+            barConstraints.append(
+                item.view.widthAnchor.constraint(
+                    equalTo: barStack.widthAnchor,
+                    multiplier: fraction,
+                    constant: -gaps * fraction
+                )
+            )
+        }
+        NSLayoutConstraint.activate(barConstraints)
     }
 
     private func countLabel() -> UILabel {

@@ -32,13 +32,13 @@ final class NetworkManager {
     func request <T : Decodable>(
         endPoint : EndPoint ,
         completion: @escaping (Result<T,Error>) -> Void){
-            let urlRequest = urlRequest(endPoint: endPoint)
+            let builtRequest = urlRequest(endPoint: endPoint)
             let callback : (Result<T,Error>) -> Void = {result in
                 DispatchQueue.main.async {
                     completion(result)
                 }
             }
-            switch urlRequest {
+            switch builtRequest {
             case .success(let urlRequest):
                 session.dataTask(with: urlRequest) { data, response, error in
                     if let error { callback(.failure(error)); return }

@@ -45,6 +45,12 @@ final class MainTabBarCoordinator: Coordinator {
 
     private func makeAccountTab() -> UINavigationController {
         // TODO: AccountViewController hazır olanda AccountCoordinator ilə makeTab(...) istifadə et.
-        UINavigationController()
+        let navigationController = UINavigationController()
+        navigationController.tabBarItem = UITabBarItem(
+            title: "Account",
+            image: UIImage(systemName: "person"),
+            tag: 3
+        )
+        return navigationController
     }
 }

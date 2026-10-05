@@ -11,8 +11,15 @@ final class AuthCoordinator: NSObject, Coordinator, AuthNavigating {
 
     private let halfDetentID = UISheetPresentationController.Detent.Identifier("half")
 
-    init(navigationController: UINavigationController) {
+    private let authService: AuthProviding
+    private let sessionStore: SessionStoring
+
+    init(navigationController: UINavigationController,
+         authService: AuthProviding = MockAuthService(),
+         sessionStore: SessionStoring) {
         self.navigationController = navigationController
+        self.authService = authService
+        self.sessionStore = sessionStore
     }
 
     func start(showSignUp: Bool) {
@@ -26,7 +33,9 @@ final class AuthCoordinator: NSObject, Coordinator, AuthNavigating {
     func showSignIn() {
         presentAfterDismissingCurrent { [weak self] in
             guard let self else { return }
-            let vc = SignInController()
+            let viewModel = SignInViewModel(service: self.authService, sessionStore: self.sessionStore)
+            viewModel.coordinator = self
+            let vc = SignInController(viewModel: viewModel)
             vc.coordinator = self
             let nav = UINavigationController(rootViewController: vc)
             self.configureSheet(for: nav)
@@ -37,7 +46,9 @@ final class AuthCoordinator: NSObject, Coordinator, AuthNavigating {
     func showSignUp() {
         presentAfterDismissingCurrent { [weak self] in
             guard let self else { return }
-            let vc = SignUpController()
+            let viewModel = SignUpViewModel(service: self.authService, sessionStore: self.sessionStore)
+            viewModel.coordinator = self
+            let vc = SignUpController(viewModel: viewModel)
             vc.coordinator = self
             let nav = UINavigationController(rootViewController: vc)
             nav.modalPresentationStyle = .fullScreen

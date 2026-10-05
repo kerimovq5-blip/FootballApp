@@ -3,6 +3,16 @@ import UIKit
 final class SignInController: UIViewController {
 
     weak var coordinator : AuthNavigating?
+    private let viewModel: SignInViewModel
+
+    init(viewModel: SignInViewModel) {
+        self.viewModel = viewModel
+        super.init(nibName: nil, bundle: nil)
+    }
+
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
 
     private enum Metrics {
         static let fieldHeight: CGFloat = 56
@@ -71,7 +81,7 @@ final class SignInController: UIViewController {
             titleColor: .titleColor
         )
         button.onTap = { [weak self] in
-            self?.coordinator?.authFinished()
+            self?.signInTapped()
         }
         return button
     }()
@@ -101,6 +111,40 @@ final class SignInController: UIViewController {
         super.viewDidLoad()
         setupHierarchy()
         setupLayout()
+        configureFields()
+        bindViewModel()
+    }
+
+    private func configureFields() {
+        emailField.textField.keyboardType = .emailAddress
+        emailField.textField.autocapitalizationType = .none
+        emailField.textField.autocorrectionType = .no
+        passwordField.textField.autocapitalizationType = .none
+    }
+
+    private func bindViewModel() {
+        viewModel.onStateChange = { [weak self] in
+            guard let self else { return }
+            switch self.viewModel.state {
+            case .idle, .success:
+                self.signInButton.setLoading(false)
+            case .loading:
+                self.signInButton.setLoading(true)
+            case .invalidInput(let message):
+                self.signInButton.setLoading(false)
+                self.showAlert(message: message)
+            case .requestFailed(let error):
+                self.signInButton.setLoading(false)
+                self.showAlert(message: error.localizedDescription)
+            }
+        }
+    }
+
+    private func signInTapped() {
+        view.endEditing(true)
+        viewModel.email = emailField.text.trimmingCharacters(in: .whitespacesAndNewlines)
+        viewModel.password = passwordField.text
+        viewModel.login()
     }
 
     private func setupHierarchy() {
@@ -120,7 +164,6 @@ final class SignInController: UIViewController {
     private func setupLayout() {
         welcomeLabel
             .leading(view.leadingAnchor, AppLayout.screenPadding.value).0
-            //.trailing(view.trailingAnchor, -AppLayout.screenPadding.value).0
             .top(view.topAnchor, AppLayout.mediumSpacing.value)
 
         emailField

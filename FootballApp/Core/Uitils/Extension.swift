@@ -112,6 +112,7 @@ extension UIView {
         translatesAutoresizingMaskIntoConstraints = false
         let constraint = widthAnchor.constraint(
             equalTo: anchor,
+            multiplier: multiplier,
             constant: constant
         )
         constraint.isActive = isActive
@@ -128,6 +129,7 @@ extension UIView {
         translatesAutoresizingMaskIntoConstraints = false
         let constraint = heightAnchor.constraint(
             equalTo: anchor,
+            multiplier: multiplier,
             constant: constant
         )
         constraint.isActive = isActive
@@ -162,6 +164,12 @@ extension UIView {
 }
 
 extension UIViewController {
+    func showAlert(title: String = "Error", message: String) {
+        let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "OK", style: .default))
+        present(alert, animated: true)
+    }
+
     func makePasswordToggleButton(action: Selector) -> UIButton {
         let button = UIButton()
         button.setImage(UIImage(named: "hidepassword"), for: .normal)

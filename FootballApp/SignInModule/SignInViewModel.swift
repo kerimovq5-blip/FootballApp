@@ -1,5 +1,5 @@
 //
-//  SignUpViewModel.swift
+//  SignInViewModel.swift
 //  FootballApp
 //
 //  Created by Kerimov Qehreman on 05.10.26.
@@ -7,7 +7,7 @@
 
 import Foundation
 
-enum SignUpViewModelState {
+enum SignInViewModelState {
     case idle
     case loading
     case success
@@ -15,19 +15,16 @@ enum SignUpViewModelState {
     case requestFailed(Error)
 }
 
-final class SignUpViewModel {
-    var name: String = ""
+final class SignInViewModel {
     var email: String = ""
     var password: String = ""
-    var confirmPassword: String = ""
-    var isPrivacyChecked: Bool = false
 
-    private(set) var state: SignUpViewModelState = .idle {
+    private(set) var state: SignInViewModelState = .idle {
         didSet { onStateChange?() }
     }
-
     var onStateChange: (() -> Void)?
-    var onRegisterSucceeded: ((_ email: String, _ name: String) -> Void)?
+
+    var onEmailNotVerified: ((_ email: String) -> Void)?
 
     weak var coordinator: AuthNavigating?
 
@@ -39,34 +36,24 @@ final class SignUpViewModel {
         self.sessionStore = sessionStore
     }
 
-    func register() {
+    func login() {
         if case .loading = state { return }
 
         if let message = FormValidator.validate([
-            (name, [NotEmptyRule(fieldName: "Name")]),
             (email, [EmailRule()]),
             (password, [MinLengthRule(length: 8, fieldName: "Password")])
         ]) {
             state = .invalidInput(message)
             return
         }
-        guard password == confirmPassword else {
-            state = .invalidInput("Passwords do not match.")
-            return
-        }
-        guard isPrivacyChecked else {
-            state = .invalidInput("You must agree to the privacy policy.")
-            return
-        }
 
         state = .loading
-        service.register(name: name, email: email, password: password) { [weak self] result in
+        service.login(email: email, password: password) { [weak self] result in
             guard let self else { return }
             switch result {
             case .success(let session):
                 self.sessionStore.save(token: session.token)
                 self.state = .success
-                self.onRegisterSucceeded?(self.email, self.name)
                 self.coordinator?.authFinished()
             case .failure(let error):
                 self.state = .requestFailed(error)

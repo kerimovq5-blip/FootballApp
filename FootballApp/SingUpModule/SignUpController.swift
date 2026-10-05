@@ -3,6 +3,16 @@ import UIKit
 final class SignUpController: UIViewController {
 
     weak var coordinator : AuthNavigating?
+    private let viewModel: SignUpViewModel
+
+    init(viewModel: SignUpViewModel) {
+        self.viewModel = viewModel
+        super.init(nibName: nil, bundle: nil)
+    }
+
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
 
     private enum Metrics {
         static let fieldHeight: CGFloat = 56
@@ -127,6 +137,36 @@ final class SignUpController: UIViewController {
         configureNavbar()
         setupHierarchy()
         setupLayout()
+        configureFields()
+        bindViewModel()
+    }
+
+    private func configureFields() {
+        emailField.textField.keyboardType = .emailAddress
+        emailField.textField.autocapitalizationType = .none
+        emailField.textField.autocorrectionType = .no
+        usernameField.textField.autocapitalizationType = .none
+        usernameField.textField.autocorrectionType = .no
+        passwordField.textField.autocapitalizationType = .none
+        confirmPasswordField.textField.autocapitalizationType = .none
+    }
+
+    private func bindViewModel() {
+        viewModel.onStateChange = { [weak self] in
+            guard let self else { return }
+            switch self.viewModel.state {
+            case .idle, .success:
+                self.signUpButton.setLoading(false)
+            case .loading:
+                self.signUpButton.setLoading(true)
+            case .invalidInput(let message):
+                self.signUpButton.setLoading(false)
+                self.showAlert(message: message)
+            case .requestFailed(let error):
+                self.signUpButton.setLoading(false)
+                self.showAlert(message: error.localizedDescription)
+            }
+        }
     }
 
     private func configureNavbar() {
@@ -205,24 +245,13 @@ final class SignUpController: UIViewController {
     }
 
     private func handleSignUpTapped() {
-        guard
-            let username = usernameField.textField.text, !username.isEmpty,
-            let email = emailField.textField.text, !email.isEmpty,
-            let password = passwordField.textField.text, !password.isEmpty,
-            let confirmPassword = confirmPasswordField.textField.text, !confirmPassword.isEmpty
-        else {
-            return
-        }
-
-        guard password == confirmPassword else {
-            return
-        }
-
-        guard agreementButton.isSelected else {
-            return
-        }
-
-        coordinator?.authFinished()
+        view.endEditing(true)
+        viewModel.name = usernameField.text.trimmingCharacters(in: .whitespacesAndNewlines)
+        viewModel.email = emailField.text.trimmingCharacters(in: .whitespacesAndNewlines)
+        viewModel.password = passwordField.text
+        viewModel.confirmPassword = confirmPasswordField.text
+        viewModel.isPrivacyChecked = agreementButton.isSelected
+        viewModel.register()
     }
 
     @objc private func toggleAgreement() {
