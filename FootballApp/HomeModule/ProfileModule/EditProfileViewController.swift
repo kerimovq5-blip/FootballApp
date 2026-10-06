@@ -36,6 +36,8 @@ final class EditProfileViewController: UIViewController {
     private enum Limits {
         static let name = 30
         static let bio = 60
+        static let phone = 20
+        static let address = 80
     }
 
     // MARK: - Views
@@ -96,7 +98,8 @@ final class EditProfileViewController: UIViewController {
             delegate: self
         )
         field.text = original.phone
-       return field
+        field.textField.keyboardType = .phonePad
+        return field
     }()
     
     private lazy var addressField: AppTextField = {
@@ -107,6 +110,8 @@ final class EditProfileViewController: UIViewController {
             delegate: self
         )
         field.text = original.address
+        field.textField.autocapitalizationType = .words
+        field.textField.returnKeyType = .done
         return field
     }()
     private let bioCounterLabel: UILabel = {
@@ -136,6 +141,8 @@ final class EditProfileViewController: UIViewController {
         let stack = UIStackView(arrangedSubviews: [
             photoStack,
             makeSection(title: "Name", field: nameField),
+            makeSection(title: "Address", field: addressField),
+            makeSection(title: "Phone Number", field: phoneField),
             makeSection(title: "Bio", field: bioField, footer: bioCounterLabel)
         ])
         stack.axis = .vertical
@@ -296,6 +303,15 @@ final class EditProfileViewController: UIViewController {
 // MARK: - UITextFieldDelegate
 
 extension EditProfileViewController: UITextFieldDelegate {
+    private func limit(for textField: UITextField) -> Int {
+        switch textField {
+        case bioField.textField: return Limits.bio
+        case phoneField.textField: return Limits.phone
+        case addressField.textField: return Limits.address
+        default: return Limits.name
+        }
+    }
+
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         textField.resignFirstResponder()
         return true
@@ -307,8 +323,7 @@ extension EditProfileViewController: UITextFieldDelegate {
         let current = textField.text ?? ""
         guard let range = Range(range, in: current) else { return true }
         let updated = current.replacingCharacters(in: range, with: string)
-        let limit = textField === bioField.textField ? Limits.bio : Limits.name
-        return updated.count <= limit
+        return updated.count <= limit(for: textField)
     }
 }
 

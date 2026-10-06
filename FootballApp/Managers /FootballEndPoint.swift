@@ -31,17 +31,12 @@ enum FootballEndPoint : EndPoint {
             return "/resend-otp"
         case .refresh:
             return "/refresh"
-        case .logout(refreshToken: let refreshToken):
-            return "/logout?refreshToken=\(refreshToken)"
-      
-        case .forgotPassword(email: let email):
-           return "/forgot-password?email=\(email)"
-        case .resetPassword(
-            email: let email,
-            otp: let otp,
-            newPassword: let newPassword
-        ):
-            return "/reset-password?email=\(email)&otp=\(otp)&newPassword=\(newPassword)"
+        case .logout:
+            return "/logout"
+        case .forgotPassword:
+            return "/forgot-password"
+        case .resetPassword:
+            return "/reset-password"
         }
         
     }
@@ -62,45 +57,45 @@ enum FootballEndPoint : EndPoint {
          
     }
 
+    /// URLQueryItem dəyərləri düzgün encode edir (email-dəki "+", "&", boşluq və s. URL-i pozmur).
     var queryItems: [URLQueryItem] {
-        //switch self { }
-        return []
+        switch self {
+        case .logout(let refreshToken):
+            return [URLQueryItem(name: "refreshToken", value: refreshToken)]
+        case .forgotPassword(let email):
+            return [URLQueryItem(name: "email", value: email)]
+        case .resetPassword(let email, let otp, let newPassword):
+            return [
+                URLQueryItem(name: "email", value: email),
+                URLQueryItem(name: "otp", value: otp),
+                URLQueryItem(name: "newPassword", value: newPassword)
+            ]
+        case .register, .login, .verifyEmail, .resendOtp, .refresh:
+            return []
+        }
     }
 
     var requestBody: RequestBody? {
         switch self {
-        case .register(let name , let email , let password) :
-            return .dictionary(
-                [name: " name " , email: " email " , password: " password "]
-            )
-        case .login(email: let email, password: let password):
-            return .dictionary([email :" email " , password: " password "])
-        case .verifyEmail(email: let email, otp: let otp):
-            return .dictionary([email: " email " , otp :" otp "])
-        case .resendOtp(email: let email):
-            return .dictionary([email: " email "])
-        case .forgotPassword(email: let email):
-            return .dictionary([email: " email "])
-        
-        case .refresh(refreshToken: let refreshToken):
-            return .dictionary([refreshToken: " refreshToken "])
-        case .logout(refreshToken: let refreshToken):
-            return .dictionary([refreshToken: " refreshToken "])
-        case .resetPassword(
-            email: let email,
-            otp: let otp,
-            newPassword: let newPassword
-        ):
-            return .dictionary(
-                [
-                    email: " email " ,
-                    otp: " otp " ,
-                    newPassword: " newPassword "
-                ]
-            )
+        case .register(let name, let email, let password):
+            return .dictionary(["name": name, "email": email, "password": password])
+        case .login(let email, let password):
+            return .dictionary(["email": email, "password": password])
+        case .verifyEmail(let email, let otp):
+            return .dictionary(["email": email, "otp": otp])
+        case .resendOtp(let email):
+            return .dictionary(["email": email])
+        case .forgotPassword(let email):
+            return .dictionary(["email": email])
+        case .refresh(let refreshToken):
+            return .dictionary(["refreshToken": refreshToken])
+        case .logout(let refreshToken):
+            return .dictionary(["refreshToken": refreshToken])
+        case .resetPassword(let email, let otp, let newPassword):
+            return .dictionary(["email": email, "otp": otp, "newPassword": newPassword])
         }
-       
     }
+
     var requestAuth: Bool {
         switch self {
             case .register,
@@ -116,3 +111,4 @@ enum FootballEndPoint : EndPoint {
         }
     }
 }
+

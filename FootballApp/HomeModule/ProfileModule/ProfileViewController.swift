@@ -103,12 +103,23 @@ final class ProfileViewController: UIViewController {
 
     private lazy var nameRow = ProfileInfoRow(icon: "person", title: "Name", value: profile.name)
     private lazy var emailRow = ProfileInfoRow(icon: "envelope", title: "Email", value: profile.email, underlined: true)
+    private lazy var phoneRow = ProfileInfoRow(icon: "phone", title: "Phone Number", value: profile.phone)
+    private lazy var addressRow = ProfileInfoRow(icon: "mappin.and.ellipse", title: "Address", value: profile.address)
 
     private lazy var infoStack: UIStackView = {
-        let stack = UIStackView(arrangedSubviews: [nameRow, emailRow])
+        let stack = UIStackView(arrangedSubviews: [nameRow, emailRow,phoneRow,addressRow])
         stack.axis = .vertical
         return stack
     }()
+
+    private let scrollView: UIScrollView = {
+        let scrollView = UIScrollView()
+        scrollView.alwaysBounceVertical = false
+        scrollView.showsVerticalScrollIndicator = false
+        return scrollView
+    }()
+
+    private let contentView = UIView()
 
     private lazy var logoutButton: UIButton = {
         var config = UIButton.Configuration.tinted()
@@ -140,23 +151,43 @@ final class ProfileViewController: UIViewController {
     // MARK: - Setup
 
     private func setupHierarchy() {
-        view.addSubviews(
+        contentView.addSubviews(
             avatarImageView,
             editBadgeButton,
             nameLabel,
             bioLabel,
             tabsStack,
-            infoStack,
-            logoutButton
+            infoStack
         )
+        scrollView.addSubviews(contentView)
+        view.addSubviews(scrollView, logoutButton)
     }
 
     private func setupLayout() {
         let padding = AppLayout.screenPadding.value
 
+        logoutButton
+            .leading(view.leadingAnchor, padding).0
+            .trailing(view.trailingAnchor, -padding).0
+            .bottom(view.safeAreaLayoutGuide.bottomAnchor, -padding).0
+            .height(Metrics.logoutHeight)
+
+        scrollView
+            .top(view.safeAreaLayoutGuide.topAnchor).0
+            .leading(view.leadingAnchor).0
+            .trailing(view.trailingAnchor).0
+            .bottom(logoutButton.topAnchor, -AppLayout.spacing.value)
+
+        contentView
+            .top(scrollView.contentLayoutGuide.topAnchor).0
+            .leading(scrollView.contentLayoutGuide.leadingAnchor).0
+            .trailing(scrollView.contentLayoutGuide.trailingAnchor).0
+            .bottom(scrollView.contentLayoutGuide.bottomAnchor).0
+            .width(scrollView.frameLayoutGuide.widthAnchor)
+
         avatarImageView
-            .top(view.safeAreaLayoutGuide.topAnchor, AppLayout.spacing.value).0
-            .centerX(view.centerXAnchor).0
+            .top(contentView.topAnchor, AppLayout.spacing.value).0
+            .centerX(contentView.centerXAnchor).0
             .width(Metrics.avatarSize).0
             .height(Metrics.avatarSize)
 
@@ -168,30 +199,25 @@ final class ProfileViewController: UIViewController {
 
         nameLabel
             .top(avatarImageView.bottomAnchor, AppLayout.spacing.value).0
-            .leading(view.leadingAnchor, padding).0
-            .trailing(view.trailingAnchor, -padding)
+            .leading(contentView.leadingAnchor, padding).0
+            .trailing(contentView.trailingAnchor, -padding)
 
         bioLabel
             .top(nameLabel.bottomAnchor, AppLayout.smallSpacing.value).0
-            .leading(view.leadingAnchor, padding).0
-            .trailing(view.trailingAnchor, -padding)
+            .leading(contentView.leadingAnchor, padding).0
+            .trailing(contentView.trailingAnchor, -padding)
 
         tabsStack
             .top(bioLabel.bottomAnchor, AppLayout.mediumSpacing.value).0
-            .leading(view.leadingAnchor, padding).0
-            .trailing(view.trailingAnchor, -padding).0
+            .leading(contentView.leadingAnchor, padding).0
+            .trailing(contentView.trailingAnchor, -padding).0
             .height(Metrics.tabHeight)
 
         infoStack
             .top(tabsStack.bottomAnchor, AppLayout.spacing.value).0
-            .leading(view.leadingAnchor, padding).0
-            .trailing(view.trailingAnchor, -padding)
-
-        logoutButton
-            .leading(view.leadingAnchor, padding).0
-            .trailing(view.trailingAnchor, -padding).0
-            .bottom(view.safeAreaLayoutGuide.bottomAnchor, -padding).0
-            .height(Metrics.logoutHeight)
+            .leading(contentView.leadingAnchor, padding).0
+            .trailing(contentView.trailingAnchor, -padding).0
+            .bottom(contentView.bottomAnchor)
     }
 
     // MARK: - Public
@@ -203,6 +229,8 @@ final class ProfileViewController: UIViewController {
         bioLabel.text = profile.bio
         avatarImageView.setAvatar(profile.avatar)
         nameRow.setValue(profile.name)
+        phoneRow.setValue(profile.phone)
+        addressRow.setValue(profile.address)
     }
 
     // MARK: - Actions
