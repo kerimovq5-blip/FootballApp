@@ -12,6 +12,7 @@ protocol EndPoint {
     var method : HTTPMethod { get  }
     var queryItems : [URLQueryItem] { get  }
     var requestBody : RequestBody? { get  }
+    var requestAuth : Bool { get  }
 }
 
 enum HTTPMethod: String {
@@ -19,6 +20,7 @@ enum HTTPMethod: String {
     case post = "POST"
     case put = "PUT"
     case delete = "DELETE"
+    case patch = "PATCH"
 }
 
 enum RequestBody {

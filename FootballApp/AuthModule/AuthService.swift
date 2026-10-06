@@ -23,6 +23,8 @@ protocol AuthProviding {
                   email: String,
                   password: String,
                   completion: @escaping (Result<AuthSession, Error>) -> Void)
+    
+    func logout( completion: @escaping (Result<Void, Error>) -> Void)
 }
 
 /// Real API gələnə qədər müvəqqəti implementasiya.
@@ -43,5 +45,9 @@ struct MockAuthService: AuthProviding {
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
             completion(.success(AuthSession(token: "mock-token", name: name, email: email)))
         }
+    }
+    
+    func logout(completion: @escaping (Result<Void, any Error>) -> Void) {
+        completion(.success(()))
     }
 }

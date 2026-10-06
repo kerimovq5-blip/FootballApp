@@ -13,8 +13,8 @@ final class AccountCoordinator: NavigationCoordinator, ProfileNavigating, EditPr
     var onLogout: (() -> Void)?
 
     /// Real user datası gələnə qədər müvəqqəti.
-    private var profile = ProfileInfo(name: "Brian Imanuel",
-                                      email: "brians213@gmail.com",
+    private var profile = ProfileInfo(name: "Servan Eyvazov",
+                                      email: "servan.eyvazov@gmail.com",
                                       bio: "#YNWK till the end 🔥",
                                       avatar: nil)
 

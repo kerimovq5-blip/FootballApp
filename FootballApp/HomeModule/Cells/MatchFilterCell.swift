@@ -40,18 +40,25 @@ final class MatchFilterCell: UICollectionViewCell {
             .leading(contentView.leadingAnchor).0
             .top(contentView.topAnchor).0
             .bottom(contentView.bottomAnchor)
-
-        for (index, filter) in MatchFilter.allCases.enumerated() {
-            let button = UIButton(type: .system)
-            button.setTitle(filter.title, for: .normal)
-            button.titleLabel?.font = AppFonts.semiBold.font
-            button.layer.cornerRadius = 18
-            button.contentEdgeInsets = UIEdgeInsets(top: 8, left: 18, bottom: 8, right: 18)
-            button.tag = index
-            button.addTarget(self, action: #selector(tapped(_:)), for: .touchUpInside)
-            buttons.append(button)
-            stack.addArrangedSubview(button)
-        }
+            
+            
+            for (index, filter) in MatchFilter.allCases.enumerated() {
+                let button = UIButton(type: .system)
+                button.setTitle(filter.title, for: .normal)
+                button.titleLabel?.font = AppFonts.semiBold.font
+                button.layer.cornerRadius = 18
+                button.contentEdgeInsets = UIEdgeInsets(
+                    top: 8,
+                    left: 18,
+                    bottom: 8,
+                    right: 18
+                )
+                button.tag = index
+                button.addTarget(self, action: #selector(tapped(_:)), for: .touchUpInside)
+                buttons.append(button)
+                stack.addArrangedSubview(button)
+            }
+        
         updateAppearance()
     }
 
