@@ -10,6 +10,8 @@ struct ProfileInfo {
     let email: String
     var bio: String
     var avatar: UIImage?
+    var phone: String
+    var address: String
 }
 
 final class ProfileViewController: UIViewController {

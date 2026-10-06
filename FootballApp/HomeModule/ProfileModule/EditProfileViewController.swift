@@ -5,10 +5,7 @@
 //  Created by Servan on 05.10.26.
 //
 
-//
-//  EditProfileViewController.swift
-//  FootballApp
-//
+
 
 import UIKit
 import PhotosUI
@@ -90,7 +87,28 @@ final class EditProfileViewController: UIViewController {
         field.textField.addTarget(self, action: #selector(fieldsChanged), for: .editingChanged)
         return field
     }()
-
+    
+   private lazy var phoneField: AppTextField = {
+        let field = AppTextField(
+            placeholder: "Phone",
+            backgroundColor: .backgroundColor2,
+            textColor: .titleColor,
+            delegate: self
+        )
+        field.text = original.phone
+       return field
+    }()
+    
+    private lazy var addressField: AppTextField = {
+        let field = AppTextField(
+            placeholder: "Address",
+            backgroundColor: .backgroundColor2,
+            textColor: .titleColor,
+            delegate: self
+        )
+        field.text = original.address
+        return field
+    }()
     private let bioCounterLabel: UILabel = {
         let label = UILabel()
         label.font = AppFonts.litletitle.font
@@ -195,6 +213,8 @@ final class EditProfileViewController: UIViewController {
 
         nameField.height(Metrics.fieldHeight)
         bioField.height(Metrics.fieldHeight)
+        phoneField.height(Metrics.fieldHeight)
+        addressField.height(Metrics.fieldHeight)
     }
 
     private func makeSection(title: String, field: UIView, footer: UIView? = nil) -> UIStackView {
@@ -233,7 +253,9 @@ final class EditProfileViewController: UIViewController {
             name: nameField.text.trimmingCharacters(in: .whitespacesAndNewlines),
             email: original.email,
             bio: bioField.text.trimmingCharacters(in: .whitespacesAndNewlines),
-            avatar: selectedAvatar
+            avatar: selectedAvatar ,
+            phone: phoneField.text.trimmingCharacters(in: .whitespacesAndNewlines),
+            address: addressField.text.trimmingCharacters(in: .whitespacesAndNewlines)
         )
         coordinator?.didSaveProfile(updated)
     }
