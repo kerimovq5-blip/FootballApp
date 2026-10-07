@@ -86,7 +86,7 @@ final class LeagueDetailController: UIViewController {
             return l
         }
 
-        let position = make("#", .center); position.width(16).0
+        let position = make("#", .center); 
 
         let crestSpacer = UIView()
         crestSpacer.width(20)

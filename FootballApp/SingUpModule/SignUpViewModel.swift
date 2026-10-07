@@ -32,9 +32,9 @@ final class SignUpViewModel {
     weak var coordinator: AuthNavigating?
 
     private let service: AuthProviding
-    private let sessionStore: SessionStoring
+    private let sessionStore: SessionStore
 
-    init(service: AuthProviding, sessionStore: SessionStoring) {
+    init(service: AuthProviding, sessionStore: SessionStore) {
         self.service = service
         self.sessionStore = sessionStore
     }
@@ -60,11 +60,18 @@ final class SignUpViewModel {
         }
 
         state = .loading
-        service.register(name: name, email: email, password: password) { [weak self] result in
+        service.register(
+            name: name,
+            email: email,
+            password: password
+        ) {
+            [weak self] result in
             guard let self else { return }
             switch result {
             case .success(let session):
-                self.sessionStore.save(token: session.token)
+                self.sessionStore.save(
+                    accessToken: session.accessToken,
+                    refreshToken: session.refreshToken)
                 self.state = .success
                 self.onRegisterSucceeded?(self.email, self.name)
                 self.coordinator?.authFinished()

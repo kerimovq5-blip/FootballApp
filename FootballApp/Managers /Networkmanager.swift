@@ -9,21 +9,17 @@
 import Foundation
 
 final class NetworkManager {
-    private  let session: URLSession
-    private let mainPath : String
-    private let header : [String:String]
     
+      let session: URLSession
+     let mainPath : String
+     let header : [String:String]
     
-    
-    static let shared = NetworkManager(
-        session: URLSession.shared ,
-        mainPath :  "",
-        header: [
-            "accept":"application/json",
-            "content-type":"application/json",
-            
-        ])
-    init(session : URLSession , mainPath : String , header: [ String:String]){
+
+    init(
+        session : URLSession ,
+        mainPath : String ,
+        header: [ String:String]
+    ){
         self.session = session
         self.mainPath = mainPath
         self.header = header

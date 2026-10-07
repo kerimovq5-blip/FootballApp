@@ -1,3 +1,9 @@
+//
+//  MatchDetailData.swift
+//  FootballApp
+//
+//  Created by Kerimov Qehreman on 30.09.26.
+//
 import UIKit
 
 struct MatchDetailData {
@@ -8,9 +14,8 @@ struct MatchDetailData {
     let awayCrest: UIImage?
     let score: String
     let minuteOrStatus: String
-    let hasStarted: Bool
     let stats: [MatchStatsView.Stat]
-    let events: [MatchEvent]
-    let lineups: MatchLineups
+    let formationName: String
+    let formation: LineUpView.Formation
     let headToHead: HeadToHead
 }

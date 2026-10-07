@@ -1,3 +1,10 @@
+//
+//  DetailControllerView.swift
+//  FootballApp
+//
+//  Created by Kerimov Qehreman on 30.09.26.
+//
+
 import UIKit
 
 
@@ -14,58 +21,21 @@ final class MatchDetailController: UIViewController {
         fatalError("init(coder:) has not been implemented")
     }
 
-    private lazy var backButton: UIButton = {
-        let button = UIButton(type: .system)
-        button.setImage(UIImage(systemName: "chevron.left"), for: .normal)
-        button.tintColor = .white
-        button.addTarget(self, action: #selector(backTapped), for: .touchUpInside)
-        return button
-    }()
-
-    private lazy var titleLabel: UILabel = {
-        let label = UILabel()
-        label.font = AppFonts.semiBold.font
-        label.textColor = .white
-        label.textAlignment = .center
-        return label
-    }()
-
     private lazy var headerView = MatchHeaderView()
     private lazy var segmentControl = MatchDetailSegmentControl()
     private lazy var statsView = MatchStatsView()
-    private lazy var eventsView = MatchEventsView()
     private lazy var lineUpView = LineUpView()
     private lazy var h2hView = H2HView()
 
-    private let scrollView: UIScrollView = {
-        let scrollView = UIScrollView()
-        scrollView.showsVerticalScrollIndicator = false
-        scrollView.alwaysBounceVertical = false
-        return scrollView
-    }()
-
-    private lazy var contentStack: UIStackView = {
-        let stack = UIStackView(arrangedSubviews: [headerView, segmentControl,eventsView,statsView, lineUpView, h2hView])
-        stack.axis = .vertical
-        stack.spacing = AppLayout.mediumSpacing.value
-        stack.isLayoutMarginsRelativeArrangement = true
-        stack.layoutMargins = UIEdgeInsets(
-            top: AppLayout.spacing.value,
-            left: AppLayout.screenPadding.value,
-            bottom: AppLayout.largeSpacing.value,
-            right: AppLayout.screenPadding.value
-        )
-        return stack
-    }()
-
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = AssetColors.background.color
+        view.backgroundColor = UIColor(named: "backgroundColor2")
+        navigationItem.backButtonDisplayMode = .minimal
         setupHierarchy()
         setupLayout()
 
         // Data gələnə qədər boş ekran görünməsin.
-        scrollView.isHidden = true
+        [headerView, segmentControl, statsView, lineUpView, h2hView].forEach { $0.isHidden = true }
 
         segmentControl.onTabSelected = { [weak self] tab in
             self?.showTab(tab)
@@ -84,7 +54,7 @@ final class MatchDetailController: UIViewController {
     }
 
     private func apply(_ data: MatchDetailData) {
-        titleLabel.text = data.competitionName
+        navigationItem.title = data.competitionName
         headerView.configure(
             homeName: data.homeName,
             awayName: data.awayName,
@@ -94,11 +64,11 @@ final class MatchDetailController: UIViewController {
             minuteOrStatus: data.minuteOrStatus
         )
         statsView.configure(with: data.stats)
-        eventsView.configure(events: data.events, hasStarted: data.hasStarted)
-        lineUpView.configure(with: data.lineups)
+        lineUpView.configure(formationName: data.formationName, formation: data.formation)
         h2hView.configure(with: data.headToHead)
 
-        scrollView.isHidden = false
+        headerView.isHidden = false
+        segmentControl.isHidden = false
         showTab(.matchDetail)
     }
 
@@ -109,45 +79,32 @@ final class MatchDetailController: UIViewController {
     }
 
     private func setupHierarchy() {
-        scrollView.addSubviews(contentStack)
-        view.addSubviews(backButton, titleLabel, scrollView)
+        view.addSubviews(headerView, segmentControl, statsView, lineUpView, h2hView)
     }
 
     private func setupLayout() {
-        backButton
+        headerView
             .leading(view.leadingAnchor, AppLayout.screenPadding.value).0
-            .top(view.safeAreaLayoutGuide.topAnchor, AppLayout.smallSpacing.value).0
-            .width(32).0
-            .height(32)
+            .trailing(view.trailingAnchor, -AppLayout.screenPadding.value).0
+            .top(view.safeAreaLayoutGuide.topAnchor, AppLayout.spacing.value)
 
-        titleLabel
-            .centerX(view.centerXAnchor).0
-            .centerY(backButton.centerYAnchor)
+        segmentControl
+            .leading(view.leadingAnchor, AppLayout.screenPadding.value).0
+            .trailing(view.trailingAnchor, -AppLayout.screenPadding.value).0
+            .top(headerView.bottomAnchor, AppLayout.mediumSpacing.value).0
+            .height(44)
 
-        scrollView
-            .top(backButton.bottomAnchor, AppLayout.smallSpacing.value).0
-            .leading(view.leadingAnchor).0
-            .trailing(view.trailingAnchor).0
-            .bottom(view.bottomAnchor)
-
-        contentStack
-            .top(scrollView.contentLayoutGuide.topAnchor).0
-            .leading(scrollView.contentLayoutGuide.leadingAnchor).0
-            .trailing(scrollView.contentLayoutGuide.trailingAnchor).0
-            .bottom(scrollView.contentLayoutGuide.bottomAnchor).0
-            .width(scrollView.frameLayoutGuide.widthAnchor)
+        [statsView, lineUpView, h2hView].forEach { contentView in
+            contentView
+                .leading(view.leadingAnchor, AppLayout.screenPadding.value).0
+                .trailing(view.trailingAnchor, -AppLayout.screenPadding.value).0
+                .top(segmentControl.bottomAnchor, AppLayout.mediumSpacing.value)
+        }
     }
 
     private func showTab(_ tab: MatchDetailsTab) {
-        eventsView.isHidden = tab != .matchDetail
-        statsView.isHidden = tab != .statistics
+        statsView.isHidden = tab != .matchDetail
         lineUpView.isHidden = tab != .lineUp
         h2hView.isHidden = tab != .h2h
     }
-
-    @objc private func backTapped() {
-        navigationController?.popViewController(animated: true)
-    }
 }
-
-extension MatchDetailController: HidesNavigationBar {}
