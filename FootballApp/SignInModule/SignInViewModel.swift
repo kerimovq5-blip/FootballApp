@@ -29,9 +29,9 @@ final class SignInViewModel {
     weak var coordinator: AuthNavigating?
 
     private let service: AuthProviding
-    private let sessionStore: SessionStore
+    private let sessionStore: SessionStoring
 
-    init(service: AuthProviding, sessionStore: SessionStore) {
+    init(service: AuthProviding, sessionStore: SessionStoring) {
         self.service = service
         self.sessionStore = sessionStore
     }
@@ -52,7 +52,7 @@ final class SignInViewModel {
             guard let self else { return }
             switch result {
             case .success(let session):
-                self.sessionStore.save(accessToken: session.accessToken, refreshToken: session.refreshToken, )
+                self.sessionStore.save(token: session.token)
                 self.state = .success
                 self.coordinator?.authFinished()
             case .failure(let error):

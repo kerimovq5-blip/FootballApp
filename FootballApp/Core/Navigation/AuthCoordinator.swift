@@ -12,11 +12,11 @@ final class AuthCoordinator: NSObject, Coordinator, AuthNavigating {
     private let halfDetentID = UISheetPresentationController.Detent.Identifier("half")
 
     private let authService: AuthProviding
-    private let sessionStore: SessionStore
+    private let sessionStore: SessionStoring
 
     init(navigationController: UINavigationController,
          authService: AuthProviding = MockAuthService(),
-         sessionStore: SessionStore) {
+         sessionStore: SessionStoring) {
         self.navigationController = navigationController
         self.authService = authService
         self.sessionStore = sessionStore
@@ -33,9 +33,7 @@ final class AuthCoordinator: NSObject, Coordinator, AuthNavigating {
     func showSignIn() {
         presentAfterDismissingCurrent { [weak self] in
             guard let self else { return }
-            let viewModel = SignInViewModel(
-                service: self.authService,
-                sessionStore: self.sessionStore)
+            let viewModel = SignInViewModel(service: self.authService, sessionStore: self.sessionStore)
             viewModel.coordinator = self
             let vc = SignInController(viewModel: viewModel)
             vc.coordinator = self

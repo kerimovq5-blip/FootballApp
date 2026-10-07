@@ -4,16 +4,16 @@ final class AppCoordinator: Coordinator, OnboardingNavigating {
     let navigationController: UINavigationController
     var childCoordinators: [Coordinator] = []
 
-    private let sessionStore: SessionStore
+    private let sessionStore: SessionStoring
 
     init(navigationController: UINavigationController,
-         sessionStore: SessionStore = UserDefaultsSessionStore()) {
+         sessionStore: SessionStoring = UserDefaultsSessionStore()) {
         self.navigationController = navigationController
         self.sessionStore = sessionStore
     }
 
     func start() {
-        if sessionStore.isLoggedIn != nil {
+        if sessionStore.token != nil {
             showMain(animated: false)
         } else {
             showStart(animated: false)

@@ -58,11 +58,3 @@ struct ErrorModel : LocalizedError, Decodable {
         return "Unknown error"
     }
 }
-
- struct ProblemDetails: Decodable, Error, Sendable {
-    let type: String?
-    let title: String?
-    let status: Int?
-    let detail: String?
-    let errorCode: String?
-}
