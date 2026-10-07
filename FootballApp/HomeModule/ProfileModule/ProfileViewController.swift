@@ -41,7 +41,7 @@ final class ProfileViewController: UIViewController {
     private enum Palette {
         static let secondaryText = UIColor.white.withAlphaComponent(0.7)
         static let gradientStart = UIColor(red: 0.95, green: 0.62, blue: 0.50, alpha: 1)
-        static let gradientEnd = UIColor(red: 0.88, green: 0.41, blue: 0.30, alpha: 1)
+        static let gradientEnd = UIColor.green
     }
 
     // MARK: - Views
