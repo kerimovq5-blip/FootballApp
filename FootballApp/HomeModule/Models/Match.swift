@@ -21,6 +21,10 @@ enum MatchStatus {
         if case .live = self { return true }
         return false
     }
+    var hasStarted: Bool {
+            if case .scheduled = self { return false }
+            return true
+        }
 }
 
 struct Match: Identifiable {

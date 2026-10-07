@@ -5,8 +5,7 @@
 //  Created by Servan on 03.10.26.
 //
 
-import Foundation
-
+import UIKit
 protocol MatchDetailProviding {
     func fetchMatchDetail(id: Int, completion: @escaping (Result<MatchDetailData, Error>) -> Void)
 }
@@ -29,28 +28,28 @@ struct MockMatchDetailService: MatchDetailProviding {
     }
 
     private static func makeData(league: League, match: Match) -> MatchDetailData {
-        MatchDetailData(
+        let started = match.status.hasStarted
+        let empty = "–"
+
+        return MatchDetailData(
             competitionName: league.name,
             homeName: match.home,
             awayName: match.away,
-            homeCrest: nil,
-            awayCrest: nil,
-            score: "\(match.homeScore ?? 0) - \(match.awayScore ?? 0)",
-            minuteOrStatus: match.status.displayText,
+            homeCrest: crest(for: match.home),
+            awayCrest: crest(for: match.away),
+            // Başlamamış oyunda hesab əvəzinə start vaxtı göstərilir.
+            score: started ? "\(match.homeScore ?? 0) - \(match.awayScore ?? 0)" : match.status.displayText,
+            minuteOrStatus: started ? match.status.displayText : "Not started",
+            hasStarted: started,
             stats: [
-                .init(title: "Shooting", homeValue: "8", awayValue: "12"),
-                .init(title: "Attacks", homeValue: "22", awayValue: "29"),
-                .init(title: "Possession", homeValue: "42", awayValue: "58"),
-                .init(title: "Cards", homeValue: "3", awayValue: "5"),
-                .init(title: "Corners", homeValue: "8", awayValue: "7")
+                .init(title: "Shooting", homeValue: started ? "8" : empty, awayValue: started ? "12" : empty),
+                .init(title: "Attacks", homeValue: started ? "22" : empty, awayValue: started ? "29" : empty),
+                .init(title: "Possession", homeValue: started ? "42" : empty, awayValue: started ? "58" : empty),
+                .init(title: "Cards", homeValue: started ? "3" : empty, awayValue: started ? "5" : empty),
+                .init(title: "Corners", homeValue: started ? "8" : empty, awayValue: started ? "7" : empty)
             ],
-            formationName: "4-2-3-1",
-            formation: [
-                [.init(number: 1, name: "Leno")],
-                [.init(number: 3, name: "Tierney"), .init(number: 22, name: "Pablo Mari"), .init(number: 16, name: "Holding"), .init(number: 2, name: "Bellerin")],
-                [.init(number: 34, name: "Xhaka"), .init(number: 8, name: "Dani Ceballos")],
-                [.init(number: 14, name: "Aubameyang"), .init(number: 9, name: "Lacazette"), .init(number: 7, name: "Saka")]
-            ],
+            events: MockMatchEvents.make(for: match),
+            lineups: MockLineups.make(for: match),
             headToHead: HeadToHead(
                 homeWins: 4,
                 draws: 3,
@@ -62,4 +61,10 @@ struct MockMatchDetailService: MatchDetailProviding {
             )
         )
     }
+
+    /// Assets-də "realmadrid" kimi adlı loqo varsa tapır; yoxdursa header baş hərfləri göstərir.
+    private static func crest(for team: String) -> UIImage? {
+        UIImage(named: team.lowercased().filter { $0.isLetter })
+    }
 }
+
