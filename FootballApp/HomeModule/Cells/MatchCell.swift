@@ -11,6 +11,11 @@ final class MatchCell: UICollectionViewCell {
 
     static let reuseID = "MatchCell"
 
+    /// Zəng düyməsinə toxunanda çağırılır; vəziyyəti dəyişmək controller-in işidir.
+    var onBellTapped: (() -> Void)?
+
+    private static let bellSymbolConfig = UIImage.SymbolConfiguration(pointSize: 17, weight: .medium)
+
     private lazy var homeLabel = teamLabel()
     private lazy var awayLabel = teamLabel()
 
@@ -36,6 +41,12 @@ final class MatchCell: UICollectionViewCell {
         return l
     }()
 
+    private lazy var bellButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.addTarget(self, action: #selector(bellTapped), for: .touchUpInside)
+        return button
+    }()
+
     private lazy var container: UIView = {
         let v = UIView()
         v.backgroundColor = UIColor.white.withAlphaComponent(0.08)
@@ -44,19 +55,20 @@ final class MatchCell: UICollectionViewCell {
     }()
 
     private lazy var rowStack: UIStackView = {
-        let s = UIStackView(arrangedSubviews: [teamsStack, scoreLabel, statusLabel])
+        let s = UIStackView(arrangedSubviews: [teamsStack, scoreLabel, statusLabel, bellButton])
         s.axis = .horizontal
         s.alignment = .center
         s.isLayoutMarginsRelativeArrangement = true
-        s.layoutMargins = UIEdgeInsets(top: 12, left: 16, bottom: 12, right: 16)
-        s.spacing = 12
+        s.layoutMargins = UIEdgeInsets(top: 12, left: 16, bottom: 12, right: 8)
+        s.spacing = 10
         return s
     }()
 
     override init(frame: CGRect) {
         super.init(frame: frame)
         scoreLabel.setContentHuggingPriority(.required, for: .horizontal)
-        statusLabel.width(88)
+        statusLabel.width(60)
+        bellButton.width(36).0.height(36)
 
         contentView.addSubviews(container)
         container.addSubviews(rowStack)
@@ -78,6 +90,11 @@ final class MatchCell: UICollectionViewCell {
         fatalError("init(coder:) has not been implemented")
     }
 
+    override func prepareForReuse() {
+        super.prepareForReuse()
+        onBellTapped = nil
+    }
+
     private func teamLabel() -> UILabel {
         let l = UILabel()
         l.font = AppFonts.mediumTitle.font
@@ -85,7 +102,7 @@ final class MatchCell: UICollectionViewCell {
         return l
     }
 
-    func configure(with match: Match) {
+    func configure(with match: Match, isSubscribed: Bool) {
         homeLabel.text = match.home
         awayLabel.text = match.away
         statusLabel.text = match.status.displayText
@@ -96,5 +113,30 @@ final class MatchCell: UICollectionViewCell {
         } else {
             scoreLabel.text = ""
         }
+
+        // Bitmiş oyunun bildirişi mənasızdır: düymə görünmür, amma sətrin yerləşməsi dəyişmir.
+        var isFinished = false
+        if case .finished = match.status { isFinished = true }
+        bellButton.alpha = isFinished ? 0 : 1
+        bellButton.isEnabled = !isFinished
+        setSubscribed(isSubscribed, animated: false)
+    }
+
+    func setSubscribed(_ isSubscribed: Bool, animated: Bool) {
+        let symbol = isSubscribed ? "bell.fill" : "bell"
+        bellButton.setImage(UIImage(systemName: symbol, withConfiguration: MatchCell.bellSymbolConfig), for: .normal)
+        bellButton.tintColor = isSubscribed ? AppGradient.accentStart : UIColor.white.withAlphaComponent(0.5)
+        bellButton.accessibilityLabel = isSubscribed ? "Turn off notifications" : "Turn on notifications"
+
+        guard animated else { return }
+        bellButton.transform = CGAffineTransform(scaleX: 0.7, y: 0.7)
+        UIView.animate(withDuration: 0.35, delay: 0, usingSpringWithDamping: 0.45,
+                       initialSpringVelocity: 8, options: []) {
+            self.bellButton.transform = .identity
+        }
+    }
+
+    @objc private func bellTapped() {
+        onBellTapped?()
     }
 }

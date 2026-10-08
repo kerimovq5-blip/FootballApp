@@ -1,10 +1,3 @@
-//
-//  MatchDetailViewModel.swift
-//  FootballApp
-//
-//  Created by Servan on 03.10.26.
-//
-
 import Foundation
 
 final class MatchDetailViewModel {
@@ -14,20 +7,32 @@ final class MatchDetailViewModel {
 
     private let matchID: Int
     private let service: MatchDetailProviding
+    private let activityStore: ActivityStoring
 
-    init(matchID: Int, service: MatchDetailProviding) {
+    init(matchID: Int,
+         service: MatchDetailProviding,
+         activityStore: ActivityStoring = UserDefaultsActivityStore.shared) {
         self.matchID = matchID
         self.service = service
+        self.activityStore = activityStore
     }
 
     func load() {
         service.fetchMatchDetail(id: matchID) { [weak self] result in
+            guard let self else { return }
             switch result {
             case .success(let data):
-                self?.onLoaded?(data)
+                // Profildəki Activity siyahısı üçün son baxılan oyun kimi yadda saxlanır.
+                self.activityStore.record(
+                    matchID: self.matchID,
+                    title: "\(data.homeName) vs \(data.awayName)",
+                    subtitle: data.competitionName
+                )
+                self.onLoaded?(data)
             case .failure(let error):
-                self?.onFailed?(error.localizedDescription)
+                self.onFailed?(error.localizedDescription)
             }
         }
     }
 }
+

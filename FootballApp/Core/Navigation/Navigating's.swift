@@ -36,6 +36,7 @@ protocol StandingNavigating: AnyObject {
 
 protocol ProfileNavigating: AnyObject {
     func showEditProfile()
+    func showMatchDetail(matchID: Int)
     func logout()
 }
 

@@ -11,11 +11,14 @@ final class HomeController: UIViewController {
     
     weak var coordinator : HomeNavigating?
     private let viewModel: HomeViewModel
+    private let subscriptions: MatchSubscriptionStoring
 
-    init(viewModel: HomeViewModel) {
-        self.viewModel = viewModel
-        super.init(nibName: nil, bundle: nil)
-    }
+        init(viewModel: HomeViewModel,
+             subscriptions: MatchSubscriptionStoring = UserDefaultsMatchSubscriptionStore.shared) {
+            self.viewModel = viewModel
+            self.subscriptions = subscriptions
+            super.init(nibName: nil, bundle: nil)
+        }
 
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
@@ -230,10 +233,18 @@ extension HomeController: UICollectionViewDataSource {
         
         case .league:
             guard let cell = collectionView.dequeueReusableCell(
-                            withReuseIdentifier: MatchCell.reuseID, for: indexPath) as? MatchCell,
-                  let match = viewModel.match(at: indexPath)
-                        else { return UICollectionViewCell() }
-                        cell.configure(with: match)
+                withReuseIdentifier: MatchCell.reuseID,
+                for: indexPath
+            ) as? MatchCell,
+            let match = viewModel.match(at: indexPath)
+            else { return UICollectionViewCell() }
+            cell
+                .configure(with: match, isSubscribed: subscriptions.isSubscribed(match.id))
+                        cell.onBellTapped = { [weak self, weak cell] in
+                            guard let self, let cell else { return }
+                            let isSubscribed = self.subscriptions.toggle(match.id)
+                            cell.setSubscribed(isSubscribed, animated: true)
+                        }
                         return cell
         }
         

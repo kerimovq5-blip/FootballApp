@@ -1,8 +1,3 @@
-//
-//  ProfileViewController.swift
-//  FootballApp
-//
-
 import UIKit
 
 struct ProfileInfo {
@@ -19,9 +14,13 @@ final class ProfileViewController: UIViewController {
     weak var coordinator: ProfileNavigating?
 
     private var profile: ProfileInfo
+    private let activityStore: ActivityStoring
+    private let settings: SettingsStoring
 
-    init(profile: ProfileInfo) {
+    init(profile: ProfileInfo, activityStore: ActivityStoring, settings: SettingsStoring) {
         self.profile = profile
+        self.activityStore = activityStore
+        self.settings = settings
         super.init(nibName: nil, bundle: nil)
     }
 
@@ -29,19 +28,30 @@ final class ProfileViewController: UIViewController {
         fatalError("init(coder:) has not been implemented")
     }
 
-    // MARK: - Metrics
+    // MARK: - Types
+
+    private enum Section: Int, CaseIterable {
+        case profile
+        case activity
+        case settings
+
+        var title: String {
+            switch self {
+            case .profile: return "My Profile"
+            case .activity: return "Activity"
+            case .settings: return "Settings"
+            }
+        }
+    }
 
     private enum Metrics {
         static let avatarSize: CGFloat = 124
         static let editBadgeSize: CGFloat = 36
-        static let tabHeight: CGFloat = 56
         static let logoutHeight: CGFloat = 56
     }
 
     private enum Palette {
         static let secondaryText = UIColor.white.withAlphaComponent(0.7)
-        static let gradientStart = UIColor(red: 0.95, green: 0.62, blue: 0.50, alpha: 1)
-        static let gradientEnd = UIColor.green
     }
 
     // MARK: - Views
@@ -55,7 +65,7 @@ final class ProfileViewController: UIViewController {
     private lazy var editBadgeButton: UIButton = {
         var config = UIButton.Configuration.filled()
         config.image = UIImage(systemName: "pencil")
-        config.baseBackgroundColor = Palette.gradientStart
+        config.baseBackgroundColor = AppGradient.accentStart
         config.baseForegroundColor = .white
         config.cornerStyle = .capsule
         let button = UIButton(configuration: config)
@@ -84,30 +94,29 @@ final class ProfileViewController: UIViewController {
         return label
     }()
 
-    private let tabTitles = ["My Profile", "Activity", "Settings"]
+    private lazy var tabBar = PillTabBar(
+        titles: Section.allCases.map { $0.title },
+        alignment: .spread
+    )
 
-    private lazy var tabButtons: [ProfileTabButton] = tabTitles.enumerated().map { index, title in
-        let button = ProfileTabButton(title: title)
-        button.isSelectedTab = index == 0
-        button.addAction(UIAction { [weak self] _ in self?.selectTab(at: index) }, for: .touchUpInside)
-        return button
-    }
+    // My Profile
+    private lazy var nameRow = ProfileInfoRow(icon: "person", title: "Name", value: profile.name, accessory: .chevron)
+    private lazy var emailRow = ProfileInfoRow(icon: "envelope", title: "Email", value: profile.email, underlined: true)
+    private lazy var phoneRow = ProfileInfoRow(icon: "phone", title: "Phone Number", value: profile.phone, accessory: .chevron)
+    private lazy var addressRow = ProfileInfoRow(icon: "mappin.and.ellipse", title: "Address", value: profile.address, accessory: .chevron)
 
-    private lazy var tabsStack: UIStackView = {
-        let stack = UIStackView(arrangedSubviews: tabButtons)
-        stack.axis = .horizontal
-        stack.distribution = .fillEqually
-        stack.spacing = 8
+    private lazy var infoStack: UIStackView = {
+        let stack = UIStackView(arrangedSubviews: [nameRow, emailRow, phoneRow, addressRow])
+        stack.axis = .vertical
         return stack
     }()
 
-    private lazy var nameRow = ProfileInfoRow(icon: "person", title: "Name", value: profile.name)
-    private lazy var emailRow = ProfileInfoRow(icon: "envelope", title: "Email", value: profile.email, underlined: true)
-    private lazy var phoneRow = ProfileInfoRow(icon: "phone", title: "Phone Number", value: profile.phone)
-    private lazy var addressRow = ProfileInfoRow(icon: "mappin.and.ellipse", title: "Address", value: profile.address)
+    // Activity və Settings
+    private lazy var activityView = ProfileActivityView(store: activityStore)
+    private lazy var settingsView = ProfileSettingsView(settings: settings)
 
-    private lazy var infoStack: UIStackView = {
-        let stack = UIStackView(arrangedSubviews: [nameRow, emailRow,phoneRow,addressRow])
+    private lazy var sectionStack: UIStackView = {
+        let stack = UIStackView(arrangedSubviews: [infoStack, activityView, settingsView])
         stack.axis = .vertical
         return stack
     }()
@@ -130,9 +139,9 @@ final class ProfileViewController: UIViewController {
         config.baseBackgroundColor = .systemRed
         config.cornerStyle = .capsule
         config.titleTextAttributesTransformer = UIConfigurationTextAttributesTransformer { container in
-            var c = container
-            c.font = AppFonts.semiBold.font
-            return c
+            var updated = container
+            updated.font = AppFonts.semiBold.font
+            return updated
         }
         let button = UIButton(configuration: config)
         button.addTarget(self, action: #selector(logoutTapped), for: .touchUpInside)
@@ -146,6 +155,16 @@ final class ProfileViewController: UIViewController {
         view.backgroundColor = AssetColors.background.color
         setupHierarchy()
         setupLayout()
+        bindActions()
+        showSection(at: Section.profile.rawValue)
+    }
+
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        // Oyun detalından qayıdanda siyahı yenilənsin.
+        if !activityView.isHidden {
+            activityView.reload()
+        }
     }
 
     // MARK: - Setup
@@ -156,8 +175,8 @@ final class ProfileViewController: UIViewController {
             editBadgeButton,
             nameLabel,
             bioLabel,
-            tabsStack,
-            infoStack
+            tabBar,
+            sectionStack
         )
         scrollView.addSubviews(contentView)
         view.addSubviews(scrollView, logoutButton)
@@ -207,17 +226,37 @@ final class ProfileViewController: UIViewController {
             .leading(contentView.leadingAnchor, padding).0
             .trailing(contentView.trailingAnchor, -padding)
 
-        tabsStack
+        tabBar
             .top(bioLabel.bottomAnchor, AppLayout.mediumSpacing.value).0
             .leading(contentView.leadingAnchor, padding).0
-            .trailing(contentView.trailingAnchor, -padding).0
-            .height(Metrics.tabHeight)
+            .trailing(contentView.trailingAnchor, -padding)
 
-        infoStack
-            .top(tabsStack.bottomAnchor, AppLayout.spacing.value).0
+        sectionStack
+            .top(tabBar.bottomAnchor, AppLayout.spacing.value).0
             .leading(contentView.leadingAnchor, padding).0
             .trailing(contentView.trailingAnchor, -padding).0
             .bottom(contentView.bottomAnchor)
+    }
+
+    private func bindActions() {
+        tabBar.onSelect = { [weak self] index in
+            self?.showSection(at: index)
+        }
+
+        // Email dəyişdirilə bilmir, ona görə onun sətri toxunuşsuzdur.
+        [nameRow, phoneRow, addressRow].forEach { row in
+            row.onTap = { [weak self] in
+                self?.coordinator?.showEditProfile()
+            }
+        }
+
+        activityView.onSelectMatch = { [weak self] matchID in
+            self?.coordinator?.showMatchDetail(matchID: matchID)
+        }
+
+        settingsView.onClearActivity = { [weak self] in
+            self?.confirmClearActivity()
+        }
     }
 
     // MARK: - Public
@@ -235,12 +274,33 @@ final class ProfileViewController: UIViewController {
 
     // MARK: - Actions
 
+    private func showSection(at index: Int) {
+        guard let section = Section(rawValue: index) else { return }
+        infoStack.isHidden = section != .profile
+        activityView.isHidden = section != .activity
+        settingsView.isHidden = section != .settings
+
+        if section == .activity {
+            activityView.reload()
+        }
+    }
+
     @objc private func editTapped() {
         coordinator?.showEditProfile()
     }
 
-    private func selectTab(at index: Int) {
-        tabButtons.enumerated().forEach { $1.isSelectedTab = $0 == index }
+    private func confirmClearActivity() {
+        let alert = UIAlertController(
+            title: "Clear activity",
+            message: "Remove all recently viewed matches?",
+            preferredStyle: .alert
+        )
+        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
+        alert.addAction(UIAlertAction(title: "Clear", style: .destructive) { [weak self] _ in
+            self?.activityStore.clear()
+            self?.activityView.reload()
+        })
+        present(alert, animated: true)
     }
 
     @objc private func logoutTapped() {
@@ -254,168 +314,5 @@ final class ProfileViewController: UIViewController {
             self?.coordinator?.logout()
         })
         present(alert, animated: true)
-    }
-}
-
-// MARK: - Tab pill
-
-private final class ProfileTabButton: UIButton {
-
-    var isSelectedTab = false {
-        didSet { updateAppearance() }
-    }
-
-    private let gradientLayer: CAGradientLayer = {
-        let layer = CAGradientLayer()
-        layer.colors = [
-            UIColor(red: 0.95, green: 0.62, blue: 0.50, alpha: 1).cgColor,
-            UIColor(red: 0.88, green: 0.41, blue: 0.30, alpha: 1).cgColor
-        ]
-        layer.startPoint = CGPoint(x: 0, y: 0)
-        layer.endPoint = CGPoint(x: 1, y: 1)
-        return layer
-    }()
-
-    init(title: String) {
-        super.init(frame: .zero)
-        var config = UIButton.Configuration.plain()
-        config.title = title
-        config.baseForegroundColor = .white
-        config.titleTextAttributesTransformer = UIConfigurationTextAttributesTransformer { container in
-            var c = container
-            c.font = AppFonts.body.font.withWeight(.semibold)
-            return c
-        }
-        configuration = config
-        layer.insertSublayer(gradientLayer, at: 0)
-        clipsToBounds = true
-        updateAppearance()
-    }
-
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-
-    override func layoutSubviews() {
-        super.layoutSubviews()
-        gradientLayer.frame = bounds
-        layer.cornerRadius = bounds.height / 2
-    }
-
-    private func updateAppearance() {
-        gradientLayer.isHidden = !isSelectedTab
-    }
-}
-
-private extension UIFont {
-    func withWeight(_ weight: UIFont.Weight) -> UIFont {
-        UIFont.systemFont(ofSize: pointSize, weight: weight)
-    }
-}
-
-// MARK: - Info row
-
-private final class ProfileInfoRow: UIView {
-
-    private let iconContainer: UIView = {
-        let view = UIView()
-        view.backgroundColor = AssetColors.backgroundColor2.color
-        view.layer.cornerRadius = 22
-        return view
-    }()
-
-    private let iconView: UIImageView = {
-        let imageView = UIImageView()
-        imageView.tintColor = .white
-        imageView.contentMode = .scaleAspectFit
-        return imageView
-    }()
-
-    private let titleLabel: UILabel = {
-        let label = UILabel()
-        label.font = AppFonts.semiBold.font
-        label.textColor = .white
-        return label
-    }()
-
-    private let valueLabel = UILabel()
-
-    private let chevronView: UIImageView = {
-        let imageView = UIImageView(image: UIImage(systemName: "chevron.right"))
-        imageView.tintColor = .white
-        imageView.contentMode = .scaleAspectFit
-        return imageView
-    }()
-
-    private let divider: UIView = {
-        let view = UIView()
-        view.backgroundColor = UIColor.white.withAlphaComponent(0.1)
-        return view
-    }()
-
-    private let underlined: Bool
-
-    init(icon: String, title: String, value: String, underlined: Bool = false) {
-        self.underlined = underlined
-        super.init(frame: .zero)
-        iconView.image = UIImage(systemName: icon)
-        titleLabel.text = title
-        setValue(value)
-
-        setupHierarchy()
-        setupLayout()
-    }
-
-    func setValue(_ value: String) {
-        var attributes: [NSAttributedString.Key: Any] = [
-            .font: AppFonts.regularBody.font.withWeight(.medium),
-            .foregroundColor: UIColor.white.withAlphaComponent(0.7)
-        ]
-        if underlined { attributes[.underlineStyle] = NSUnderlineStyle.single.rawValue }
-        valueLabel.attributedText = NSAttributedString(string: value, attributes: attributes)
-    }
-
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-
-    private func setupHierarchy() {
-        iconContainer.addSubviews(iconView)
-        addSubviews(iconContainer, titleLabel, valueLabel, chevronView, divider)
-    }
-
-    private func setupLayout() {
-        iconContainer
-            .leading(leadingAnchor).0
-            .top(topAnchor, 14).0
-            .width(44).0
-            .height(44)
-
-        iconView
-            .centerX(iconContainer.centerXAnchor).0
-            .centerY(iconContainer.centerYAnchor).0
-            .width(20).0
-            .height(20)
-
-        titleLabel
-            .top(topAnchor, 14).0
-            .leading(iconContainer.trailingAnchor, 20)
-
-        valueLabel
-            .top(titleLabel.bottomAnchor, 6).0
-            .leading(titleLabel.leadingAnchor)
-
-        chevronView
-            .trailing(trailingAnchor).0
-            .centerY(iconContainer.centerYAnchor).0
-            .width(14).0
-            .height(18)
-
-        divider
-            .top(valueLabel.bottomAnchor, 16).0
-            .leading(titleLabel.leadingAnchor).0
-            .trailing(trailingAnchor, -44).0
-            .bottom(bottomAnchor).0
-            .height(1)
     }
 }
