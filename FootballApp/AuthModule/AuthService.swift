@@ -9,9 +9,14 @@
 import Foundation
 
 struct AuthSession {
-    let token: String
+    let accessToken : String
+    let refreshToken: String
     let name: String?
     let email: String
+    
+    var token : String{
+        accessToken
+    }
 }
 
 protocol AuthProviding {
@@ -24,7 +29,7 @@ protocol AuthProviding {
                   password: String,
                   completion: @escaping (Result<AuthSession, Error>) -> Void)
     
-    func logout( completion: @escaping (Result<Void, Error>) -> Void)
+    func logout(completion: @escaping (Result<Void, Error>) -> Void)
 }
 
 /// Real API gələnə qədər müvəqqəti implementasiya.
@@ -34,7 +39,12 @@ struct MockAuthService: AuthProviding {
                password: String,
                completion: @escaping (Result<AuthSession, Error>) -> Void) {
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
-            completion(.success(AuthSession(token: "mock-token", name: nil, email: email)))
+            completion(.success(AuthSession(
+                            accessToken: "mock-access-token",
+                            refreshToken: "mock-refresh-token",
+                            name: nil,
+                            email: email
+                        )))
         }
     }
 
@@ -43,11 +53,16 @@ struct MockAuthService: AuthProviding {
                   password: String,
                   completion: @escaping (Result<AuthSession, Error>) -> Void) {
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
-            completion(.success(AuthSession(token: "mock-token", name: name, email: email)))
+            completion(.success(AuthSession(
+                            accessToken: "mock-access-token",
+                            refreshToken: "mock-refresh-token",
+                            name: name,
+                            email: email
+                        )))
         }
     }
     
-    func logout(completion: @escaping (Result<Void, any Error>) -> Void) {
+    func logout(completion: @escaping (Result<Void, Error>) -> Void) {
         completion(.success(()))
     }
 }

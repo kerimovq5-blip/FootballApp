@@ -12,11 +12,11 @@ final class AuthCoordinator: NSObject, Coordinator, AuthNavigating {
     private let halfDetentID = UISheetPresentationController.Detent.Identifier("half")
 
     private let authService: AuthProviding
-    private let sessionStore: SessionStoring
+    private let sessionStore: SessionStore
 
     init(navigationController: UINavigationController,
          authService: AuthProviding = MockAuthService(),
-         sessionStore: SessionStoring) {
+         sessionStore: SessionStore) {
         self.navigationController = navigationController
         self.authService = authService
         self.sessionStore = sessionStore
