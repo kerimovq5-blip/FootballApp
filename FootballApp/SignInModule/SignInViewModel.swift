@@ -23,17 +23,14 @@ final class SignInViewModel {
         didSet { onStateChange?() }
     }
     var onStateChange: (() -> Void)?
-
-    var onEmailNotVerified: ((_ email: String) -> Void)?
+    var onPasswordResetSent: (() -> Void)?
 
     weak var coordinator: AuthNavigating?
 
     private let service: AuthProviding
-    private let sessionStore: SessionStore
 
-    init(service: AuthProviding, sessionStore: SessionStore) {
+    init(service: AuthProviding) {
         self.service = service
-        self.sessionStore = sessionStore
     }
 
     func login() {
@@ -54,13 +51,30 @@ final class SignInViewModel {
         ) { [weak self] result in
             guard let self else { return }
             switch result {
-            case .success(let session):
-                self.sessionStore.save(
-                    accessToken: session.accessToken ,
-                    refreshToken: session.refreshToken
-                )
+            case .success:
                 self.state = .success
                 self.coordinator?.authFinished()
+            case .failure(let error):
+                self.state = .requestFailed(error)
+            }
+        }
+    }
+
+    func resetPassword() {
+        if case .loading = state { return }
+
+        if let message = FormValidator.validate([(email, [EmailRule()])]) {
+            state = .invalidInput(message)
+            return
+        }
+
+        state = .loading
+        service.sendPasswordReset(email: email) { [weak self] result in
+            guard let self else { return }
+            switch result {
+            case .success:
+                self.state = .idle
+                self.onPasswordResetSent?()
             case .failure(let error):
                 self.state = .requestFailed(error)
             }

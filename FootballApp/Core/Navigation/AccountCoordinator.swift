@@ -7,29 +7,27 @@ final class AccountCoordinator: NSObject, NavigationCoordinator, ProfileNavigati
     /// MainTabBarCoordinator-a xəbər verir; sessiyanı silmək və ekranı dəyişmək onun yuxarısının işidir.
     var onLogout: (() -> Void)?
 
+    private let authService: AuthProviding
     private let profileStore: ProfileStoring
     private let activityStore: ActivityStoring
     private let settings: SettingsStoring
     private let matchDetailService: MatchDetailProviding
     private let subscriptions: MatchSubscriptionStoring
 
-    /// Real user datası gələnə qədər başlanğıc dəyərlər.
-    private static let defaultProfile = ProfileInfo(
-        name: "Servan Eyvazov",
-        email: "servan.eyvazov@gmail.com",
-        bio: "#YNWK till the end 🔥",
-        avatar: nil,
-        phone: "+99450555555",
-        address: "Baku , Azerbaijan"
-    )
-
-    /// Əvvəl saxlanmış profil varsa o, yoxdursa başlanğıc dəyərlər.
-    private lazy var profile: ProfileInfo = profileStore.load(email: AccountCoordinator.defaultProfile.email)
-        ?? AccountCoordinator.defaultProfile
+    /// Saved profile if there is one; otherwise built from the Firebase user.
+    private lazy var profile: ProfileInfo = {
+        let user = authService.currentUser
+        let email = user?.email ?? ""
+        let fallbackName = email.components(separatedBy: "@").first ?? ""
+        let name = (user?.name).flatMap { $0.isEmpty ? nil : $0 } ?? fallbackName
+        return profileStore.load(email: email)
+            ?? ProfileInfo(name: name, email: email, bio: "", avatar: nil, phone: "", address: "")
+    }()
 
     private weak var profileViewController: ProfileViewController?
 
     init(
+        authService: AuthProviding,
         navigationController: UINavigationController = UINavigationController(),
         profileStore: ProfileStoring = UserDefaultsProfileStore(),
         activityStore: ActivityStoring = UserDefaultsActivityStore.shared,
@@ -37,6 +35,7 @@ final class AccountCoordinator: NSObject, NavigationCoordinator, ProfileNavigati
         matchDetailService: MatchDetailProviding = MockMatchDetailService(),
         subscriptions: MatchSubscriptionStoring = UserDefaultsMatchSubscriptionStore.shared) {
         self.navigationController = navigationController
+        self.authService = authService
         self.profileStore = profileStore
         self.activityStore = activityStore
         self.settings = settings

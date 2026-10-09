@@ -123,6 +123,12 @@ final class SignInController: UIViewController {
     }
 
     private func bindViewModel() {
+        viewModel.onPasswordResetSent = { [weak self] in
+            self?.showAlert(
+                title: "Check your email",
+                message: "We sent a password reset link to your email address."
+            )
+        }
         viewModel.onStateChange = { [weak self] in
             guard let self else { return }
             switch self.viewModel.state {
@@ -213,7 +219,9 @@ final class SignInController: UIViewController {
     }
 
     @objc private func forgotPasswordTapped() {
-       
+        view.endEditing(true)
+        viewModel.email = emailField.text.trimmingCharacters(in: .whitespacesAndNewlines)
+        viewModel.resetPassword()
     }
 
     @objc private func signUpTapped() {

@@ -7,8 +7,11 @@ final class MainTabBarCoordinator: Coordinator {
     /// İstifadəçi çıxış edəndə AppCoordinator-a xəbər verir; tab-ları sökmək onun işidir.
     var onLogout: (() -> Void)?
 
-    init(tabBarController: UITabBarController) {
+    private let authService: AuthProviding
+
+    init(tabBarController: UITabBarController, authService: AuthProviding) {
         self.tabBarController = tabBarController
+        self.authService = authService
     }
 
     func start() {
@@ -19,7 +22,7 @@ final class MainTabBarCoordinator: Coordinator {
                     title: "Explore", image: UIImage(named: "Explore"), tag: 1),
             makeTab(StandingCoordinator(),
                     title: "Standing", image: UIImage(named: "Standing"), tag: 2),
-            makeTab(makeAccountCoordinator(),
+            makeTab(makeAccountCoordinator(authService: authService),
                     title: "Account", image: UIImage(systemName: "person"), tag: 3)
         ]
     }

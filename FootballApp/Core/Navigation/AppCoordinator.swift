@@ -4,20 +4,17 @@ final class AppCoordinator: Coordinator, OnboardingNavigating {
     let navigationController: UINavigationController
     var childCoordinators: [Coordinator] = []
 
-    private let sessionStore: SessionStore
+    private let authService: AuthProviding
 
     init(navigationController: UINavigationController,
-         sessionStore: SessionStore = UserDefaultsSessionStore()) {
+         authService: AuthProviding = FirebaseAuthService()) {
         self.navigationController = navigationController
-        self.sessionStore = sessionStore
+        self.authService = authService
     }
 
+    /// App always launches from the Start screen.
     func start() {
-        if sessionStore.accessToken != nil {
-            showMain(animated: false)
-        } else {
-            showStart(animated: false)
-        }
+        showStart(animated: false)
     }
 
     func showSignIn() {
@@ -37,7 +34,7 @@ final class AppCoordinator: Coordinator, OnboardingNavigating {
     }
 
     private func startAuth(showSignUp: Bool) {
-        let authCoordinator = AuthCoordinator(navigationController: navigationController, sessionStore: sessionStore)
+        let authCoordinator = AuthCoordinator(navigationController: navigationController, authService: authService)
         childCoordinators.append(authCoordinator)
 
         authCoordinator.onFinish = { [weak self, weak authCoordinator] in
@@ -51,17 +48,17 @@ final class AppCoordinator: Coordinator, OnboardingNavigating {
     }
 
     private func didAuthenticate() {
-        // Token artıq SignIn/SignUp ViewModel-də sessionStore-a yazılıb.
+        // Firebase session is already created by the SignIn/SignUp view model.
         showMain(animated: true)
     }
 
     private func showMain(animated: Bool) {
         let tabBarController = MainTabbarController()
-        let tabBarCoordinator = MainTabBarCoordinator(tabBarController: tabBarController)
+        let tabBarCoordinator = MainTabBarCoordinator(tabBarController: tabBarController, authService: authService)
 
         tabBarCoordinator.onLogout = { [weak self, weak tabBarCoordinator] in
             self?.remove(tabBarCoordinator)
-            self?.sessionStore.clear()
+            self?.authService.logout { _ in }
             self?.showStart(animated: true)
         }
 
