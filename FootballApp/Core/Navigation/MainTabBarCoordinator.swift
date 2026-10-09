@@ -4,7 +4,6 @@ final class MainTabBarCoordinator: Coordinator {
     var childCoordinators: [Coordinator] = []
     let tabBarController: UITabBarController
 
-    /// İstifadəçi çıxış edəndə AppCoordinator-a xəbər verir; tab-ları sökmək onun işidir.
     var onLogout: (() -> Void)?
 
     private let authService: AuthProviding
@@ -22,7 +21,7 @@ final class MainTabBarCoordinator: Coordinator {
                     title: "Explore", image: UIImage(named: "Explore"), tag: 1),
             makeTab(StandingCoordinator(),
                     title: "Standing", image: UIImage(named: "Standing"), tag: 2),
-            makeTab(makeAccountCoordinator(authService: authService),
+            makeTab(makeAccountCoordinator(),
                     title: "Account", image: UIImage(systemName: "person"), tag: 3)
         ]
     }
@@ -48,7 +47,7 @@ final class MainTabBarCoordinator: Coordinator {
     }
 
     private func makeAccountCoordinator() -> AccountCoordinator {
-        let coordinator = AccountCoordinator()
+        let coordinator = AccountCoordinator(authService: authService)
         coordinator.onLogout = { [weak self] in
             self?.logout()
         }

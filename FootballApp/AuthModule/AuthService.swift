@@ -55,7 +55,7 @@ struct FirebaseAuthService: AuthProviding {
                 return
             }
             guard let user = result?.user else {
-                completion(.failure(AuthError.unknown))
+                completion(.failure(AuthError.unknown(0)))
                 return
             }
             completion(.success(AuthSession(uid: user.uid,
@@ -74,7 +74,7 @@ struct FirebaseAuthService: AuthProviding {
                 return
             }
             guard let user = result?.user else {
-                completion(.failure(AuthError.unknown))
+                completion(.failure(AuthError.unknown(0)))
                 return
             }
             // The account already exists at this point; a failed name update is not fatal.
@@ -120,13 +120,17 @@ enum AuthError: LocalizedError {
     case userDisabled
     case network
     case tooManyRequests
-    case unknown
+    case operationNotAllowed
+    case unknown(Int)
 
     init(_ error: Error) {
         let nsError = error as NSError
+        #if DEBUG
+        print("Firebase auth error:", nsError.domain, nsError.code, nsError.localizedDescription)
+        #endif
         guard nsError.domain == AuthErrorDomain,
-              let code = AuthErrorCode.Code(rawValue: nsError.code) else {
-            self = .unknown
+              let code = AuthErrorCode(rawValue: nsError.code) else {
+            self = .unknown(nsError.code)
             return
         }
         switch code {
@@ -144,8 +148,10 @@ enum AuthError: LocalizedError {
             self = .network
         case .tooManyRequests:
             self = .tooManyRequests
+        case .operationNotAllowed:
+            self = .operationNotAllowed
         default:
-            self = .unknown
+            self = .unknown(nsError.code)
         }
     }
 
@@ -158,7 +164,10 @@ enum AuthError: LocalizedError {
         case .userDisabled:      return "This account has been disabled."
         case .network:           return "No internet connection. Please try again."
         case .tooManyRequests:   return "Too many attempts. Please try again later."
-        case .unknown:           return "Something went wrong. Please try again."
+        case .operationNotAllowed:
+            return "Email/Password sign-in is not enabled in the Firebase Console."
+        case .unknown(let code):
+            return "Something went wrong (code \(code)). Please try again."
         }
     }
 }
