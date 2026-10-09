@@ -30,7 +30,7 @@ final class HomeCoordinator: NSObject, NavigationCoordinator, HomeNavigating {
     }
 
     func showNotifications() {
-            let vc = NotificationsController(viewModel: NotificationsViewModel())
+            let vc = NotificationsController(viewModel: NotificationsViewModel(service: homeService))
             vc.coordinator = self
             vc.hidesBottomBarWhenPushed = true
             navigationController.pushViewController(vc, animated: true)

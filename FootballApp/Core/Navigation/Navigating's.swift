@@ -27,7 +27,7 @@ protocol HomeNavigating: AnyObject {
 }
 
 protocol ExploreNavigating: AnyObject {
-    
+    func showLeagueDetail(for league: League)
 }
 
 protocol StandingNavigating: AnyObject {

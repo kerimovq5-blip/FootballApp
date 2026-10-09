@@ -7,7 +7,8 @@
 
 import UIKit
 
-/// Yalnız bildirişi açılmış (Home-da zəng düyməsinə basılmış) oyunların bildirişləri, oyunlara görə qruplaşdırılmış.
+/// Bildirişi açılmış oyunlar Home-dakı kimi (liqalara görə, hesabla) göstərilir.
+/// Təfərrüatları görmək üçün oyuna toxunmaq kifayətdir.
 final class NotificationsController: UIViewController {
 
     weak var coordinator: HomeNavigating?
@@ -40,23 +41,21 @@ final class NotificationsController: UIViewController {
         return label
     }()
 
-    private lazy var tableView: UITableView = {
-        let tableView = UITableView(frame: .zero, style: .plain)
-        tableView.backgroundColor = .clear
-        tableView.separatorStyle = .none
-        tableView.showsVerticalScrollIndicator = false
-        tableView.sectionHeaderTopPadding = 0
-        tableView.rowHeight = UITableView.automaticDimension
-        tableView.estimatedRowHeight = 80
-        tableView.sectionHeaderHeight = UITableView.automaticDimension
-        tableView.estimatedSectionHeaderHeight = 60
-        tableView.contentInset.bottom = 24
-        tableView.dataSource = self
-        tableView.delegate = self
-        tableView.register(NotificationCell.self, forCellReuseIdentifier: NotificationCell.reuseID)
-        tableView.register(NotificationGroupHeaderView.self,
-                           forHeaderFooterViewReuseIdentifier: NotificationGroupHeaderView.reuseID)
-        return tableView
+    private lazy var collectionView: UICollectionView = {
+        let layout = UICollectionViewCompositionalLayout { [weak self] _, _ in
+            self?.leagueSection()
+        }
+        let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
+        collectionView.backgroundColor = .clear
+        collectionView.showsVerticalScrollIndicator = false
+        collectionView.contentInset.bottom = 24
+        collectionView.dataSource = self
+        collectionView.delegate = self
+        collectionView.register(MatchCell.self, forCellWithReuseIdentifier: MatchCell.reuseID)
+        collectionView.register(LeagueHeaderView.self,
+                                forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader,
+                                withReuseIdentifier: LeagueHeaderView.reuseID)
+        return collectionView
     }()
 
     private lazy var emptyStack: UIStackView = {
@@ -70,7 +69,7 @@ final class NotificationsController: UIViewController {
         label.textColor = UIColor.white.withAlphaComponent(0.6)
         label.textAlignment = .center
         label.numberOfLines = 0
-        label.text = "No notifications yet.\nTap the bell next to a match to get its updates here."
+        label.text = "No matches yet.\nTap the bell next to a match to follow it and see it here."
 
         let stack = UIStackView(arrangedSubviews: [icon, label])
         stack.axis = .vertical
@@ -85,9 +84,7 @@ final class NotificationsController: UIViewController {
         super.viewDidLoad()
         view.backgroundColor = AssetColors.background.color
         setupLayout()
-        viewModel.onChange = { [weak self] in
-            self?.render()
-        }
+        bindViewModel()
     }
 
     override func viewWillAppear(_ animated: Bool) {
@@ -97,8 +94,19 @@ final class NotificationsController: UIViewController {
 
     // MARK: - Setup
 
+    private func bindViewModel() {
+        viewModel.onChange = { [weak self] in
+            self?.render()
+        }
+        viewModel.onFailed = { [weak self] message in
+            let alert = UIAlertController(title: "Error", message: message, preferredStyle: .alert)
+            alert.addAction(UIAlertAction(title: "OK", style: .default))
+            self?.present(alert, animated: true)
+        }
+    }
+
     private func setupLayout() {
-        view.addSubviews(backButton, titleLabel, tableView, emptyStack)
+        view.addSubviews(backButton, titleLabel, collectionView, emptyStack)
 
         backButton
             .leading(view.leadingAnchor, AppLayout.screenPadding.value).0
@@ -110,8 +118,8 @@ final class NotificationsController: UIViewController {
             .centerX(view.centerXAnchor).0
             .centerY(backButton.centerYAnchor)
 
-        tableView
-            .top(backButton.bottomAnchor, AppLayout.smallSpacing.value).0
+        collectionView
+            .top(backButton.bottomAnchor, AppLayout.spacing.value).0
             .leading(view.leadingAnchor).0
             .trailing(view.trailingAnchor).0
             .bottom(view.bottomAnchor)
@@ -124,10 +132,33 @@ final class NotificationsController: UIViewController {
     }
 
     private func render() {
-        let isEmpty = viewModel.groups.isEmpty
-        tableView.isHidden = isEmpty
+        let isEmpty = viewModel.leagues.isEmpty
+        collectionView.isHidden = isEmpty
         emptyStack.isHidden = !isEmpty
-        tableView.reloadData()
+        collectionView.reloadData()
+    }
+
+    /// Home-dakı liqa bölməsi ilə eyni görünüş.
+    private func leagueSection() -> NSCollectionLayoutSection {
+        let size = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .estimated(64))
+        let item = NSCollectionLayoutItem(layoutSize: size)
+        let group = NSCollectionLayoutGroup.vertical(layoutSize: size, subitems: [item])
+        let section = NSCollectionLayoutSection(group: group)
+        section.interGroupSpacing = 10
+        section.contentInsets = .init(
+            top: 0,
+            leading: AppLayout.screenPadding.value,
+            bottom: 20,
+            trailing: AppLayout.screenPadding.value
+        )
+
+        let header = NSCollectionLayoutBoundarySupplementaryItem(
+            layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(44)),
+            elementKind: UICollectionView.elementKindSectionHeader,
+            alignment: .top
+        )
+        section.boundarySupplementaryItems = [header]
+        return section
     }
 
     @objc private func backTapped() {
@@ -135,46 +166,58 @@ final class NotificationsController: UIViewController {
     }
 }
 
-// MARK: - UITableViewDataSource
+// MARK: - UICollectionViewDataSource
 
-extension NotificationsController: UITableViewDataSource {
+extension NotificationsController: UICollectionViewDataSource {
 
-    func numberOfSections(in tableView: UITableView) -> Int {
-        viewModel.groups.count
+    func numberOfSections(in collectionView: UICollectionView) -> Int {
+        viewModel.leagues.count
     }
 
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        viewModel.groups[section].items.count
+    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+        viewModel.leagues[section].matches.count
     }
 
-    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        guard let cell = tableView.dequeueReusableCell(
-            withIdentifier: NotificationCell.reuseID, for: indexPath
-        ) as? NotificationCell else { return UITableViewCell() }
+    func collectionView(_ collectionView: UICollectionView,
+                        cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        guard let cell = collectionView.dequeueReusableCell(
+            withReuseIdentifier: MatchCell.reuseID, for: indexPath
+        ) as? MatchCell,
+              let match = viewModel.match(at: indexPath) else { return UICollectionViewCell() }
 
-        cell.configure(with: viewModel.groups[indexPath.section].items[indexPath.row])
+        // Bu ekranda bütün oyunların bildirişi açıqdır; zəngə basanda oyun siyahıdan çıxır.
+        cell.configure(with: match, isSubscribed: true)
+        cell.onBellTapped = { [weak self, weak cell] in
+            cell?.setSubscribed(false, animated: true)
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                self?.viewModel.unsubscribe(matchID: match.id)
+            }
+        }
         return cell
+    }
+
+    func collectionView(_ collectionView: UICollectionView,
+                        viewForSupplementaryElementOfKind kind: String,
+                        at indexPath: IndexPath) -> UICollectionReusableView {
+        guard let header = collectionView.dequeueReusableSupplementaryView(
+            ofKind: kind, withReuseIdentifier: LeagueHeaderView.reuseID, for: indexPath
+        ) as? LeagueHeaderView else { return UICollectionReusableView() }
+
+        let league = viewModel.leagues[indexPath.section]
+        header.configure(with: league)
+        header.onTap = { [weak self] in
+            self?.coordinator?.showLeagueDetail(for: league)
+        }
+        return header
     }
 }
 
-// MARK: - UITableViewDelegate
+// MARK: - UICollectionViewDelegate
 
-extension NotificationsController: UITableViewDelegate {
-
-    func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
-        guard let header = tableView.dequeueReusableHeaderFooterView(
-            withIdentifier: NotificationGroupHeaderView.reuseID
-        ) as? NotificationGroupHeaderView else { return nil }
-
-        let group = viewModel.groups[section]
-        header.configure(title: group.matchTitle, subtitle: group.competition)
-        return header
-    }
-
-    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        tableView.deselectRow(at: indexPath, animated: true)
-        let item = viewModel.groups[indexPath.section].items[indexPath.row]
-        coordinator?.showMatchDetail(matchID: item.matchID)
+extension NotificationsController: UICollectionViewDelegate {
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        guard let match = viewModel.match(at: indexPath) else { return }
+        coordinator?.showMatchDetail(matchID: match.id)
     }
 }
 
