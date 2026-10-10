@@ -13,7 +13,16 @@ final class AppCoordinator: Coordinator, OnboardingNavigating {
     }
 
     /// App always launches from the Start screen.
+    /// Remember me seçilibsə birbaşa Home, yoxsa Start ekranı.
     func start() {
+        if authService.currentUser != nil {
+            if RememberMeStore.isEnabled {
+                showMain(animated: false)
+                return
+            }
+            // Remember me seçilməyib: köhnə sessiya bağlanır.
+            authService.logout { _ in }
+        }
         showStart(animated: false)
     }
 

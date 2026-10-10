@@ -52,6 +52,10 @@ final class AuthCoordinator: NSObject, Coordinator, AuthNavigating {
             self.present(nav)
         }
     }
+    func showPrivacyPolicy() {
+           guard let presentedNav = navigationController.presentedViewController as? UINavigationController else { return }
+           presentedNav.pushViewController(PrivacyPolicyController(), animated: true)
+       }
 
     /// Back düyməsi: auth ləğv olundu.
     func dismissAuth() {

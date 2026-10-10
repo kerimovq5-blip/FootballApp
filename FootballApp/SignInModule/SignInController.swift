@@ -48,20 +48,15 @@ final class SignInController: UIViewController {
         return passwordField
     }()
 
-    private lazy var rememberMeCheckbox: UIButton = {
-        let button = UIButton(type: .system)
-        button.layer.borderWidth = 1
-        button.layer.borderColor = UIColor.labelColor.cgColor
-        button.layer.cornerRadius = 6
-        button.addTarget(self, action: #selector(toggleRememberMe), for: .touchUpInside)
-        return button
-    }()
+    private let rememberMeCheckbox = CheckboxButton()
 
     private lazy var rememberMeLabel: UILabel = {
         let label = UILabel()
         label.text = "Remember me"
         label.textColor = .labelColor
         label.font = AppFonts.regularBody.font
+        label.isUserInteractionEnabled = true
+        label.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(toggleRememberMe)))
         return label
     }()
 
@@ -112,7 +107,13 @@ final class SignInController: UIViewController {
         setupHierarchy()
         setupLayout()
         configureFields()
+        restoreSavedLogin()
         bindViewModel()
+    }
+
+    private func restoreSavedLogin() {
+        emailField.text = viewModel.email
+        rememberMeCheckbox.isSelected = viewModel.rememberMe
     }
 
     private func configureFields() {
@@ -150,6 +151,7 @@ final class SignInController: UIViewController {
         view.endEditing(true)
         viewModel.email = emailField.text.trimmingCharacters(in: .whitespacesAndNewlines)
         viewModel.password = passwordField.text
+        viewModel.rememberMe = rememberMeCheckbox.isSelected
         viewModel.login()
     }
 
@@ -215,7 +217,6 @@ final class SignInController: UIViewController {
 
     @objc private func toggleRememberMe() {
         rememberMeCheckbox.isSelected.toggle()
-        rememberMeCheckbox.backgroundColor = rememberMeCheckbox.isSelected ? .accent : .clear
     }
 
     @objc private func forgotPasswordTapped() {

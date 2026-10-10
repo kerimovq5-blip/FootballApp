@@ -66,37 +66,37 @@ final class SignUpController: UIViewController {
         return confirmPasswordField
     }()
 
-    private lazy var agreementLabel: UILabel = {
+    private lazy var agreementPrefixLabel: UILabel = {
         let label = UILabel()
-        let attributed = NSMutableAttributedString(
-            string: "I have read the ",
-            attributes: [
-                .foregroundColor: AssetColors.labelColor.color,
-                .font: AppFonts.semiBold.font
-            ]
-        )
-        attributed.append(
-            NSAttributedString(
-                string: "Privacy Policy",
-                attributes: [
-                    .foregroundColor: UIColor.accent,
-                    .font: AppFonts.semiBold.font
-                ]
-            )
-        )
-        label.attributedText = attributed
-        label.numberOfLines = 0
+        label.text = "I have read the "
+        label.textColor = AssetColors.labelColor.color
+        label.font = AppFonts.semiBold.font
+        label.adjustsFontSizeToFitWidth = true
+        label.minimumScaleFactor = 0.8
+        label.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
+        label.isUserInteractionEnabled = true
+        label.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(toggleAgreement)))
         return label
     }()
 
-    private lazy var agreementButton: UIButton = {
+    private lazy var privacyPolicyButton: UIButton = {
         let button = UIButton(type: .system)
-        button.layer.borderWidth = 1
-        button.layer.borderColor = UIColor.labelColor.cgColor
-        button.layer.cornerRadius = 6
-        button.addTarget(self, action: #selector(toggleAgreement), for: .touchUpInside)
+        button.setTitle("Privacy Policy", for: .normal)
+        button.setTitleColor(.accent, for: .normal)
+        button.titleLabel?.font = AppFonts.semiBold.font
+        button.setContentCompressionResistancePriority(.required, for: .horizontal)
+        button.addTarget(self, action: #selector(privacyPolicyTapped), for: .touchUpInside)
         return button
     }()
+
+    private lazy var agreementStack: UIStackView = {
+        let stack = UIStackView(arrangedSubviews: [agreementPrefixLabel, privacyPolicyButton])
+        stack.axis = .horizontal
+        stack.alignment = .center
+        return stack
+    }()
+
+    private let agreementButton = CheckboxButton()
 
     private lazy var signUpButton: AppButton = {
         let button = AppButton(
@@ -185,7 +185,7 @@ final class SignUpController: UIViewController {
             emailField,
             passwordField,
             confirmPasswordField,
-            agreementLabel,
+            agreementStack,
             agreementButton,
             signUpButton,
             signInPromptButton
@@ -222,21 +222,23 @@ final class SignUpController: UIViewController {
             .top(passwordField.bottomAnchor, AppLayout.mediumSpacing.value).0
             .height(Metrics.fieldHeight)
 
-        agreementLabel
+        agreementStack
             .leading(view.leadingAnchor, AppLayout.screenPadding.value).0
-            .trailing(agreementButton.leadingAnchor, -AppLayout.smallSpacing.value).0
             .top(confirmPasswordField.bottomAnchor, AppLayout.mediumSpacing.value)
+        agreementStack.trailingAnchor
+            .constraint(lessThanOrEqualTo: agreementButton.leadingAnchor, constant: -AppLayout.smallSpacing.value)
+            .isActive = true
 
         agreementButton
             .trailing(view.trailingAnchor, -AppLayout.screenPadding.value).0
-            .centerY(agreementLabel.centerYAnchor).0
+            .centerY(agreementStack.centerYAnchor).0
             .width(Metrics.checkboxSize).0
             .height(Metrics.checkboxSize)
 
         signUpButton
             .leading(view.leadingAnchor, AppLayout.screenPadding.value).0
             .trailing(view.trailingAnchor, -AppLayout.screenPadding.value).0
-            .top(agreementLabel.bottomAnchor, AppLayout.largeSpacing.value).0
+            .top(agreementStack.bottomAnchor, AppLayout.largeSpacing.value).0
             .height(Metrics.buttonHeight)
 
         signInPromptButton
@@ -256,7 +258,11 @@ final class SignUpController: UIViewController {
 
     @objc private func toggleAgreement() {
         agreementButton.isSelected.toggle()
-        agreementButton.backgroundColor = agreementButton.isSelected ? .accent : .clear
+    }
+
+    @objc private func privacyPolicyTapped() {
+        view.endEditing(true)
+        coordinator?.showPrivacyPolicy()
     }
 
     @objc private func togglePasswordVisibility() {

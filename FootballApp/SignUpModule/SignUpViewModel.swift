@@ -66,6 +66,7 @@ final class SignUpViewModel {
             guard let self else { return }
             switch result {
             case .success:
+                RememberMeStore.update(isEnabled: true, email: self.email)
                 self.state = .success
                 self.coordinator?.authFinished()
             case .failure(let error):

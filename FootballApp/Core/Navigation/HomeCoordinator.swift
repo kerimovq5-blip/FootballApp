@@ -6,13 +6,16 @@ final class HomeCoordinator: NSObject, NavigationCoordinator, HomeNavigating {
 
     private let homeService: HomeProviding
     private let matchDetailService: MatchDetailProviding
+    private let searchService: SearchProviding
 
     init(navigationController: UINavigationController,
          homeService: HomeProviding = MockHomeService(),
-         matchDetailService: MatchDetailProviding = MockMatchDetailService()) {
+         matchDetailService: MatchDetailProviding = MockMatchDetailService(),
+         searchService: SearchProviding? = nil) {
         self.navigationController = navigationController
         self.homeService = homeService
         self.matchDetailService = matchDetailService
+        self.searchService = searchService ?? MockSearchService(homeService: homeService)
         super.init()
         navigationController.delegate = self
     }
@@ -24,7 +27,8 @@ final class HomeCoordinator: NSObject, NavigationCoordinator, HomeNavigating {
     }
 
     func showSearch() {
-        let vc = SearchController()
+        let vc = SearchController(viewModel: SearchViewModel(service: searchService))
+        vc.coordinator = self
         vc.hidesBottomBarWhenPushed = true
         navigationController.pushViewController(vc, animated: true)
     }

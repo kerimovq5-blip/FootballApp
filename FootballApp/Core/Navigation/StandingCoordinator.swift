@@ -11,13 +11,19 @@ final class StandingCoordinator: NavigationCoordinator, StandingNavigating {
     let navigationController: UINavigationController
     var childCoordinators: [Coordinator] = []
 
-    init(navigationController: UINavigationController = UINavigationController()) {
+    private let standingService: StandingProviding
+
+    init(navigationController: UINavigationController = UINavigationController(),
+         standingService: StandingProviding = MockStandingService()) {
         self.navigationController = navigationController
+        self.standingService = standingService
     }
 
     func start() {
-        let vc = StandingViewController()
+        let viewModel = StandingViewModel(service: standingService)
+        let vc = StandingViewController(viewModel: viewModel)
         vc.coordinator = self
+        navigationController.setNavigationBarHidden(true, animated: false)
         navigationController.setViewControllers([vc], animated: false)
     }
-}
+} 

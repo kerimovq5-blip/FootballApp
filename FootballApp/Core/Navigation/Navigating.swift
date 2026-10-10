@@ -15,6 +15,7 @@ protocol OnboardingNavigating: AnyObject {
 protocol AuthNavigating: AnyObject {
     func showSignIn()
     func showSignUp()
+    func showPrivacyPolicy()
     func dismissAuth()
     func authFinished()
 }

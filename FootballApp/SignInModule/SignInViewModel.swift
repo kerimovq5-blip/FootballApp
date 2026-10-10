@@ -16,9 +16,10 @@ enum SignInViewModelState {
 }
 
 final class SignInViewModel {
-    var email: String = ""
+    var email: String = RememberMeStore.savedEmail ?? ""
     var password: String = ""
-
+    var rememberMe: Bool = RememberMeStore.isEnabled
+    
     private(set) var state: SignInViewModelState = .idle {
         didSet { onStateChange?() }
     }
@@ -52,8 +53,9 @@ final class SignInViewModel {
             guard let self else { return }
             switch result {
             case .success:
-                self.state = .success
-                self.coordinator?.authFinished()
+                            RememberMeStore.update(isEnabled: self.rememberMe, email: self.email)
+                            self.state = .success
+                            self.coordinator?.authFinished()
             case .failure(let error):
                 self.state = .requestFailed(error)
             }
