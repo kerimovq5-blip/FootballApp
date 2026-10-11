@@ -112,8 +112,16 @@ struct MockClubService: ClubProviding {
         }
 
         let form = results.prefix(5).compactMap { $0.result(for: key) }.reversed()
-        return ClubDetailContent(profile: profile, form: Array(form),
-                                 upcoming: upcoming, results: results, tables: tables)
+        return ClubDetailContent(
+            profile: profile,
+            form: Array(form),
+            upcoming: upcoming,
+            results: results,
+            tables: tables,
+            squad: MockSquad.make(clubKey: key,
+                                  homeCountry: profile.country,
+                                  homeFlag: profile.flag)
+        )
     }
 
     /// Klub adından hesablanan sabit test oyunları (hər açılışda eyni görünür).

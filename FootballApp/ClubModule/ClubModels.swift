@@ -36,15 +36,38 @@ enum ClubKey {
 }
 
 enum ClubTab: CaseIterable {
-    case overview, matches, standing
+    case overview, matches, standing, squad
 
     var title: String {
         switch self {
         case .overview: return "Overview"
         case .matches: return "Matches"
         case .standing: return "Standing"
+        case .squad: return "Squad"
         }
     }
+}
+enum PlayerPosition: CaseIterable {
+    case goalkeeper, defender, midfielder, forward
+
+    /// Heyət siyahısındakı bölmə başlığı.
+    var title: String {
+        switch self {
+        case .goalkeeper: return "Goalkeepers"
+        case .defender: return "Defenders"
+        case .midfielder: return "Midfielders"
+        case .forward: return "Forwards"
+        }
+    }
+}
+
+struct SquadPlayer {
+    let number: Int
+    let name: String
+    let position: PlayerPosition
+    let age: Int
+    let nationality: String
+    let flag: String
 }
 
 enum ClubResult {
@@ -116,4 +139,6 @@ struct ClubDetailContent {
     let results: [ClubMatch]
     /// Domestik liqa birinci gəlir.
     let tables: [ClubTable]
+    /// Heyət, mövqe və forma nömrəsi ilə.
+    let squad: [SquadPlayer]
 }

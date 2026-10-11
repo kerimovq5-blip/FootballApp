@@ -67,12 +67,13 @@ final class ClubDetailController: UIViewController {
         return stack
     }()
 
-    private lazy var tabBar = PillTabBar(titles: ClubTab.allCases.map { $0.title })
+    private lazy var tabBar = PillTabBar(titles: ClubTab.allCases.map { $0.title }, alignment: .leading)
 
     private let contentContainer = UIView()
     private let overviewView = ClubOverviewView()
     private let matchesView = ClubMatchesView()
     private let standingView = ClubStandingView()
+    private let squadView = ClubSquadView()
 
     // MARK: - Lifecycle
 
@@ -107,7 +108,7 @@ final class ClubDetailController: UIViewController {
     private func setupLayout() {
         let padding = AppLayout.screenPadding.value
         view.addSubviews(backButton, headerStack, tabBar, contentContainer)
-        contentContainer.addSubviews(overviewView, matchesView, standingView)
+        contentContainer.addSubviews(overviewView, matchesView, standingView, squadView)
 
         backButton
             .leading(view.leadingAnchor, padding).0
@@ -131,7 +132,7 @@ final class ClubDetailController: UIViewController {
             .trailing(view.trailingAnchor).0
             .bottom(view.bottomAnchor)
 
-        [overviewView, matchesView, standingView].forEach { pin($0, to: contentContainer) }
+        [overviewView, matchesView, standingView, squadView].forEach { pin($0, to: contentContainer) }
     }
 
     private func pin(_ child: UIView, to parent: UIView) {
@@ -164,7 +165,7 @@ final class ClubDetailController: UIViewController {
         overviewView.configure(with: content)
         matchesView.configure(with: content)
         standingView.configure(with: content)
-
+        squadView.configure(with: content)
         contentContainer.isHidden = false
         showTab(ClubTab.allCases[tabBar.selectedIndex])
     }
@@ -173,6 +174,8 @@ final class ClubDetailController: UIViewController {
         overviewView.isHidden = tab != .overview
         matchesView.isHidden = tab != .matches
         standingView.isHidden = tab != .standing
+        squadView.isHidden = tab != .squad
+        
         if tab == .standing {
             standingView.revealClub()
         }
