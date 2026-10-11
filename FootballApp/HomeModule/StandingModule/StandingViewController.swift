@@ -61,6 +61,7 @@ final class StandingViewController: UIViewController {
         tableView.rowHeight = UITableView.automaticDimension
         tableView.estimatedRowHeight = 52
         tableView.dataSource = self
+        tableView.delegate = self
         tableView.register(LeagueStandingCell.self, forCellReuseIdentifier: LeagueStandingCell.reuseID)
         return tableView
     }()
@@ -144,5 +145,11 @@ extension StandingViewController: UITableViewDataSource {
         return cell
     }
 }
-
+extension StandingViewController: UITableViewDelegate {
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        tableView.deselectRow(at: indexPath, animated: true)
+        let standing = viewModel.standings[indexPath.row]
+        coordinator?.showClubDetail(for: ClubReference(name: standing.teamName))
+    }
+}
 extension StandingViewController: HidesNavigationBar {}

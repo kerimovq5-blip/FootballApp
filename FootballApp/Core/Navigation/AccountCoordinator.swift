@@ -65,6 +65,7 @@ final class AccountCoordinator: NSObject, NavigationCoordinator, ProfileNavigati
     func showMatchDetail(matchID: Int) {
         let viewModel = MatchDetailViewModel(matchID: matchID, service: matchDetailService)
         let vc = MatchDetailController(viewModel: viewModel)
+        vc.coordinator = self
         vc.hidesBottomBarWhenPushed = true
         navigationController.pushViewController(vc, animated: true)
     }

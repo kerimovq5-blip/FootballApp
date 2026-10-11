@@ -8,7 +8,8 @@ final class MatchHeaderView: UIView {
         static let crestInset: CGFloat = 14
         static let maxSideWidthMultiplier: CGFloat = 0.34
     }
-
+    var onHomeTapped: (() -> Void)?
+    var onAwayTapped: (() -> Void)?
     private let homeCrest = CrestCircleView(size: Layout.crestCircleSize, inset: Layout.crestInset)
     private let awayCrest = CrestCircleView(size: Layout.crestCircleSize, inset: Layout.crestInset)
 
@@ -60,6 +61,8 @@ final class MatchHeaderView: UIView {
         [homeStack, awayStack].forEach {
             $0.widthAnchor.constraint(lessThanOrEqualTo: widthAnchor, multiplier: Layout.maxSideWidthMultiplier).isActive = true
         }
+        homeStack.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(homeTapped)))
+        awayStack.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(awayTapped)))
     }
 
     required init?(coder: NSCoder) {
@@ -82,6 +85,8 @@ final class MatchHeaderView: UIView {
         minuteLabel.text = minuteOrStatus
     }
 
+    @objc private func homeTapped() { onHomeTapped?() }
+    @objc private func awayTapped() { onAwayTapped?() }
     // MARK: - Private
 
     private func makeTeamStack(crest: UIView, nameLabel: UILabel) -> UIStackView {

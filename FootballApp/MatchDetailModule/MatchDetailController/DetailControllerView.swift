@@ -4,7 +4,7 @@ import UIKit
 final class MatchDetailController: UIViewController {
 
     private let viewModel: MatchDetailViewModel
-
+    weak var coordinator: ClubNavigating?
     init(viewModel: MatchDetailViewModel) {
         self.viewModel = viewModel
         super.init(nibName: nil, bundle: nil)
@@ -93,11 +93,15 @@ final class MatchDetailController: UIViewController {
             score: data.score,
             minuteOrStatus: data.minuteOrStatus
         )
+        let home = ClubReference(name: data.homeName)
+        let away = ClubReference(name: data.awayName)
+        headerView.onHomeTapped = { [weak self] in self?.coordinator?.showClubDetail(for: home) }
+        headerView.onAwayTapped = { [weak self] in self?.coordinator?.showClubDetail(for: away) }
         statsView.configure(with: data.stats)
         eventsView.configure(events: data.events, hasStarted: data.hasStarted)
         lineUpView.configure(with: data.lineups)
         h2hView.configure(with: data.headToHead)
-
+        
         scrollView.isHidden = false
         showTab(.matchDetail)
     }

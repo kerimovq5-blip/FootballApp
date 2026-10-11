@@ -211,7 +211,18 @@ final class SearchController: UIViewController {
         viewModel.commitQuery()
         coordinator?.showLeagueDetail(for: league)
     }
+    private func openClub(_ club: ClubReference) {
+        view.endEditing(true)
+        viewModel.commitQuery()
+        coordinator?.showClubDetail(for: club)
+    }
 
+    /// Loqosu varsa loqo, yoxdursa bayraq, o da yoxdursa ümumi işarə.
+    private func clubIcon(for club: ClubReference) -> SearchRowCell.Icon {
+        if let crest = ClubKey.crest(for: club.name) { return .image(crest) }
+        if let flag = club.flag { return .emoji(flag) }
+        return .symbol("shield")
+    }
     @objc private func backTapped() {
         view.endEditing(true)
         navigationController?.popViewController(animated: true)
@@ -269,7 +280,16 @@ extension SearchController: UICollectionViewDataSource {
                            subtitle: league.country,
                            accessorySymbol: "chevron.right")
             return cell
-
+        case .clubs:
+            guard let cell = collectionView.dequeueReusableCell(
+                withReuseIdentifier: SearchRowCell.reuseID, for: indexPath
+            ) as? SearchRowCell else { return UICollectionViewCell() }
+            let club = viewModel.clubResults[indexPath.item]
+            cell.configure(icon: clubIcon(for: club),
+                           title: club.name,
+                           subtitle: club.country,
+                           accessorySymbol: "chevron.right")
+            return cell
         case .matches:
             guard let cell = collectionView.dequeueReusableCell(
                 withReuseIdentifier: MatchCell.reuseID, for: indexPath
@@ -305,7 +325,12 @@ extension SearchController: UICollectionViewDataSource {
             ) as? SearchSectionHeaderView else { return UICollectionReusableView() }
             header.configure(title: "Leagues", actionTitle: nil)
             return header
-
+        case .clubs:
+            guard let header = collectionView.dequeueReusableSupplementaryView(
+                ofKind: kind, withReuseIdentifier: SearchSectionHeaderView.reuseID, for: indexPath
+            ) as? SearchSectionHeaderView else { return UICollectionReusableView() }
+            header.configure(title: "Teams", actionTitle: nil)
+            return header
         case .matches:
             guard let header = collectionView.dequeueReusableSupplementaryView(
                 ofKind: kind, withReuseIdentifier: LeagueHeaderView.reuseID, for: indexPath
@@ -335,7 +360,9 @@ extension SearchController: UICollectionViewDelegate {
 
         case .leagues:
             openLeague(viewModel.leagueResults[indexPath.item])
-
+        
+        case .clubs:
+            openClub(viewModel.clubResults[indexPath.item])
         case .matches:
             guard let match = viewModel.match(at: indexPath) else { return }
             view.endEditing(true)

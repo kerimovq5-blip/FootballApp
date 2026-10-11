@@ -91,7 +91,7 @@ final class LeagueStandingCell: UITableViewCell {
         return l
     }
 
-    func configure(with standing: Standing) {
+    func configure(with standing: Standing, isHighlighted: Bool = false) {
         positionLabel.text = "\(standing.position)"
         teamLabel.text = standing.teamName
         crestView.image = standing.crestImageName.flatMap(UIImage.init(named:))
@@ -104,5 +104,9 @@ final class LeagueStandingCell: UITableViewCell {
         goalDiffLabel.text = "\(standing.goalDifference)"
         pointsLabel.text = "\(standing.points)"
         container.backgroundColor = standing.zone.backgroundColor
+
+        // Klub səhifəsində klubun öz sətri narıncı çərçivə ilə seçilir.
+        container.layer.borderWidth = isHighlighted ? 1.5 : 0
+        container.layer.borderColor = AppGradient.accentStart.cgColor
     }
 }

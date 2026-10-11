@@ -19,23 +19,20 @@ protocol AuthNavigating: AnyObject {
     func dismissAuth()
     func authFinished()
 }
-
-protocol HomeNavigating: AnyObject {
+protocol HomeNavigating: ClubNavigating {
     func showSearch()
     func showNotifications()
     func showMatchDetail(matchID: Int)
     func showLeagueDetail(for league: League)
 }
 
-protocol ExploreNavigating: AnyObject {
+protocol ExploreNavigating: ClubNavigating {
     func showLeagueDetail(for league: League)
 }
 
-protocol StandingNavigating: AnyObject {
-    
-}
+protocol StandingNavigating: ClubNavigating {}
 
-protocol ProfileNavigating: AnyObject {
+protocol ProfileNavigating: ClubNavigating {
     func showEditProfile()
     func showMatchDetail(matchID: Int)
     func logout()

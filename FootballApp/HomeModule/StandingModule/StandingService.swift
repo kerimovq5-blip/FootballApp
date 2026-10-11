@@ -36,7 +36,8 @@ struct MockStandingService: StandingProviding {
         League(id: 101, name: "Premier League", country: "England", flag: "🇬🇧", matches: []),
         League(id: 102, name: "La Liga", country: "Spain", flag: "🇪🇸", matches: []),
         League(id: 103, name: "Serie A", country: "Italy", flag: "🇮🇹", matches: []),
-        League(id: 106, name: "Trendyol Süper Lig", country: "Turkey", flag: "🇹🇷", matches: [])
+        League(id: 106, name: "Trendyol Süper Lig", country: "Turkey", flag: "🇹🇷", matches: []),
+        League(id: 108, name: "UEFA Champions League", country: "Europe", flag: "🇪🇺", matches: [])
     ]
     func fetchStandings(for league: League,
                         filter: StandingFilter,
@@ -108,10 +109,10 @@ struct MockStandingService: StandingProviding {
     private static let rows: [String: [Row]] = [
         "Premier League": [
             row("Arsenal", 8, 2, 1, 24, 8),
-            row("Man City", 7, 3, 1, 26, 10),
+            row("Manchester City", 7, 3, 1, 26, 10),
             row("Liverpool", 7, 2, 2, 22, 11),
             row("Chelsea", 6, 3, 2, 20, 12),
-            row("Tottenham", 5, 3, 3, 19, 15),
+            row("Tottenham Hotspur", 5, 3, 3, 19, 15),
             row("Newcastle", 5, 2, 4, 17, 14),
             row("Aston Villa", 4, 3, 4, 15, 16),
             row("Brighton", 3, 3, 5, 13, 17),
@@ -153,6 +154,18 @@ struct MockStandingService: StandingProviding {
                     row("Konyaspor", 3, 3, 5, 11, 15),
                     row("Rizespor", 2, 3, 6, 9, 18),
                     row("Kayserispor", 1, 3, 7, 8, 21)
-                ]
+                ],
+        "UEFA Champions League": [
+            row("Arsenal", 5, 1, 0, 14, 3),
+            row("Real Madrid", 4, 1, 1, 12, 5),
+            row("Barcelona", 4, 1, 1, 15, 7),
+            row("Liverpool", 4, 0, 2, 11, 6),
+            row("Inter", 3, 2, 1, 10, 5),
+            row("Napoli", 3, 1, 2, 8, 7),
+            row("Juventus", 2, 2, 2, 7, 7),
+            row("Aston Villa", 2, 1, 3, 7, 9),
+            row("Atlético Madrid", 1, 2, 3, 6, 10),
+            row("Chelsea", 1, 1, 4, 5, 12)
+        ]
     ]
 }

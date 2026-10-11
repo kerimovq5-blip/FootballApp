@@ -42,6 +42,7 @@ final class HomeCoordinator: NSObject, NavigationCoordinator, HomeNavigating {
 
     func showLeagueDetail(for league: League) {
         let vc = LeagueDetailController(league: league)
+        vc.coordinator = self
         vc.hidesBottomBarWhenPushed = true
         navigationController.pushViewController(vc, animated: true)
     }
@@ -49,6 +50,7 @@ final class HomeCoordinator: NSObject, NavigationCoordinator, HomeNavigating {
     func showMatchDetail(matchID: Int) {
         let viewModel = MatchDetailViewModel(matchID: matchID, service: matchDetailService)
         let vc = MatchDetailController(viewModel: viewModel)
+        vc.coordinator = self
         vc.hidesBottomBarWhenPushed = true
         navigationController.pushViewController(vc, animated: true)
     }

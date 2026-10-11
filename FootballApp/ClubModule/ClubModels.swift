@@ -1,0 +1,119 @@
+//
+//  ClubReference.swift
+//  FootballApp
+//
+//  Created by Servan on 11.10.26.
+//
+
+
+//
+//  ClubModels.swift
+//  FootballApp
+//
+
+import UIKit
+
+/// Klubu tanıtmaq üçün yüngül istinad. Mock datada Home, Explore və Standing fərqli id işlədir,
+/// ona görə klub adı ilə tanınır. API gələndə id əlavə olunacaq.
+struct ClubReference {
+    let name: String
+    /// Mənbə bilirsə (məs. Explore reytinqi) ötürülür, yoxsa liqadan götürülür.
+    var country: String? = nil
+    var flag: String? = nil
+}
+
+enum ClubKey {
+    /// Hərf böyüklüyü və işarələr (é, ş, ç...) nəzərə alınmadan müqayisə üçün açar.
+    static func make(_ name: String) -> String {
+        name.folding(options: [.diacriticInsensitive, .caseInsensitive], locale: nil)
+            .filter { $0.isLetter }
+    }
+
+    /// Assets-də "realmadrid" kimi adlı loqo varsa tapır.
+    static func crest(for name: String) -> UIImage? {
+        UIImage(named: name.lowercased().filter { $0.isLetter }) ?? UIImage(named: make(name))
+    }
+}
+
+enum ClubTab: CaseIterable {
+    case overview, matches, standing
+
+    var title: String {
+        switch self {
+        case .overview: return "Overview"
+        case .matches: return "Matches"
+        case .standing: return "Standing"
+        }
+    }
+}
+
+enum ClubResult {
+    case win, draw, loss
+
+    var title: String {
+        switch self {
+        case .win: return "W"
+        case .draw: return "D"
+        case .loss: return "L"
+        }
+    }
+
+    var color: UIColor {
+        switch self {
+        case .win: return .systemGreen
+        case .draw: return UIColor.white.withAlphaComponent(0.35)
+        case .loss: return .systemRed
+        }
+    }
+}
+
+struct ClubMatch {
+    /// Oyun detalı olan oyunlarda dolu olur; yoxdursa sətrə toxunmaq bir şey açmır.
+    let matchID: Int?
+    let competition: String
+    let dateText: String
+    let home: String
+    let away: String
+    let homeScore: Int?
+    let awayScore: Int?
+    /// Canlıda dəqiqə, gələcək oyunda start vaxtı, bitmişdə "FT".
+    let statusText: String
+    let isLive: Bool
+
+    /// Klub baxımından nəticə (hesab yoxdursa nil).
+    func result(for clubKey: String) -> ClubResult? {
+        guard let homeScore, let awayScore else { return nil }
+        let isHome = ClubKey.make(home) == clubKey
+        let own = isHome ? homeScore : awayScore
+        let other = isHome ? awayScore : homeScore
+        if own > other { return .win }
+        return own == other ? .draw : .loss
+    }
+}
+
+struct ClubProfile {
+    let name: String
+    let country: String?
+    let flag: String?
+    let founded: Int?
+    let stadium: String?
+    let competitions: [String]
+}
+
+/// Klubun iştirak etdiyi bir turnirin cədvəli.
+struct ClubTable {
+    let league: League
+    let standings: [Standing]
+}
+
+struct ClubDetailContent {
+    let profile: ClubProfile
+    /// Son oyunlar, köhnədən yeniyə (ən yenisi sağda).
+    let form: [ClubResult]
+    /// Canlı və gələcək oyunlar.
+    let upcoming: [ClubMatch]
+    /// Bitmiş oyunlar, ən yenisi birinci.
+    let results: [ClubMatch]
+    /// Domestik liqa birinci gəlir.
+    let tables: [ClubTable]
+}

@@ -1,12 +1,4 @@
 //
-//  SearchSection.swift
-//  FootballApp
-//
-//  Created by Servan on 10.10.26.
-//
-
-
-//
 //  SearchViewModel.swift
 //  FootballApp
 //
@@ -14,10 +6,10 @@
 import Foundation
 import UIKit
 
-
 enum SearchSection {
     case recent
     case leagues
+    case clubs
     case matches(leagueIndex: Int)
 }
 
@@ -30,6 +22,7 @@ final class SearchViewModel {
     private(set) var sections: [SearchSection] = []
     private(set) var recentSearches: [String]
     private(set) var leagueResults: [League] = []
+    private(set) var clubResults: [ClubReference] = []
     /// Yalnız axtarışa uyğun oyunlar, liqalara görə qruplaşdırılmış.
     private(set) var matchResults: [League] = []
 
@@ -64,6 +57,7 @@ final class SearchViewModel {
         switch sections[section] {
         case .recent: return recentSearches.count
         case .leagues: return leagueResults.count
+        case .clubs: return clubResults.count
         case .matches(let index): return matchResults[index].matches.count
         }
     }
@@ -99,7 +93,8 @@ final class SearchViewModel {
 
     /// Axtarış faydalı olubsa (nəticə var) son axtarışlara yazılır.
     func commitQuery() {
-        guard !trimmedQuery.isEmpty, !leagueResults.isEmpty || !matchResults.isEmpty else { return }
+        let hasResults = !leagueResults.isEmpty || !clubResults.isEmpty || !matchResults.isEmpty
+        guard !trimmedQuery.isEmpty, hasResults else { return }
         recents.add(trimmedQuery)
         recentSearches = recents.items
     }
@@ -117,6 +112,7 @@ final class SearchViewModel {
 
         if text.isEmpty {
             leagueResults = []
+            clubResults = []
             matchResults = []
             sections = recentSearches.isEmpty ? [] : [.recent]
         } else {
@@ -125,6 +121,7 @@ final class SearchViewModel {
             leagueResults = source.leagues.filter {
                 matches($0.name, text) || matches($0.country, text)
             }
+            clubResults = Array(source.clubs.filter { matches($0.name, text) }.prefix(10))
             matchResults = source.matchLeagues.compactMap { league in
                 let found = league.matches.filter { matches($0.home, text) || matches($0.away, text) }
                 guard !found.isEmpty else { return nil }
@@ -134,6 +131,7 @@ final class SearchViewModel {
 
             var result: [SearchSection] = []
             if !leagueResults.isEmpty { result.append(.leagues) }
+            if !clubResults.isEmpty { result.append(.clubs) }
             result += matchResults.indices.map { SearchSection.matches(leagueIndex: $0) }
             sections = result
         }

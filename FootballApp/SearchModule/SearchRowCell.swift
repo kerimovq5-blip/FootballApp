@@ -20,6 +20,7 @@ final class SearchRowCell: UICollectionViewCell {
     enum Icon {
         case emoji(String)
         case symbol(String)
+        case image(UIImage)
     }
 
     private let card: UIView = {
@@ -105,8 +106,8 @@ final class SearchRowCell: UICollectionViewCell {
         symbolView
             .centerX(iconCircle.centerXAnchor).0
             .centerY(iconCircle.centerYAnchor).0
-            .width(20).0
-            .height(20)
+            .width(26).0
+            .height(26)
 
         accessoryView
             .trailing(card.trailingAnchor, -16).0
@@ -138,6 +139,10 @@ final class SearchRowCell: UICollectionViewCell {
             symbolView.isHidden = true
         case .symbol(let name):
             symbolView.image = UIImage(systemName: name)
+            symbolView.isHidden = false
+            emojiLabel.isHidden = true
+        case .image(let image):
+            symbolView.image = image.withRenderingMode(.alwaysOriginal)
             symbolView.isHidden = false
             emojiLabel.isHidden = true
         }

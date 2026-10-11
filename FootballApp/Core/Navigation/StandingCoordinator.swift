@@ -7,7 +7,7 @@
 
 import UIKit
 
-final class StandingCoordinator: NavigationCoordinator, StandingNavigating {
+final class StandingCoordinator: NSObject, NavigationCoordinator, StandingNavigating {
     let navigationController: UINavigationController
     var childCoordinators: [Coordinator] = []
 
@@ -17,13 +17,37 @@ final class StandingCoordinator: NavigationCoordinator, StandingNavigating {
          standingService: StandingProviding = MockStandingService()) {
         self.navigationController = navigationController
         self.standingService = standingService
+        super.init()
+        navigationController.delegate = self
     }
 
     func start() {
         let viewModel = StandingViewModel(service: standingService)
         let vc = StandingViewController(viewModel: viewModel)
         vc.coordinator = self
-        navigationController.setNavigationBarHidden(true, animated: false)
         navigationController.setViewControllers([vc], animated: false)
     }
-} 
+}
+
+// MARK: - UINavigationControllerDelegate
+
+extension StandingCoordinator: UINavigationControllerDelegate {
+    func navigationController(_ navigationController: UINavigationController,
+                              willShow viewController: UIViewController,
+                              animated: Bool) {
+        let hidesBar = viewController is HidesNavigationBar
+        navigationController.setNavigationBarHidden(hidesBar, animated: animated)
+
+        // Bar gizli olanda UIKit swipe-back jestini söndürür; burada qaytarırıq.
+        navigationController.interactivePopGestureRecognizer?.delegate = self
+    }
+}
+
+// MARK: - UIGestureRecognizerDelegate
+
+extension StandingCoordinator: UIGestureRecognizerDelegate {
+    /// Root ekranda jest başlamasın (yoxsa UI donur).
+    func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {
+        navigationController.viewControllers.count > 1
+    }
+}

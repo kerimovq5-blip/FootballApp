@@ -10,6 +10,7 @@ import UIKit
 final class LeagueDetailController: UIViewController {
 
     private let league: League
+    weak var coordinator: ClubNavigating?
     private let service: StandingProviding
     private var standings: [Standing] = []
     private var selectedFilter: StandingFilter = .all {
@@ -93,6 +94,7 @@ final class LeagueDetailController: UIViewController {
         tv.backgroundColor = .clear
         tv.separatorStyle = .none
         tv.dataSource = self
+        tv.delegate = self
         tv.register(LeagueStandingCell.self, forCellReuseIdentifier: LeagueStandingCell.reuseID)
         return tv
     }()
@@ -189,4 +191,11 @@ extension LeagueDetailController: UITableViewDataSource {
     }
 }
 
+
+extension LeagueDetailController: UITableViewDelegate {
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        tableView.deselectRow(at: indexPath, animated: true)
+        coordinator?.showClubDetail(for: ClubReference(name: standings[indexPath.row].teamName))
+    }
+}
 extension LeagueDetailController: HidesNavigationBar {}

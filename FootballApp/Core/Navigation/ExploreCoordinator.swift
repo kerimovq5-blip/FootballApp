@@ -29,6 +29,7 @@ final class ExploreCoordinator: NSObject, NavigationCoordinator, ExploreNavigati
 
     func showLeagueDetail(for league: League) {
         let vc = LeagueDetailController(league: league)
+        vc.coordinator = self
         vc.hidesBottomBarWhenPushed = true
         navigationController.pushViewController(vc, animated: true)
     }

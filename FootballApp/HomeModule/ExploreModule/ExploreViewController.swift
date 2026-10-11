@@ -166,9 +166,17 @@ extension ExploreViewController: UITableViewDelegate {
 
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
-        // Yalnız liqalara toxunmaq mümkündür; sıralama sətirləri məlumat üçündür.
-        guard viewModel.selectedTab == .leagues else { return }
-        coordinator?.showLeagueDetail(for: viewModel.leagues[indexPath.row])
+        switch viewModel.selectedTab {
+        case .leagues:
+            coordinator?.showLeagueDetail(for: viewModel.leagues[indexPath.row])
+        case .uefaClubs:
+            let entry = viewModel.rankings[indexPath.row]
+            coordinator?.showClubDetail(for: ClubReference(name: entry.name,
+                                                           country: entry.subtitle,
+                                                           flag: entry.flag))
+        case .fifaNations, .uefaCountries:
+            break
+        }
     }
 }
 
