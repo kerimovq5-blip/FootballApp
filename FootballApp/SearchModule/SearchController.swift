@@ -70,6 +70,13 @@ final class SearchController: UIViewController {
         }, for: .editingChanged)
         return field
     }()
+    private lazy var scopeTabBar: PillTabBar = {
+        let bar = PillTabBar(titles: SearchScope.allCases.map { $0.title }, alignment: .leading)
+        bar.onSelect = { [weak self] index in
+            self?.viewModel.select(scope: SearchScope.allCases[index])
+        }
+        return bar
+    }()
 
     private lazy var collectionView: UICollectionView = {
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: makeLayout())
@@ -133,8 +140,7 @@ final class SearchController: UIViewController {
 
     private func setupLayout() {
         let padding = AppLayout.screenPadding.value
-        view.addSubviews(backButton, searchField, collectionView, messageStack)
-
+        view.addSubviews(backButton, searchField, scopeTabBar, collectionView, messageStack)
         searchField
             .top(view.safeAreaLayoutGuide.topAnchor, AppLayout.smallSpacing.value).0
             .leading(backButton.trailingAnchor, AppLayout.smallSpacing.value).0
@@ -147,14 +153,19 @@ final class SearchController: UIViewController {
             .width(32).0
             .height(32)
 
-        collectionView
+        scopeTabBar
             .top(searchField.bottomAnchor, AppLayout.spacing.value).0
+            .leading(view.leadingAnchor, padding).0
+            .trailing(view.trailingAnchor, -padding)
+
+        collectionView
+            .top(scopeTabBar.bottomAnchor, AppLayout.spacing.value).0
             .leading(view.leadingAnchor).0
             .trailing(view.trailingAnchor).0
             .bottom(view.keyboardLayoutGuide.topAnchor)
 
         messageStack
-            .top(searchField.bottomAnchor, 80).0
+            .top(scopeTabBar.bottomAnchor, 80).0
             .leading(view.leadingAnchor, 40).0
             .trailing(view.trailingAnchor, -40)
     }
@@ -215,6 +226,17 @@ final class SearchController: UIViewController {
         view.endEditing(true)
         viewModel.commitQuery()
         coordinator?.showClubDetail(for: club)
+    }
+    private func openPlayer(_ player: PlayerReference) {
+        view.endEditing(true)
+        viewModel.commitQuery()
+        coordinator?.showPlayerDetail(for: player)
+    }
+
+    /// Başlıqdakı "See all": tab-ı dəyişir və nəticələri həmin tab-a görə göstərir.
+    private func showAll(_ scope: SearchScope) {
+        scopeTabBar.select(SearchScope.allCases.firstIndex(of: scope) ?? 0, notify: false)
+        viewModel.select(scope: scope)
     }
 
     /// Loqosu varsa loqo, yoxdursa bayraq, o da yoxdursa ümumi işarə.
@@ -290,6 +312,16 @@ extension SearchController: UICollectionViewDataSource {
                            subtitle: club.country,
                            accessorySymbol: "chevron.right")
             return cell
+        case .players:
+            guard let cell = collectionView.dequeueReusableCell(
+                withReuseIdentifier: SearchRowCell.reuseID, for: indexPath
+            ) as? SearchRowCell else { return UICollectionViewCell() }
+            let player = viewModel.playerResults[indexPath.item]
+            cell.configure(icon: .emoji(player.flag),
+                           title: player.reference.name,
+                           subtitle: "\(player.reference.clubName ?? "") · \(player.position.singularTitle)",
+                           accessorySymbol: "chevron.right")
+            return cell
         case .matches:
             guard let cell = collectionView.dequeueReusableCell(
                 withReuseIdentifier: MatchCell.reuseID, for: indexPath
@@ -329,7 +361,18 @@ extension SearchController: UICollectionViewDataSource {
             guard let header = collectionView.dequeueReusableSupplementaryView(
                 ofKind: kind, withReuseIdentifier: SearchSectionHeaderView.reuseID, for: indexPath
             ) as? SearchSectionHeaderView else { return UICollectionReusableView() }
-            header.configure(title: "Teams", actionTitle: nil)
+            let section = viewModel.sections[indexPath.section]
+            header.configure(title: "Teams", actionTitle: viewModel.showsSeeAll(for: section) ? "See all" : nil)
+            header.onAction = { [weak self] in self?.showAll(.teams) }
+            return header
+
+        case .players:
+            guard let header = collectionView.dequeueReusableSupplementaryView(
+                ofKind: kind, withReuseIdentifier: SearchSectionHeaderView.reuseID, for: indexPath
+            ) as? SearchSectionHeaderView else { return UICollectionReusableView() }
+            let section = viewModel.sections[indexPath.section]
+            header.configure(title: "Players", actionTitle: viewModel.showsSeeAll(for: section) ? "See all" : nil)
+            header.onAction = { [weak self] in self?.showAll(.players) }
             return header
         case .matches:
             guard let header = collectionView.dequeueReusableSupplementaryView(
@@ -363,6 +406,8 @@ extension SearchController: UICollectionViewDelegate {
         
         case .clubs:
             openClub(viewModel.clubResults[indexPath.item])
+        case .players:
+            openPlayer(viewModel.playerResults[indexPath.item].reference)
         case .matches:
             guard let match = viewModel.match(at: indexPath) else { return }
             view.endEditing(true)

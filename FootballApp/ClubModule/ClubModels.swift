@@ -58,6 +58,16 @@ enum PlayerPosition: CaseIterable {
         case .midfielder: return "Midfielders"
         case .forward: return "Forwards"
         }
+        
+    }
+    /// Tək oyunçunun mövqeyi: "Midfielder".
+    var singularTitle: String {
+        switch self {
+        case .goalkeeper: return "Goalkeeper"
+        case .defender: return "Defender"
+        case .midfielder: return "Midfielder"
+        case .forward: return "Forward"
+        }
     }
 }
 

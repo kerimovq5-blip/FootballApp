@@ -2,13 +2,6 @@
 //  MockSquad.swift
 //  FootballApp
 //
-//  Created by Servan on 11.10.26.
-//
-
-//
-//  MockSquad.swift
-//  FootballApp
-//
 
 import Foundation
 
@@ -16,36 +9,45 @@ import Foundation
 /// Eyni klub üçün həmişə eyni heyət çıxır.
 enum MockSquad {
 
+    /// Mövqe və forma nömrələri: 3 qapıçı, 8 müdafiəçi, 8 yarımmüdafiəçi, 6 hücumçu.
+    private static let plan: [(PlayerPosition, [Int])] = [
+        (.goalkeeper, [1, 13, 31]),
+        (.defender, [2, 3, 4, 5, 12, 15, 23, 24]),
+        (.midfielder, [6, 8, 10, 14, 16, 18, 20, 21]),
+        (.forward, [7, 9, 11, 17, 19, 22])
+    ]
+
+    /// Forma nömrəsinə görə ehtimal olunan mövqe (heyətdə olmayan oyunçular üçün ehtiyat).
+    static func position(forNumber number: Int) -> PlayerPosition? {
+        plan.first { $0.1.contains(number) }?.0
+    }
+
     static func make(clubKey: String, homeCountry: String?, homeFlag: String?) -> [SquadPlayer] {
-        var rng = SeededGenerator(seed: clubKey)
+        // Adlar yalnız klub adından asılıdır (ölkə məlumatı olsa-olmasa eyni qalır).
+        var nameRng = SeededGenerator(seed: clubKey)
         var usedNames = Set<String>()
-
-        // Mövqe və forma nömrələri: 3 qapıçı, 8 müdafiəçi, 8 yarımmüdafiəçi, 6 hücumçu.
-        let plan: [(PlayerPosition, [Int])] = [
-            (.goalkeeper, [1, 13, 31]),
-            (.defender, [2, 3, 4, 5, 12, 15, 23, 24]),
-            (.midfielder, [6, 8, 10, 14, 16, 18, 20, 21]),
-            (.forward, [7, 9, 11, 17, 19, 22])
-        ]
-
         var players: [SquadPlayer] = []
+
         for (position, numbers) in plan {
             for number in numbers {
                 var name = ""
                 repeat {
-                    name = "\(firstNames[rng.next(firstNames.count)]) \(lastNames[rng.next(lastNames.count)])"
+                    name = "\(firstNames[nameRng.next(firstNames.count)]) \(lastNames[nameRng.next(lastNames.count)])"
                 } while !usedNames.insert(name).inserted
+
+                // Yaş və vətəndaşlıq hər oyunçu üçün öz sabit generatorundan gəlir.
+                var traits = SeededGenerator(seed: "\(clubKey)#\(name)")
 
                 // Futbolçuların təxminən yarısı klubun öz ölkəsindəndir.
                 let nationality: (country: String, flag: String)
-                if let homeCountry, let homeFlag, rng.next(10) < 5 {
+                if let homeCountry, let homeFlag, traits.next(10) < 5 {
                     nationality = (homeCountry, homeFlag)
                 } else {
-                    nationality = nationalities[rng.next(nationalities.count)]
+                    nationality = nationalities[traits.next(nationalities.count)]
                 }
 
                 let isKeeper = position == .goalkeeper
-                let age = (isKeeper ? 22 : 18) + rng.next(isKeeper ? 15 : 18)
+                let age = (isKeeper ? 22 : 18) + traits.next(isKeeper ? 15 : 18)
 
                 players.append(SquadPlayer(number: number, name: name, position: position, age: age,
                                            nationality: nationality.country, flag: nationality.flag))
@@ -75,9 +77,9 @@ enum MockSquad {
     ]
 }
 
-/// Klub adından sabit başlanğıc alan təsadüfi say generatoru
+/// Verilən mətndən sabit başlanğıc alan təsadüfi say generatoru
 /// (Swift-in hashValue-su hər açılışda dəyişir, ona görə FNV-1a istifadə olunur).
-private struct SeededGenerator {
+struct SeededGenerator {
     private var state: UInt64
 
     init(seed: String) {

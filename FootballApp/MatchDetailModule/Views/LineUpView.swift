@@ -1,7 +1,9 @@
 import UIKit
 
 final class LineUpView: UIView {
-
+    /// Oyunçu və onun komandasının adı.
+    var onPlayerTapped: ((LineupPlayer, String) -> Void)?
+    
     private enum Layout {
         /// Dizayndakı meydançanın hündürlük / en nisbəti.
         static let pitchAspectRatio: CGFloat = 1.134
@@ -98,7 +100,11 @@ final class LineUpView: UIView {
         formationLabel.attributedText = makeFormationText(team.formation)
 
         let apply: () -> Void = { [weak self] in
-            self?.pitchView.configure(lineup: team, isPredicted: !lineups.isConfirmed)
+            guard let self else { return }
+            self.pitchView.onPlayerTapped = { [weak self] player in
+                self?.onPlayerTapped?(player, team.teamName)
+            }
+            self.pitchView.configure(lineup: team, isPredicted: !lineups.isConfirmed)
         }
         if animated {
             UIView.transition(with: pitchView, duration: 0.25, options: .transitionCrossDissolve, animations: apply)

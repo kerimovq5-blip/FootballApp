@@ -2,20 +2,13 @@
 //  ClubNavigating.swift
 //  FootballApp
 //
-//  Created by Servan on 11.10.26.
-//
-
-
-//
-//  ClubNavigating.swift
-//  FootballApp
-//
 
 import UIKit
 
-/// Klub səhifəsinə və oyun detalına keçid. Bütün tab-ların navigation protokolları bunu genişləndirir.
+/// Klub, oyunçu və oyun detalına keçid. Bütün tab-ların navigation protokolları bunu genişləndirir.
 protocol ClubNavigating: AnyObject {
     func showClubDetail(for club: ClubReference)
+    func showPlayerDetail(for player: PlayerReference)
     func showMatchDetail(matchID: Int)
 }
 
@@ -27,6 +20,14 @@ extension ClubNavigating where Self: NavigationCoordinator {
     func showClubDetail(for club: ClubReference) {
         let viewModel = ClubDetailViewModel(club: club, service: MockClubService())
         let vc = ClubDetailController(viewModel: viewModel)
+        vc.coordinator = self
+        vc.hidesBottomBarWhenPushed = true
+        navigationController.pushViewController(vc, animated: true)
+    }
+
+    func showPlayerDetail(for player: PlayerReference) {
+        let viewModel = PlayerDetailViewModel(player: player, service: MockPlayerService())
+        let vc = PlayerDetailController(viewModel: viewModel)
         vc.coordinator = self
         vc.hidesBottomBarWhenPushed = true
         navigationController.pushViewController(vc, animated: true)

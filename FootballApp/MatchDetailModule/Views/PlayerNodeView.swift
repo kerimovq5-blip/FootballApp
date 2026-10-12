@@ -9,7 +9,7 @@ import UIKit
 
 /// Meydançadakı bir oyunçu: nömrəli dairə, altında ad etiketi, küncdə kapitan / qol / kart nişanları.
 final class PlayerNodeView: UIView {
-
+    var onTap: (() -> Void)?
     static let circleSize: CGFloat = 28
 
     private enum Layout {
@@ -36,6 +36,7 @@ final class PlayerNodeView: UIView {
         super.init(frame: frame)
         clipsToBounds = false
         setupViews()
+        addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(tapped)))
     }
 
     required init?(coder: NSCoder) {
@@ -119,7 +120,8 @@ final class PlayerNodeView: UIView {
             .bottom(circleView.topAnchor, 8).0
             .trailing(circleView.trailingAnchor, 8)
     }
-
+    
+    @objc private func tapped() { onTap?() }
     // MARK: - Badges
 
     private func makeCaptainBadge() -> UIView {

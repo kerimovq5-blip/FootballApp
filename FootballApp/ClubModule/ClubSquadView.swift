@@ -14,7 +14,8 @@
 import UIKit
 
 final class ClubSquadView: UIView {
-
+    /// Oyunçu sətrinə toxunanda çağırılır.
+    var onSelectPlayer: ((SquadPlayer) -> Void)?
     private struct PositionGroup {
         let position: PlayerPosition
         let players: [SquadPlayer]
@@ -28,7 +29,6 @@ final class ClubSquadView: UIView {
         tableView.separatorStyle = .none
         tableView.showsVerticalScrollIndicator = false
         tableView.sectionHeaderTopPadding = 0
-        tableView.allowsSelection = false
         tableView.contentInset.bottom = 24
         tableView.dataSource = self
         tableView.delegate = self
@@ -137,6 +137,10 @@ extension ClubSquadView: UITableViewDelegate {
     func tableView(_ tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
         .leastNormalMagnitude
     }
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        tableView.deselectRow(at: indexPath, animated: true)
+        onSelectPlayer?(groups[indexPath.section].players[indexPath.row])
+    }
 }
 
 // MARK: - Oyunçu sətri
@@ -233,8 +237,18 @@ final class ClubPlayerCell: UITableViewCell {
         textStack
             .leading(numberCircle.trailingAnchor, 14).0
             .centerY(card.centerYAnchor)
+        let chevron = UIImageView(image: UIImage(
+            systemName: "chevron.right",
+            withConfiguration: UIImage.SymbolConfiguration(pointSize: 12, weight: .semibold)
+        ))
+        chevron.tintColor = UIColor.white.withAlphaComponent(0.4)
+        card.addSubviews(chevron)
+        chevron
+            .trailing(card.trailingAnchor, -16).0
+            .centerY(card.centerYAnchor)
+
         textStack.trailingAnchor
-            .constraint(lessThanOrEqualTo: card.trailingAnchor, constant: -16)
+            .constraint(lessThanOrEqualTo: chevron.leadingAnchor, constant: -8)
             .isActive = true
     }
 }

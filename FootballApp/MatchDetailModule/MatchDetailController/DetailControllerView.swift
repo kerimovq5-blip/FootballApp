@@ -97,6 +97,17 @@ final class MatchDetailController: UIViewController {
         let away = ClubReference(name: data.awayName)
         headerView.onHomeTapped = { [weak self] in self?.coordinator?.showClubDetail(for: home) }
         headerView.onAwayTapped = { [weak self] in self?.coordinator?.showClubDetail(for: away) }
+        let homeName = data.homeName
+        let awayName = data.awayName
+        eventsView.onPlayerTapped = { [weak self] event in
+            let club = event.side == .home ? homeName : awayName
+            self?.coordinator?.showPlayerDetail(for: PlayerReference(name: event.player, clubName: club))
+        }
+        lineUpView.onPlayerTapped = { [weak self] player, team in
+            self?.coordinator?.showPlayerDetail(for: PlayerReference(name: player.name,
+                                                                     clubName: team,
+                                                                     number: player.number))
+        }
         statsView.configure(with: data.stats)
         eventsView.configure(events: data.events, hasStarted: data.hasStarted)
         lineUpView.configure(with: data.lineups)

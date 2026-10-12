@@ -5,6 +5,12 @@
 
 import Foundation
 
+struct PlayerSearchResult {
+    let reference: PlayerReference
+    let position: PlayerPosition
+    let flag: String
+}
+
 struct SearchContent {
     /// Axtarışda liqa kimi tapılan liqalar.
     let leagues: [League]
@@ -12,6 +18,8 @@ struct SearchContent {
     let matchLeagues: [League]
     /// Axtarışda komanda kimi tapılan klublar.
     var clubs: [ClubReference] = []
+    /// Axtarışda oyunçu kimi tapılan futbolçular.
+    var players: [PlayerSearchResult] = []
 }
 
 protocol SearchProviding {
@@ -44,7 +52,8 @@ struct MockSearchService: SearchProviding {
                                                                  standingClubs: standingClubs)
                         completion(.success(SearchContent(leagues: explore.leagues,
                                                           matchLeagues: home.leagues,
-                                                          clubs: clubs)))
+                                                          clubs: clubs,
+                                                          players: MockSearchService.makePlayers(for: clubs))))
                     case (.failure(let error), _), (_, .failure(let error)):
                         completion(.failure(error))
                     }
@@ -97,5 +106,24 @@ struct MockSearchService: SearchProviding {
         return all
             .filter { seen.insert(ClubKey.make($0.name)).inserted }
             .sorted { $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending }
+    }
+
+    // MARK: - Oyunçular
+
+    /// Hər klubun test heyətindəki oyunçular (club səhifəsindəki heyətlə eynidir), ada görə sıralanmış.
+    private static func makePlayers(for clubs: [ClubReference]) -> [PlayerSearchResult] {
+        clubs
+            .flatMap { club in
+                MockSquad.make(clubKey: ClubKey.make(club.name),
+                               homeCountry: club.country,
+                               homeFlag: club.flag).map { player in
+                    PlayerSearchResult(
+                        reference: PlayerReference(name: player.name, clubName: club.name, number: player.number),
+                        position: player.position,
+                        flag: player.flag
+                    )
+                }
+            }
+            .sorted { $0.reference.name.localizedCaseInsensitiveCompare($1.reference.name) == .orderedAscending }
     }
 }

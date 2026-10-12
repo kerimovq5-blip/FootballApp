@@ -8,7 +8,9 @@ import UIKit
 
 /// Ortadakı şaquli xətt boyunca dəqiqələrə görə hadisələr: ev sahibi solda, qonaq sağda.
 final class MatchEventsView: UIView {
-
+    
+    var onPlayerTapped: ((MatchEvent) -> Void)?
+    
     private let timelineStack: UIStackView = {
         let stack = UIStackView()
         stack.axis = .vertical
@@ -70,7 +72,11 @@ final class MatchEventsView: UIView {
 
     func configure(events: [MatchEvent], hasStarted: Bool) {
         timelineStack.arrangedSubviews.forEach { $0.removeFromSuperview() }
-        events.forEach { timelineStack.addArrangedSubview(MatchEventRow(event: $0)) }
+        events.forEach { event in
+            let row = MatchEventRow(event: event)
+            row.onTap = { [weak self] in self?.onPlayerTapped?(event) }
+            timelineStack.addArrangedSubview(row)
+        }
 
         timelineContainer.isHidden = events.isEmpty
         emptyLabel.isHidden = !events.isEmpty
@@ -83,6 +89,8 @@ final class MatchEventsView: UIView {
 // MARK: - Row
 
 private final class MatchEventRow: UIView {
+    
+    var onTap: (() -> Void)?
 
     private enum Layout {
         static let badgeMinWidth: CGFloat = 46
@@ -145,6 +153,7 @@ private final class MatchEventRow: UIView {
             .trailing(badge.trailingAnchor, -8)
 
         let content = makeContent(for: event)
+        content.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(contentTapped)))
         addSubviews(badge, content)
 
         badge
@@ -202,4 +211,5 @@ private final class MatchEventRow: UIView {
         stack.spacing = 8
         return stack
     }
+    @objc private func contentTapped() { onTap?() } 
 }

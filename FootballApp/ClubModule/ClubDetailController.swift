@@ -70,6 +70,7 @@ final class ClubDetailController: UIViewController {
     private lazy var tabBar = PillTabBar(titles: ClubTab.allCases.map { $0.title }, alignment: .leading)
 
     private let contentContainer = UIView()
+    private var clubName = ""
     private let overviewView = ClubOverviewView()
     private let matchesView = ClubMatchesView()
     private let standingView = ClubStandingView()
@@ -98,7 +99,13 @@ final class ClubDetailController: UIViewController {
         standingView.onSelectClub = { [weak self] name in
             self?.coordinator?.showClubDetail(for: ClubReference(name: name))
         }
-
+        clubName = viewModel.club.name
+        squadView.onSelectPlayer = { [weak self] player in
+            guard let self else { return }
+            self.coordinator?.showPlayerDetail(for: PlayerReference(name: player.name,
+                                                                    clubName: self.clubName,
+                                                                    number: player.number))
+        }
         bindViewModel()
         viewModel.load()
     }
@@ -154,12 +161,13 @@ final class ClubDetailController: UIViewController {
 
     private func configureHeader(name: String, country: String?, flag: String?) {
         nameLabel.text = name
-        crestView.configure(name: name)
+        crestView.configure(initials: name)
         subtitleLabel.text = [flag, country].compactMap { $0 }.joined(separator: " ")
     }
 
     private func apply(_ content: ClubDetailContent) {
         let profile = content.profile
+        clubName = profile.name
         configureHeader(name: profile.name, country: profile.country, flag: profile.flag)
 
         overviewView.configure(with: content)

@@ -48,11 +48,10 @@ final class ClubCrestView: UIView {
         fatalError("init(coder:) has not been implemented")
     }
 
-    func configure(name: String) {
-        let image = ClubKey.crest(for: name)
-        imageView.image = image
-        imageView.isHidden = image == nil
-        initialsLabel.text = String(name.prefix(3)).uppercased()
-        initialsLabel.isHidden = image != nil
+    func configure(initials: String) {
+        imageView.image = nil
+        imageView.isHidden = true
+        initialsLabel.text = initials
+        initialsLabel.isHidden = false
     }
 }

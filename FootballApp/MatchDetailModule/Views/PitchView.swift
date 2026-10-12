@@ -10,7 +10,7 @@ import UIKit
 /// Zolaqlı yaşıl meydança: yarımmüdafiə xətti, mərkəz dairəsi, cərimə meydançası və künc qövsləri çəkilir,
 /// oyunçular normallaşdırılmış koordinatlara görə yerləşdirilir.
 final class PitchView: UIView {
-
+    var onPlayerTapped: ((LineupPlayer) -> Void)?
     private enum Layout {
         static let cornerRadius: CGFloat = 16
         static let stripeCount = 8
@@ -51,6 +51,7 @@ final class PitchView: UIView {
         nodes = FormationLayout.slots(for: lineup).map { slot in
             let node = PlayerNodeView()
             node.configure(player: slot.player, isPredicted: isPredicted)
+            node.onTap = { [weak self] in self?.onPlayerTapped?(slot.player) }
             addSubview(node)
             return (node, slot)
         }
