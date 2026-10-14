@@ -17,7 +17,7 @@ final class LeagueDetailController: UIViewController {
         didSet { loadStandings() }
     }
 
-    init(league: League, service: StandingProviding = MockStandingService()) {
+    init(league: League, service: StandingProviding = AppEnvironment.current.standing) {
         self.league = league
         self.service = service
         super.init(nibName: nil, bundle: nil)

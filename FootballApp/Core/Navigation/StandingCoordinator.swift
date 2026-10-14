@@ -14,7 +14,7 @@ final class StandingCoordinator: NSObject, NavigationCoordinator, StandingNaviga
     private let standingService: StandingProviding
 
     init(navigationController: UINavigationController = UINavigationController(),
-         standingService: StandingProviding = MockStandingService()) {
+         standingService: StandingProviding = AppEnvironment.current.standing) {
         self.navigationController = navigationController
         self.standingService = standingService
         super.init()

@@ -32,7 +32,7 @@ final class AccountCoordinator: NSObject, NavigationCoordinator, ProfileNavigati
         profileStore: ProfileStoring = UserDefaultsProfileStore(),
         activityStore: ActivityStoring = UserDefaultsActivityStore.shared,
         settings: SettingsStoring = UserDefaultsSettingsStore(),
-        matchDetailService: MatchDetailProviding = MockMatchDetailService(),
+        matchDetailService: MatchDetailProviding = AppEnvironment.current.matchDetail,
         subscriptions: MatchSubscriptionStoring = UserDefaultsMatchSubscriptionStore.shared) {
         self.navigationController = navigationController
         self.authService = authService

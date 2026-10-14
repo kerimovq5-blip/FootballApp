@@ -14,7 +14,7 @@ final class ExploreCoordinator: NSObject, NavigationCoordinator, ExploreNavigati
     private let exploreService: ExploreProviding
 
     init(navigationController: UINavigationController = UINavigationController(),
-         exploreService: ExploreProviding = MockExploreService()) {
+         exploreService: ExploreProviding = AppEnvironment.current.explore) {
         self.navigationController = navigationController
         self.exploreService = exploreService
         super.init()

@@ -12,7 +12,7 @@ final class NotificationsViewModel {
     private let service: HomeProviding
     private let subscriptions: MatchSubscriptionStoring
 
-    init(service: HomeProviding = MockHomeService(),
+    init(service: HomeProviding = AppEnvironment.current.home,
          subscriptions: MatchSubscriptionStoring = UserDefaultsMatchSubscriptionStore.shared) {
         self.service = service
         self.subscriptions = subscriptions

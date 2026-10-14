@@ -53,6 +53,9 @@ final class NetworkManager {
                     do {
                         callback(.success(try JSONDecoder().decode(T.self, from: data)))
                     } catch {
+                        #if DEBUG
+                        print("Decode error for \(T.self): \(error)")
+                        #endif
                         callback(.failure(LocalError.invalidDecode))
                     }
                 }.resume()
