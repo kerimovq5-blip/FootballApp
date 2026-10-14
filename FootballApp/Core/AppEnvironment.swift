@@ -57,13 +57,26 @@ struct AppEnvironment {
     }
 
     /// Real API qoşulduqca mock servislər burada real servislərlə əvəz olunur (dilim-dilim).
+    /// Real API qoşulduqca mock servislər burada real servislərlə əvəz olunur (dilim-dilim).
     static var live: AppEnvironment {
-            let client = APIFootballClient.shared
-            return AppEnvironment(home: APIHomeService(client: client),
-                                  matchDetail: APIMatchDetailService(client: client),
-                                  explore: MockExploreService(),
-                                  standing: MockStandingService())
-        }
+        let client = APIFootballClient.shared
+        let home = APIHomeService(client: client)
+        let explore = MockExploreService()
+        let mockStanding = MockStandingService()
+
+        return AppEnvironment(
+            home: home,
+            matchDetail: APIMatchDetailService(client: client),
+            explore: explore,
+            standing: APIStandingService(client: client),
+            // Klub və axtarış öz dilimlərinə qədər mock cədvəllərdə qalır:
+            // bütün liqaları çəkib hər açılışda 8-9 sorğu işlədərdilər.
+            club: MockClubService(standingService: mockStanding, homeService: home),
+            search: MockSearchService(homeService: home,
+                                      exploreService: explore,
+                                      standingService: mockStanding)
+        )
+    }
 
     /// Tətbiqin işlətdiyi konfiqurasiya. Xcode scheme-də `-useMockData` arqumenti mock-u məcbur edir.
     static var current: AppEnvironment = {

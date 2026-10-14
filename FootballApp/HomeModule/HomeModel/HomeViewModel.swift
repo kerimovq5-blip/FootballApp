@@ -9,43 +9,71 @@ import Foundation
 
 enum HomeSection {
     case banner
+    case day
     case filter
     case league(index: Int)
+    case empty
 }
 
 final class HomeViewModel {
 
-    /// Data və ya filter dəyişəndə çağırılır; ekran reload edir.
+    /// Data, gün və ya filter dəyişəndə çağırılır; ekran reload edir.
     var onChange: (() -> Void)?
     var onFailed: ((String) -> Void)?
 
     private let service: HomeProviding
 
     private(set) var banners: [Banner] = []
+    private(set) var selectedDay: HomeDay = .today
     private(set) var selectedFilter: MatchFilter = .all
     private(set) var filteredLeagues: [League] = []
-    private(set) var sections: [HomeSection] = [.banner, .filter]
+    private(set) var sections: [HomeSection] = [.banner, .day, .filter]
 
     private var leagues: [League] = []
+    /// Seçilmiş günün datası gəlməyib də "oyun yoxdur" yazısı çıxmasın.
+    private var hasLoaded = false
+    /// Tez-tez gün dəyişəndə gec gələn köhnə cavab yeni günün üstünə yazmasın.
+    private var requestID = 0
 
     init(service: HomeProviding) {
         self.service = service
     }
 
+    // MARK: - Output
+
+    /// Boş siyahıda göstərilən mesaj.
+    var emptyMessage: String {
+        selectedFilter == .live ? "No live matches right now." : "No matches on this day."
+    }
+
     // MARK: - Input
 
     func load() {
-        service.fetchHome { [weak self] result in
-            guard let self else { return }
+        requestID += 1
+        let currentRequest = requestID
+
+        service.fetchHome(dayOffset: selectedDay.offset) { [weak self] result in
+            guard let self, currentRequest == self.requestID else { return }
             switch result {
             case .success(let content):
                 self.banners = content.banners
                 self.leagues = content.leagues
+                self.hasLoaded = true
                 self.refresh()
             case .failure(let error):
                 self.onFailed?(error.localizedDescription)
             }
         }
+    }
+
+    func selectDay(_ day: HomeDay) {
+        guard day != selectedDay else { return }
+        selectedDay = day
+        // Köhnə günün oyunları yeni gün yüklənənə qədər görünməsin.
+        leagues = []
+        hasLoaded = false
+        refresh()
+        load()
     }
 
     func selectFilter(_ filter: MatchFilter) {
@@ -67,7 +95,7 @@ final class HomeViewModel {
 
     // MARK: - Private
 
-    /// Filter nəticəsi hər dəyişiklikdə bir dəfə hesablanır (əvvəl hər çağırışda yenidən hesablanırdı).
+    /// Filter nəticəsi hər dəyişiklikdə bir dəfə hesablanır.
     private func refresh() {
         switch selectedFilter {
         case .all:
@@ -80,7 +108,13 @@ final class HomeViewModel {
                               flag: league.flag, matches: live)
             }
         }
-        sections = [.banner, .filter] + filteredLeagues.indices.map { HomeSection.league(index: $0) }
+
+        var result: [HomeSection] = [.banner, .day, .filter]
+        result += filteredLeagues.indices.map { HomeSection.league(index: $0) }
+        if hasLoaded && filteredLeagues.isEmpty {
+            result.append(.empty)
+        }
+        sections = result
         onChange?()
     }
 }

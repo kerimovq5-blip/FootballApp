@@ -21,8 +21,8 @@ struct APIHomeService: HomeProviding {
         self.client = client
     }
 
-    func fetchHome(completion: @escaping (Result<HomeContent, Error>) -> Void) {
-        client.fixtures(date: APIConfig.homeDate) { result in
+    func fetchHome(dayOffset: Int, completion: @escaping (Result<HomeContent, Error>) -> Void) {
+        client.fixtures(date: APIConfig.date(dayOffset: dayOffset)) { result in
             switch result {
             case .success(let fixtures):
                 let leagues = APIFootballMapper.leagues(from: fixtures, allowedIDs: APIConfig.homeLeagueIDs)

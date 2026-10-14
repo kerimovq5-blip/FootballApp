@@ -57,6 +57,8 @@ final class HomeController: UIViewController {
         cv.register(BannerCell.self, forCellWithReuseIdentifier: BannerCell.reuseID)
         cv.register(MatchCell.self, forCellWithReuseIdentifier: MatchCell.reuseID)
         cv.register(MatchFilterCell.self, forCellWithReuseIdentifier: MatchFilterCell.reuseID)
+        cv.register(DayPickerCell.self, forCellWithReuseIdentifier: DayPickerCell.reuseID)
+        cv.register(HomeEmptyCell.self, forCellWithReuseIdentifier: HomeEmptyCell.reuseID)
         cv.register(LeagueHeaderView.self,
                            forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader,
                            withReuseIdentifier: LeagueHeaderView.reuseID)
@@ -115,8 +117,9 @@ final class HomeController: UIViewController {
             guard let self else { return nil }
             switch self.viewModel.sections[sectionIndex] {
             case .banner: return self.bannerSection()
-            case .filter: return self.filterSection()
+            case .day, .filter: return self.filterSection()
             case .league: return self.leagueSection()
+            case .empty: return self.emptySection()
             }
         }
     }
@@ -188,6 +191,19 @@ final class HomeController: UIViewController {
             section.boundarySupplementaryItems = [header]
             return section
         }
+    private func emptySection() -> NSCollectionLayoutSection {
+        let size = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .absolute(120))
+        let item = NSCollectionLayoutItem(layoutSize: size)
+        let group = NSCollectionLayoutGroup.horizontal(layoutSize: size, subitems: [item])
+        let section = NSCollectionLayoutSection(group: group)
+        section.contentInsets = .init(
+            top: 0,
+            leading: AppLayout.screenPadding.value,
+            bottom: 0,
+            trailing: AppLayout.screenPadding.value
+        )
+        return section
+    }
 }
 
 extension HomeController: UICollectionViewDelegate {
@@ -206,7 +222,7 @@ extension HomeController: UICollectionViewDataSource {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         switch viewModel.sections[section] {
         case .banner: return viewModel.banners.count
-        case .filter: return 1
+        case .day, .filter, .empty: return 1
         case .league: return viewModel.league(inSection: section)?.matches.count ?? 0
         }
     }
@@ -230,7 +246,22 @@ extension HomeController: UICollectionViewDataSource {
                     }
                     return cell
 
-        
+        case .day:
+            guard let cell = collectionView.dequeueReusableCell(
+                withReuseIdentifier: DayPickerCell.reuseID, for: indexPath
+            ) as? DayPickerCell else { return UICollectionViewCell() }
+            cell.configure(selected: viewModel.selectedDay)
+            cell.onDayChanged = { [weak self] day in
+                self?.viewModel.selectDay(day)
+            }
+            return cell
+
+        case .empty:
+            guard let cell = collectionView.dequeueReusableCell(
+                withReuseIdentifier: HomeEmptyCell.reuseID, for: indexPath
+            ) as? HomeEmptyCell else { return UICollectionViewCell() }
+            cell.configure(message: viewModel.emptyMessage)
+            return cell
         case .league:
             guard let cell = collectionView.dequeueReusableCell(
                 withReuseIdentifier: MatchCell.reuseID,

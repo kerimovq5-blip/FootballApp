@@ -71,6 +71,10 @@ final class APIFootballClient {
     func headToHead(home: Int, away: Int, completion: @escaping (Result<[FixtureDTO], Error>) -> Void) {
         call(.headToHead(home: home, away: away, last: 10), ttl: 24 * 60 * 60, completion: completion)
     }
+    /// Liqa cədvəli. All, Home və Away eyni cavabdan hesablanır, ona görə bir sorğu kifayətdir.
+    func standings(league: Int, season: Int, completion: @escaping (Result<[StandingsDTO], Error>) -> Void) {
+        call(.standings(league: league, season: season), ttl: 6 * 60 * 60, completion: completion)
+    }
 
     // MARK: - Əsas çağırış
 

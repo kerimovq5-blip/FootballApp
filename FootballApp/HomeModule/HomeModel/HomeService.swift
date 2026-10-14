@@ -13,12 +13,21 @@ struct HomeContent {
 }
 
 protocol HomeProviding {
-    func fetchHome(completion: @escaping (Result<HomeContent, Error>) -> Void)
+    /// `dayOffset`: bu günə nisbətən gün fərqi (-1 dünən, 0 bu gün, 1 sabah).
+    func fetchHome(dayOffset: Int, completion: @escaping (Result<HomeContent, Error>) -> Void)
 }
 
-/// Real API gələnə qədər müvəqqəti implementasiya.
-struct MockHomeService: HomeProviding {
+extension HomeProviding {
+    /// Bu günün oyunları (gün seçimi olmayan yerlər üçün: axtarış, klub, bildirişlər).
     func fetchHome(completion: @escaping (Result<HomeContent, Error>) -> Void) {
-        completion(.success(HomeContent(banners: HomeMockData.banners, leagues: MockData.leagues)))
+        fetchHome(dayOffset: 0, completion: completion)
+    }
+}
+
+/// Real API gələnə qədər müvəqqəti implementasiya. Yalnız "bu gün" dolu gəlir.
+struct MockHomeService: HomeProviding {
+    func fetchHome(dayOffset: Int, completion: @escaping (Result<HomeContent, Error>) -> Void) {
+        let leagues = dayOffset == 0 ? MockData.leagues : []
+        completion(.success(HomeContent(banners: HomeMockData.banners, leagues: leagues)))
     }
 }

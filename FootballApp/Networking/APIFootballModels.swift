@@ -216,3 +216,50 @@ enum StatValue: Decodable {
         }
     }
 }
+// MARK: - Cədvəl
+
+struct StandingsDTO: Decodable {
+
+    struct Info: Decodable {
+        let id: Int
+        let name: String
+        /// Qruplar massivi: adi liqada bir qrup, turnirlərdə bir neçə qrup ola bilər.
+        let standings: [[Row]]
+    }
+
+    struct Row: Decodable {
+        let rank: Int
+        let team: Team
+        /// "Promotion - Champions League ...", "Relegation - ..." kimi.
+        let description: String?
+        let all: Record
+        let home: Record?
+        let away: Record?
+    }
+
+    struct Team: Decodable {
+        let id: Int?
+        let name: String
+        let logo: String?
+    }
+
+    struct Record: Decodable {
+        let played: Int
+        let win: Int
+        let draw: Int
+        let lose: Int
+        let goals: Goals
+    }
+
+    struct Goals: Decodable {
+        let scored: Int
+        let conceded: Int
+
+        private enum CodingKeys: String, CodingKey {
+            case scored = "for"
+            case conceded = "against"
+        }
+    }
+
+    let league: Info
+}

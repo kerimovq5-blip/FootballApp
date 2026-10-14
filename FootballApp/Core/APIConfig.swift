@@ -29,12 +29,10 @@ enum APIConfig {
     /// 419: Azərbaycan Premyer Liqası (id-ni `leagues?country=Azerbaijan` cavabı ilə təsdiqlə).
     static let homeLeagueIDs = [39, 140, 135, 78, 61, 203, 419, 2, 3]
 
-    /// Home-un göstərdiyi gün, bu günə nisbətən: -1 dünən, 0 bu gün, 1 sabah.
+    /// Bu günə nisbətən verilən gün ("yyyy-MM-dd"): -1 dünən, 0 bu gün, 1 sabah.
     /// Pulsuz plan yalnız bu üç gün üçün oyun verir.
-    static let homeDayOffset = 0
-
-    static var homeDate: String {
-        let date = Calendar.current.date(byAdding: .day, value: homeDayOffset, to: Date()) ?? Date()
+    static func date(dayOffset: Int) -> String {
+        let date = Calendar.current.date(byAdding: .day, value: dayOffset, to: Date()) ?? Date()
         let formatter = DateFormatter()
         formatter.dateFormat = "yyyy-MM-dd"
         formatter.locale = Locale(identifier: "en_US_POSIX")

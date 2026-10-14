@@ -32,6 +32,8 @@ struct Standing {
     let goalsFor: Int
     let goalsAgainst: Int
     let zone: StandingZone
+    /// API-dən gələn loqo ünvanı (mock-da assets-dən `crestImageName` işlənir).
+    var crestURL: String? = nil
     
     var goalDifference: Int { goalsFor - goalsAgainst}
     var points: Int { wins * 3 + draws * 1 }

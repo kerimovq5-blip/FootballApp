@@ -2,14 +2,6 @@
 //  FootballEndpoint.swift
 //  FootballApp
 //
-//  Created by Servan on 14.10.26.
-//
-
-
-//
-//  FootballEndpoint.swift
-//  FootballApp
-//
 
 import Foundation
 
@@ -17,11 +9,13 @@ enum FootballEndpoint: EndPoint {
     case fixtures(date: String, timezone: String)
     case fixture(id: Int)
     case headToHead(home: Int, away: Int, last: Int)
+    case standings(league: Int, season: Int)
 
     var path: String {
         switch self {
         case .fixtures, .fixture: return "/fixtures"
         case .headToHead: return "/fixtures/headtohead"
+        case .standings: return "/standings"
         }
     }
 
@@ -37,6 +31,9 @@ enum FootballEndpoint: EndPoint {
         case .headToHead(let home, let away, let last):
             return [URLQueryItem(name: "h2h", value: "\(home)-\(away)"),
                     URLQueryItem(name: "last", value: "\(last)")]
+        case .standings(let league, let season):
+            return [URLQueryItem(name: "league", value: "\(league)"),
+                    URLQueryItem(name: "season", value: "\(season)")]
         }
     }
 

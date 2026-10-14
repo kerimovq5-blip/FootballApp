@@ -11,6 +11,7 @@ final class LeagueStandingCell: UITableViewCell {
     static let reuseID = "LeagueStandingCell"
 
     private lazy var positionLabel = makeLabel(font: .semiBold, alignment: .center)
+    private var crestURL: String?
     private lazy var crestView: UIImageView = {
         let iv = UIImageView()
         iv.contentMode = .scaleAspectFit
@@ -95,6 +96,14 @@ final class LeagueStandingCell: UITableViewCell {
         positionLabel.text = "\(standing.position)"
         teamLabel.text = standing.teamName
         crestView.image = standing.crestImageName.flatMap(UIImage.init(named:))
+        crestURL = standing.crestURL
+        if let url = standing.crestURL {
+            ImageLoader.shared.load(url) { [weak self] image in
+                // Hüceyrə təkrar istifadə olunubsa köhnə loqo yeni sətrin üstünə düşməsin.
+                guard let self, self.crestURL == url else { return }
+                self.crestView.image = image
+            }
+        }
         playedLabel.text = "\(standing.played)"
         winsLabel.text = "\(standing.wins)"
         drawsLabel.text = "\(standing.draws)"
