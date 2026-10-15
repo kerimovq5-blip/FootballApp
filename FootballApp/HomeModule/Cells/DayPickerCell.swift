@@ -50,7 +50,7 @@ final class DayPickerCell: UICollectionViewCell {
         for (index, day) in HomeDay.allCases.enumerated() {
             let button = UIButton(type: .system)
             button.setTitle(day.title, for: .normal)
-            button.titleLabel?.font = AppFonts.semiBold.font
+            button.titleLabel?.font = .semiBold
             button.layer.cornerRadius = 18
             button.contentEdgeInsets = UIEdgeInsets(top: 8, left: 12, bottom: 8, right: 12)
             button.tag = index

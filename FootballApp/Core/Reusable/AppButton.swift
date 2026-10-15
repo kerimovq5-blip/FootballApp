@@ -65,7 +65,7 @@ final class AppButton: UIView {
         config.background.cornerRadius = Layout.cornerRadius
         config.titleTextAttributesTransformer = UIConfigurationTextAttributesTransformer { container in
             var c = container
-            c.font = AppFonts.body.font
+            c.font = .body
             return c
         }
 

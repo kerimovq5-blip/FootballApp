@@ -119,7 +119,7 @@ final class H2HSummaryView: UIView {
 
     private func countLabel() -> UILabel {
         let l = UILabel()
-        l.font = AppFonts.titleBold.font
+        l.font = .titleBold
         l.textColor = .titleColor
         return l
     }
@@ -127,7 +127,7 @@ final class H2HSummaryView: UIView {
     private func captionLabel(text: String) -> UILabel {
         let l = UILabel()
         l.text = text
-        l.font = AppFonts.litletitle.font
+        l.font = .litletitle
         l.textColor = .labelColor
         return l
     }

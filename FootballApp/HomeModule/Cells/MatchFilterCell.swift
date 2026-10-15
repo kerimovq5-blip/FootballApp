@@ -45,7 +45,7 @@ final class MatchFilterCell: UICollectionViewCell {
             for (index, filter) in MatchFilter.allCases.enumerated() {
                 let button = UIButton(type: .system)
                 button.setTitle(filter.title, for: .normal)
-                button.titleLabel?.font = AppFonts.semiBold.font
+                button.titleLabel?.font = .semiBold
                 button.layer.cornerRadius = 18
                 button.contentEdgeInsets = UIEdgeInsets(
                     top: 8,

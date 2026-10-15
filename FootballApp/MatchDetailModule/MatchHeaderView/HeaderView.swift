@@ -26,7 +26,7 @@ final class MatchHeaderView: UIView {
 
     private lazy var minuteLabel: UILabel = {
         let label = UILabel()
-        label.font = AppFonts.regularBody.font
+        label.font = .regularBody
         label.textColor = UIColor.white.withAlphaComponent(0.8)
         label.textAlignment = .center
         return label

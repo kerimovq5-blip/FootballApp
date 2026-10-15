@@ -79,7 +79,7 @@ final class ProfileViewController: UIViewController {
     private lazy var nameLabel: UILabel = {
         let label = UILabel()
         label.text = profile.name
-        label.font = AppFonts.titleBold.font
+        label.font = .titleBold
         label.textColor = .titleColor
         label.textAlignment = .center
         return label
@@ -88,7 +88,7 @@ final class ProfileViewController: UIViewController {
     private lazy var bioLabel: UILabel = {
         let label = UILabel()
         label.text = profile.bio
-        label.font = AppFonts.regularBody.font
+        label.font = .regularBody
         label.textColor = Palette.secondaryText
         label.textAlignment = .center
         return label
@@ -140,7 +140,7 @@ final class ProfileViewController: UIViewController {
         config.cornerStyle = .capsule
         config.titleTextAttributesTransformer = UIConfigurationTextAttributesTransformer { container in
             var updated = container
-            updated.font = AppFonts.semiBold.font
+            updated.font = .semiBold
             return updated
         }
         let button = UIButton(configuration: config)
@@ -161,7 +161,6 @@ final class ProfileViewController: UIViewController {
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        // Oyun detalından qayıdanda siyahı yenilənsin.
         if !activityView.isHidden {
             activityView.reload()
         }
@@ -261,7 +260,6 @@ final class ProfileViewController: UIViewController {
 
     // MARK: - Public
 
-    /// Edit ekranında saxlanandan sonra coordinator çağırır.
     func update(_ profile: ProfileInfo) {
         self.profile = profile
         nameLabel.text = profile.name

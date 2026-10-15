@@ -55,7 +55,7 @@ final class EditProfileViewController: UIViewController {
         config.baseForegroundColor = Palette.accent
         config.titleTextAttributesTransformer = UIConfigurationTextAttributesTransformer { container in
             var c = container
-            c.font = AppFonts.body.font
+            c.font = .body
             return c
         }
         let button = UIButton(configuration: config)
@@ -116,7 +116,7 @@ final class EditProfileViewController: UIViewController {
     }()
     private let bioCounterLabel: UILabel = {
         let label = UILabel()
-        label.font = AppFonts.litletitle.font
+        label.font = .litletitle
         label.textColor = Palette.secondaryText
         label.textAlignment = .right
         return label
@@ -227,7 +227,7 @@ final class EditProfileViewController: UIViewController {
     private func makeSection(title: String, field: UIView, footer: UIView? = nil) -> UIStackView {
         let label = UILabel()
         label.text = title
-        label.font = AppFonts.semiBold.font
+        label.font = .semiBold
         label.textColor = .white
 
         var views: [UIView] = [label, field]

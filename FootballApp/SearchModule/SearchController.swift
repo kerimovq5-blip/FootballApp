@@ -38,13 +38,13 @@ final class SearchController: UIViewController {
 
     private lazy var searchField: UITextField = {
         let field = UITextField()
-        field.font = AppFonts.body.font
+        field.font = .body
         field.textColor = .white
         field.tintColor = AppGradient.accentEnd
         field.attributedPlaceholder = NSAttributedString(
             string: "Search teams or leagues",
             attributes: [
-                .font: AppFonts.body.font,
+                .font: UIFont.body,
                 .foregroundColor: UIColor.white.withAlphaComponent(0.5)
             ]
         )
@@ -98,7 +98,7 @@ final class SearchController: UIViewController {
 
     private lazy var messageLabel: UILabel = {
         let label = UILabel()
-        label.font = AppFonts.regularBody.font
+        label.font = .regularBody
         label.textColor = UIColor.white.withAlphaComponent(0.6)
         label.textAlignment = .center
         label.numberOfLines = 0
@@ -130,7 +130,6 @@ final class SearchController: UIViewController {
 
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        // Klaviatura yalnız ilk açılışda çıxsın; detaldan qayıdanda yenidən açılmasın.
         guard !didFocusSearchField else { return }
         didFocusSearchField = true
         searchField.becomeFirstResponder()
@@ -185,12 +184,10 @@ final class SearchController: UIViewController {
         messageStack.isHidden = message == nil
         collectionView.isHidden = message != nil
         collectionView.reloadData()
-        // Yeni nəticələr həmişə yuxarıdan başlasın.
         collectionView.setContentOffset(CGPoint(x: 0, y: -collectionView.adjustedContentInset.top),
                                         animated: false)
     }
 
-    /// Bütün bölmələr Home-dakı liqa bölməsi ilə eyni görünüşdədir.
     private func makeLayout() -> UICollectionViewCompositionalLayout {
         let padding = AppLayout.screenPadding.value
         return UICollectionViewCompositionalLayout { _, _ in
@@ -233,13 +230,11 @@ final class SearchController: UIViewController {
         coordinator?.showPlayerDetail(for: player)
     }
 
-    /// Başlıqdakı "See all": tab-ı dəyişir və nəticələri həmin tab-a görə göstərir.
     private func showAll(_ scope: SearchScope) {
         scopeTabBar.select(SearchScope.allCases.firstIndex(of: scope) ?? 0, notify: false)
         viewModel.select(scope: scope)
     }
 
-    /// Loqosu varsa loqo, yoxdursa bayraq, o da yoxdursa ümumi işarə.
     private func clubIcon(for club: ClubReference) -> SearchRowCell.Icon {
         if let crest = ClubKey.crest(for: club.name) { return .image(crest) }
         if let flag = club.flag { return .emoji(flag) }

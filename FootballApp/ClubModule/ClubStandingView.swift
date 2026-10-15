@@ -16,8 +16,8 @@ import UIKit
 final class ClubStandingView: UIView {
 
     
-    /// Başqa klubun sətrinə toxunanda klub istinadı ötürülür.
     var onSelectClub: ((ClubReference) -> Void)?
+    
     private var tables: [ClubTable] = []
     private var selectedIndex = 0
     private var clubKey = ""
@@ -31,7 +31,7 @@ final class ClubStandingView: UIView {
 
     private let selectorLabel: UILabel = {
         let label = UILabel()
-        label.font = AppFonts.semiBold.font
+        label.font = .semiBold
         label.textColor = .white
         return label
     }()
@@ -67,7 +67,7 @@ final class ClubStandingView: UIView {
     private lazy var emptyLabel: UILabel = {
         let label = UILabel()
         label.text = "No standings available for this club."
-        label.font = AppFonts.regularBody.font
+        label.font = .regularBody
         label.textColor = UIColor.white.withAlphaComponent(0.6)
         label.textAlignment = .center
         label.numberOfLines = 0
@@ -143,7 +143,6 @@ final class ClubStandingView: UIView {
         needsReveal = true
     }
 
-    /// Tab görünəndə klubun öz sətrini cədvəlin ortasına gətirir.
     func revealClub() {
         guard needsReveal,
               let row = standings.firstIndex(where: { ClubKey.make($0.teamName) == clubKey }) else { return }
@@ -210,7 +209,6 @@ extension ClubStandingView: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
         let standing = standings[indexPath.row]
-        // Klubun öz sətri ona eyni səhifəni yenidən açmasın.
         guard ClubKey.make(standing.teamName) != clubKey else { return }
         onSelectClub?(ClubReference(name: standing.teamName, id: standing.teamID))
     }

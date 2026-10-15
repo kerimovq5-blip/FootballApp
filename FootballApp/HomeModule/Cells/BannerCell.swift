@@ -36,7 +36,7 @@ final class BannerCell: UICollectionViewCell {
 
     private lazy var categoryLabel: UILabel = {
         let label = UILabel()
-        label.font = AppFonts.mediumTitle.font
+        label.font = .mediumTitle
         label.textColor = .black
         return label
     }()
@@ -56,8 +56,7 @@ final class BannerCell: UICollectionViewCell {
 
     private lazy var titleLabel: UILabel = {
         let label = UILabel()
-        label.font = AppFonts.titleBold.font
-     
+        label.font = .titleBold
         label.textColor = .white
         label.numberOfLines = 0
         return label
@@ -65,7 +64,7 @@ final class BannerCell: UICollectionViewCell {
 
     private lazy var dateLabel: UILabel = {
         let label = UILabel()
-        label.font = AppFonts.semiBold.font
+        label.font = .semiBold
         label.textColor = UIColor.white.withAlphaComponent(0.8)
         return label
     }()

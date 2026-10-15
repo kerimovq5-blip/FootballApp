@@ -50,14 +50,14 @@ final class PlayerDetailController: UIViewController {
 
     private lazy var clubLabel: UILabel = {
         let label = UILabel()
-        label.font = AppFonts.semiBold.font
+        label.font = .semiBold
         label.textColor = UIColor.white.withAlphaComponent(0.85)
         return label
     }()
 
     private lazy var detailLabel: UILabel = {
         let label = UILabel()
-        label.font = AppFonts.regularBody.font
+        label.font = .regularBody
         label.textColor = UIColor.white.withAlphaComponent(0.6)
         return label
     }()
@@ -88,7 +88,6 @@ final class PlayerDetailController: UIViewController {
         view.backgroundColor = AssetColors.background.color
         setupLayout()
 
-        // Data gələnə qədər istinaddakı məlumat görünür.
         let player = viewModel.player
         nameLabel.text = player.name
         clubLabel.text = player.clubName
@@ -178,7 +177,6 @@ final class PlayerDetailController: UIViewController {
         statsView.isHidden = tab != .statistics
     }
 
-    /// "Lucas Silva" → "LS"
     private static func initials(for name: String) -> String {
         name.split(separator: " ")
             .prefix(2)

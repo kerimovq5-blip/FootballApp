@@ -24,7 +24,7 @@ final class SignInController: UIViewController {
         let label = UILabel()
         label.text = "Welcome"
         label.textColor = .titleColor
-        label.font = AppFonts.title.font
+        label.font = .title
         label.textAlignment = .center
         return label
     }()
@@ -54,7 +54,7 @@ final class SignInController: UIViewController {
         let label = UILabel()
         label.text = "Remember me"
         label.textColor = .labelColor
-        label.font = AppFonts.regularBody.font
+        label.font = .regularBody
         label.isUserInteractionEnabled = true
         label.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(toggleRememberMe)))
         return label
@@ -64,7 +64,7 @@ final class SignInController: UIViewController {
         let button = UIButton(type: .system)
         button.setTitle("Forgot Password", for: .normal)
         button.setTitleColor(.titleColor, for: .normal)
-        button.titleLabel?.font = AppFonts.regularBody.font
+        button.titleLabel?.font = .regularBody
         button.addTarget(self, action: #selector(forgotPasswordTapped), for: .touchUpInside)
         return button
     }()
@@ -87,14 +87,14 @@ final class SignInController: UIViewController {
             string: "Don’t have account? ",
             attributes: [
                 .foregroundColor: AssetColors.labelColor.color,
-                .font: AppFonts.regularBody.font
+                .font: UIFont.regularBody
             ]
         )
         text.append(NSAttributedString(
             string: "Sign UP",
             attributes: [
                 .foregroundColor: UIColor.accent,
-                .font: AppFonts.regularBody.font
+                .font: UIFont.regularBody
             ]
         ))
         button.setAttributedTitle(text, for: .normal)

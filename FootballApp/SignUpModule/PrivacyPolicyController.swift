@@ -20,7 +20,7 @@ final class PrivacyPolicyController: UIViewController {
         textView.isEditable = false
         textView.backgroundColor = .clear
         textView.textColor = .labelColor
-        textView.font = AppFonts.body.font
+        textView.font = .body
         textView.textContainerInset = UIEdgeInsets(top: 16, left: 20, bottom: 24, right: 20)
         textView.text = PrivacyPolicyController.policyText
         return textView

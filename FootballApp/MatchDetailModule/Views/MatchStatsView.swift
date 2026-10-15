@@ -48,7 +48,7 @@ final class MatchStatsView: UIView {
         let titleLabel: UILabel = {
             let l = UILabel()
             l.text = stat.title
-            l.font = AppFonts.regularBody.font
+            l.font = .regularBody
             l.textColor = .labelColor
             l.textAlignment = .center
             return l
@@ -64,7 +64,7 @@ final class MatchStatsView: UIView {
     private func valueLabel(text: String, alignment: NSTextAlignment) -> UILabel {
         let l = UILabel()
         l.text = text
-        l.font = AppFonts.semiBold.font
+        l.font = .semiBold
         l.textColor = .titleColor
         l.textAlignment = alignment
         return l

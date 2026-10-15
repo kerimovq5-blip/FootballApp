@@ -27,7 +27,7 @@ final class StandingViewController: UIViewController {
     private lazy var titleLabel: UILabel = {
         let label = UILabel()
         label.text = "Standing"
-        label.font = AppFonts.title.font
+        label.font = .title
         label.textColor = .white
         return label
     }()

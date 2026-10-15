@@ -28,7 +28,7 @@ final class MatchCell: UICollectionViewCell {
 
     private lazy var scoreLabel: UILabel = {
         let l = UILabel()
-        l.font = AppFonts.titleBold.font
+        l.font = .titleBold
         l.textColor = .white
         l.textAlignment = .center
         return l
@@ -36,7 +36,7 @@ final class MatchCell: UICollectionViewCell {
 
     private lazy var statusLabel: UILabel = {
         let l = UILabel()
-        l.font = AppFonts.semiBold.font
+        l.font = .semiBold
         l.textAlignment = .center
         return l
     }()
@@ -97,7 +97,7 @@ final class MatchCell: UICollectionViewCell {
 
     private func teamLabel() -> UILabel {
         let l = UILabel()
-        l.font = AppFonts.mediumTitle.font
+        l.font = .mediumTitle
         l.textColor = .white
         return l
     }

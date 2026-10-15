@@ -17,15 +17,18 @@ final class LeagueStandingCell: UITableViewCell {
         iv.contentMode = .scaleAspectFit
         return iv
     }()
-    private lazy var teamLabel = makeLabel(font: .mediumTitle, alignment: .left)
-    private lazy var playedLabel = makeLabel(font: .regularBody, alignment: .center)
-    private lazy var winsLabel = makeLabel(font: .regularBody, alignment: .center)
-    private lazy var drawsLabel = makeLabel(font: .regularBody, alignment: .center)
-    private lazy var lossesLabel = makeLabel(font: .regularBody, alignment: .center)
-    private lazy var goalsForLabel = makeLabel(font: .regularBody, alignment: .center)
-    private lazy var goalsAgainstLabel = makeLabel(font: .regularBody, alignment: .center)
-    private lazy var goalDiffLabel = makeLabel(font: .regularBody, alignment: .center)
-    private lazy var pointsLabel = makeLabel(font: .semiBold, alignment: .center)
+    private lazy var teamLabel = makeLabel(
+        font: UIFont.mediumTitle,
+        alignment: .left
+    )
+    private lazy var playedLabel = makeLabel(font: UIFont.regularBody, alignment: .center)
+    private lazy var winsLabel = makeLabel(font: UIFont.regularBody, alignment: .center)
+    private lazy var drawsLabel = makeLabel(font: UIFont.regularBody, alignment: .center)
+    private lazy var lossesLabel = makeLabel(font: UIFont.regularBody, alignment: .center)
+    private lazy var goalsForLabel = makeLabel(font: UIFont.regularBody, alignment: .center)
+    private lazy var goalsAgainstLabel = makeLabel(font: UIFont.regularBody, alignment: .center)
+    private lazy var goalDiffLabel = makeLabel(font: UIFont.regularBody, alignment: .center)
+    private lazy var pointsLabel = makeLabel(font: UIFont.semiBold, alignment: .center)
 
     private lazy var container: UIView = {
         let v = UIView()
@@ -82,9 +85,9 @@ final class LeagueStandingCell: UITableViewCell {
 
     required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
 
-    private func makeLabel(font: AppFonts, alignment: NSTextAlignment) -> UILabel {
+    private func makeLabel(font: UIFont, alignment: NSTextAlignment) -> UILabel {
         let l = UILabel()
-        l.font = font.font
+        l.font = font
         l.textColor = .white
         l.textAlignment = alignment
         l.adjustsFontSizeToFitWidth = true

@@ -27,7 +27,7 @@ final class StandingColumnHeaderView: UIView {
     private func makeLabel(_ text: String, alignment: NSTextAlignment, width: CGFloat? = nil) -> UILabel {
         let label = UILabel()
         label.text = text
-        label.font = AppFonts.regularBody.font
+        label.font = .regularBody
         label.textColor = UIColor.white.withAlphaComponent(0.5)
         label.textAlignment = alignment
         label.adjustsFontSizeToFitWidth = true

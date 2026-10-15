@@ -21,14 +21,14 @@ final class SearchSectionHeaderView: UICollectionReusableView {
 
     private let titleLabel: UILabel = {
         let label = UILabel()
-        label.font = AppFonts.semiBold.font
+        label.font = .semiBold
         label.textColor = .white
         return label
     }()
 
     private lazy var actionButton: UIButton = {
         let button = UIButton(type: .system)
-        button.titleLabel?.font = AppFonts.regularBody.font
+        button.titleLabel?.font = .regularBody
         button.setTitleColor(AppGradient.accentStart, for: .normal)
         button.addTarget(self, action: #selector(actionTapped), for: .touchUpInside)
         return button

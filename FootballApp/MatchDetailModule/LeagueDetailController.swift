@@ -36,7 +36,7 @@ final class LeagueDetailController: UIViewController {
     private lazy var titleLabel: UILabel = {
         let l = UILabel()
         l.text = "\(league.flag) \(league.country)"
-        l.font = AppFonts.semiBold.font
+        l.font = .semiBold
         l.textColor = .white
         l.textAlignment = .center
         return l
@@ -54,7 +54,7 @@ final class LeagueDetailController: UIViewController {
     private lazy var leagueNameLabel: UILabel = {
         let l = UILabel()
         l.text = league.name
-        l.font = AppFonts.titleBold.font
+        l.font = .titleBold
         l.textColor = .white
         l.textAlignment = .center
         return l
@@ -63,7 +63,7 @@ final class LeagueDetailController: UIViewController {
     private lazy var filterButtons: [UIButton] = StandingFilter.allCases.map { filter in
         let b = UIButton(type: .system)
         b.setTitle(filter.title, for: .normal)
-        b.titleLabel?.font = AppFonts.semiBold.font
+        b.titleLabel?.font = .semiBold
         b.layer.cornerRadius = 18
         b.contentEdgeInsets = UIEdgeInsets(top: 8, left: 18, bottom: 8, right: 18)
         b.tag = StandingFilter.allCases.firstIndex(of: filter) ?? 0
@@ -82,7 +82,7 @@ final class LeagueDetailController: UIViewController {
 
     private lazy var messageLabel: UILabel = {
         let l = UILabel()
-        l.font = AppFonts.body.font
+        l.font = .body
         l.textColor = UIColor.white.withAlphaComponent(0.6)
         l.textAlignment = .center
         l.numberOfLines = 0

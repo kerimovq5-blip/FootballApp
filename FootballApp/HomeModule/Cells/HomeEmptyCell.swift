@@ -20,7 +20,7 @@ final class HomeEmptyCell: UICollectionViewCell {
 
     private let label: UILabel = {
         let label = UILabel()
-        label.font = AppFonts.regularBody.font
+        label.font = .regularBody
         label.textColor = UIColor.white.withAlphaComponent(0.6)
         label.textAlignment = .center
         label.numberOfLines = 0

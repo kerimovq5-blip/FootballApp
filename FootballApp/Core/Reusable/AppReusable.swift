@@ -28,53 +28,7 @@ enum AssetColors: String {
     }
 }
 
-extension UIColor {
-    func assetColor(_ colorName: AssetColors) -> UIColor {
-        return colorName.color
-    }
-}
 
-extension UIColor {
-    static var background: UIColor { AssetColors.background.color }
-    static var textPrimary: UIColor { AssetColors.textPrimary.color }
-    static var textSecondary: UIColor { AssetColors.textSecondary.color }
-    static var accent: UIColor { AssetColors.accent.color }
-    static var buttonTitlecolor: UIColor { AssetColors.buttonTitlecolor.color }
-    static var titleColor: UIColor { AssetColors.titleColor.color }
-    static var labelColor: UIColor { AssetColors.labelColor.color }
-}
-
-enum AppFonts {
-    case title
-    case titleBold
-    case titleRegular
-    case body
-    case regularBody
-    case litletitle
-    case semiBold
-    case mediumTitle
-
-    var font: UIFont {
-        switch self {
-        case .title:
-            return UIFont.systemFont(ofSize: 30, weight: .bold)
-        case .titleBold:
-            return UIFont.systemFont(ofSize: 24, weight: .bold)
-        case .titleRegular:
-            return UIFont.systemFont(ofSize: 28, weight: .regular)
-        case .body:
-            return UIFont.systemFont(ofSize: 16, weight: .regular)
-        case .regularBody:
-            return UIFont.systemFont(ofSize: 14, weight: .regular)
-        case .litletitle:
-            return UIFont.systemFont(ofSize: 12, weight: .regular)
-        case .semiBold:
-            return UIFont.systemFont(ofSize: 18, weight: .semibold)
-        case .mediumTitle:
-            return UIFont.systemFont(ofSize: 13, weight: .medium)
-        }
-    }
-}
 
 enum AppRadius {
     case buttonRadius

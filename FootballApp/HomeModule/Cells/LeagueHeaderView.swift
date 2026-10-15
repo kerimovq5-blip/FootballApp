@@ -15,20 +15,20 @@ final class LeagueHeaderView: UICollectionReusableView {
     
     private lazy var flagLabel: UILabel = {
         let l = UILabel()
-        l.font = AppFonts.titleBold.font
+        l.font = .titleBold
         return l
     }()
 
     private lazy var nameLabel: UILabel = {
         let l = UILabel()
-        l.font = AppFonts.semiBold.font
+        l.font = .semiBold
         l.textColor = .white
         return l
     }()
 
     private lazy var countryLabel: UILabel = {
         let l = UILabel()
-        l.font = AppFonts.regularBody.font
+        l.font = .regularBody
         l.textColor = UIColor.white.withAlphaComponent(0.6)
         return l
     }()

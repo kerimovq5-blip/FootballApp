@@ -42,7 +42,7 @@ final class ProfileInfoRow: UIControl {
 
     private let titleLabel: UILabel = {
         let label = UILabel()
-        label.font = AppFonts.semiBold.font
+        label.font = .semiBold
         label.textColor = .white
         return label
     }()
@@ -101,7 +101,11 @@ final class ProfileInfoRow: UIControl {
 
     func setValue(_ value: String) {
         var attributes: [NSAttributedString.Key: Any] = [
-            .font: UIFont.systemFont(ofSize: AppFonts.regularBody.font.pointSize, weight: .medium),
+            .font: UIFont
+                .systemFont(
+                    ofSize: UIFont.regularBody.pointSize,
+                    weight: .medium
+                ),
             .foregroundColor: UIColor.white.withAlphaComponent(0.7)
         ]
         if underlined { attributes[.underlineStyle] = NSUnderlineStyle.single.rawValue }

@@ -24,7 +24,7 @@ final class MatchDetailController: UIViewController {
 
     private lazy var titleLabel: UILabel = {
         let label = UILabel()
-        label.font = AppFonts.semiBold.font
+        label.font = .semiBold
         label.textColor = .white
         label.textAlignment = .center
         return label
@@ -64,7 +64,6 @@ final class MatchDetailController: UIViewController {
         setupHierarchy()
         setupLayout()
 
-        // Data gələnə qədər boş ekran görünməsin.
         scrollView.isHidden = true
 
         segmentControl.onTabSelected = { [weak self] tab in

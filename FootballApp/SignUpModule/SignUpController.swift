@@ -24,7 +24,7 @@ final class SignUpController: UIViewController {
         let label = UILabel()
         label.text = "Create account"
         label.textColor = .titleColor
-        label.font = AppFonts.title.font
+        label.font = .title
         label.textAlignment = .center
         return label
     }()
@@ -70,7 +70,7 @@ final class SignUpController: UIViewController {
         let label = UILabel()
         label.text = "I have read the "
         label.textColor = AssetColors.labelColor.color
-        label.font = AppFonts.semiBold.font
+        label.font = .semiBold
         label.adjustsFontSizeToFitWidth = true
         label.minimumScaleFactor = 0.8
         label.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
@@ -83,7 +83,7 @@ final class SignUpController: UIViewController {
         let button = UIButton(type: .system)
         button.setTitle("Privacy Policy", for: .normal)
         button.setTitleColor(.accent, for: .normal)
-        button.titleLabel?.font = AppFonts.semiBold.font
+        button.titleLabel?.font = .semiBold
         button.setContentCompressionResistancePriority(.required, for: .horizontal)
         button.addTarget(self, action: #selector(privacyPolicyTapped), for: .touchUpInside)
         return button
@@ -116,14 +116,14 @@ final class SignUpController: UIViewController {
             string: "Already have an account? ",
             attributes: [
                 .foregroundColor: AssetColors.labelColor.color,
-                .font: AppFonts.regularBody.font
+                .font: UIFont.regularBody
             ]
         )
         text.append(NSAttributedString(
             string: "Sign In",
             attributes: [
                 .foregroundColor: UIColor.accent,
-                .font: AppFonts.regularBody.font
+                .font: UIFont.regularBody
             ]
         ))
         button.setAttributedTitle(text, for: .normal)

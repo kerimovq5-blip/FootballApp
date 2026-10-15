@@ -21,7 +21,11 @@ final class InfoCardView: UIView {
         backgroundColor = UIColor.white.withAlphaComponent(0.08)
         layer.cornerRadius = 14
 
-        let titleLabel = InfoUI.label(title, font: AppFonts.semiBold.font, color: .white)
+        let titleLabel = InfoUI.label(
+            title,
+            font: .semiBold,
+            color: .white
+        )
         let inner = UIStackView(arrangedSubviews: [titleLabel, body])
         inner.axis = .vertical
         inner.spacing = 12
@@ -53,11 +57,23 @@ enum InfoUI {
 
     /// "Başlıq ........ dəyər" sətri.
     static func row(_ title: String, _ value: String) -> UIView {
-        let titleLabel = label(title, font: AppFonts.regularBody.font,
-                               color: UIColor.white.withAlphaComponent(0.6))
-        titleLabel.setContentHuggingPriority(.required, for: .horizontal)
+        let titleLabel = label(
+            title,
+            font: .regularBody,
+            color: UIColor.white.withAlphaComponent(
+                0.6
+            )
+        )
+        titleLabel.setContentHuggingPriority(
+            .required,
+            for: .horizontal
+        )
 
-        let valueLabel = label(value, font: AppFonts.semiBold.font, color: .white)
+        let valueLabel = label(
+            value,
+            font: .semiBold,
+            color: .white
+        )
         valueLabel.textAlignment = .right
         valueLabel.numberOfLines = 0
 
@@ -75,15 +91,20 @@ enum InfoUI {
         return stack
     }
 
-    /// Böyük rəqəm və altında kiçik izah.
     static func statBlock(value: String, caption: String) -> UIView {
         let valueLabel = label(value, font: UIFont.systemFont(ofSize: 20, weight: .bold), color: .white)
         valueLabel.textAlignment = .center
         valueLabel.adjustsFontSizeToFitWidth = true
         valueLabel.minimumScaleFactor = 0.7
 
-        let captionLabel = label(caption, font: UIFont.systemFont(ofSize: 12, weight: .regular),
-                                 color: UIColor.white.withAlphaComponent(0.6))
+        let captionLabel = label(
+            caption,
+            font: UIFont.systemFont(
+                ofSize: 12,
+                weight: .regular
+            ),
+            color: UIColor.white.withAlphaComponent(0.6)
+        )
         captionLabel.textAlignment = .center
 
         let block = UIStackView(arrangedSubviews: [valueLabel, captionLabel])

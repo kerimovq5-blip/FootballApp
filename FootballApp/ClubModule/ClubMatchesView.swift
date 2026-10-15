@@ -43,7 +43,7 @@ final class ClubMatchesView: UIView {
     private lazy var emptyLabel: UILabel = {
         let label = UILabel()
         label.text = "No matches available."
-        label.font = AppFonts.regularBody.font
+        label.font = .regularBody
         label.textColor = UIColor.white.withAlphaComponent(0.6)
         label.textAlignment = .center
         label.isHidden = true
@@ -122,7 +122,7 @@ extension ClubMatchesView: UITableViewDelegate {
         let container = UIView()
         let label = UILabel()
         label.text = groups[section].title
-        label.font = AppFonts.semiBold.font
+        label.font = .semiBold
         label.textColor = .white
         container.addSubviews(label)
         label

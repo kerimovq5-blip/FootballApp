@@ -39,7 +39,7 @@ final class ClubSquadView: UIView {
     private lazy var emptyLabel: UILabel = {
         let label = UILabel()
         label.text = "No squad information available."
-        label.font = AppFonts.regularBody.font
+        label.font = .regularBody
         label.textColor = UIColor.white.withAlphaComponent(0.6)
         label.textAlignment = .center
         label.isHidden = true
@@ -104,7 +104,6 @@ extension ClubSquadView: UITableViewDataSource {
 
 extension ClubSquadView: UITableViewDelegate {
 
-    /// "Goalkeepers" solda, oyunçu sayı sağda.
     func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
         let group = groups[section]
         let padding = AppLayout.screenPadding.value
@@ -112,12 +111,12 @@ extension ClubSquadView: UITableViewDelegate {
         let container = UIView()
         let titleLabel = UILabel()
         titleLabel.text = group.position.title
-        titleLabel.font = AppFonts.semiBold.font
+        titleLabel.font = .semiBold
         titleLabel.textColor = .white
 
         let countLabel = UILabel()
         countLabel.text = "\(group.players.count)"
-        countLabel.font = AppFonts.regularBody.font
+        countLabel.font = .regularBody
         countLabel.textColor = UIColor.white.withAlphaComponent(0.6)
 
         container.addSubviews(titleLabel, countLabel)

@@ -14,7 +14,7 @@ final class H2HView: UIView {
     private lazy var meetingsTitleLabel: UILabel = {
         let l = UILabel()
         l.text = "Last 5 Meetings"
-        l.font = AppFonts.semiBold.font
+        l.font = .semiBold
         l.textColor = .titleColor
         return l
     }()

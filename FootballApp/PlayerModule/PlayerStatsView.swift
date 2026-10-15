@@ -55,7 +55,7 @@ final class PlayerStatsView: UIView {
         stack.arrangedSubviews.forEach { $0.removeFromSuperview() }
 
         let caption = InfoUI.label("Season \(content.season) · all competitions",
-                                   font: AppFonts.regularBody.font,
+                                   font: .regularBody,
                                    color: UIColor.white.withAlphaComponent(0.6))
         stack.addArrangedSubview(caption)
 

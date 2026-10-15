@@ -4,14 +4,14 @@ final class H2HMeetingRow: UIView {
 
     private lazy var dateLabel: UILabel = {
         let l = UILabel()
-        l.font = AppFonts.litletitle.font
+        l.font = .litletitle
         l.textColor = .labelColor
         return l
     }()
 
     private lazy var competitionLabel: UILabel = {
         let l = UILabel()
-        l.font = AppFonts.mediumTitle.font
+        l.font = .mediumTitle
         l.textColor = .titleColor
         return l
     }()
@@ -25,7 +25,7 @@ final class H2HMeetingRow: UIView {
 
     private lazy var matchupLabel: UILabel = {
         let l = UILabel()
-        l.font = AppFonts.regularBody.font
+        l.font = .regularBody
         l.textColor = .titleColor
         l.textAlignment = .right
         return l
@@ -33,7 +33,7 @@ final class H2HMeetingRow: UIView {
 
     private lazy var scoreLabel: UILabel = {
         let l = UILabel()
-        l.font = AppFonts.semiBold.font
+        l.font = .semiBold
         l.textColor = .accent
         l.textAlignment = .right
         return l

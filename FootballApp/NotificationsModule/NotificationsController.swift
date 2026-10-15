@@ -35,7 +35,7 @@ final class NotificationsController: UIViewController {
     private lazy var titleLabel: UILabel = {
         let label = UILabel()
         label.text = "Notifications"
-        label.font = AppFonts.semiBold.font
+        label.font = .semiBold
         label.textColor = .white
         label.textAlignment = .center
         return label
@@ -65,7 +65,7 @@ final class NotificationsController: UIViewController {
         icon.contentMode = .scaleAspectFit
 
         let label = UILabel()
-        label.font = AppFonts.regularBody.font
+        label.font = .regularBody
         label.textColor = UIColor.white.withAlphaComponent(0.6)
         label.textAlignment = .center
         label.numberOfLines = 0

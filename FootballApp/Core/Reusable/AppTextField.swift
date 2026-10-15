@@ -23,7 +23,7 @@ final class AppTextField: UIView {
 
     private lazy var mainTextField: UITextField = {
         let textField = UITextField()
-        textField.font = AppFonts.body.font.withSize(Layout.fontSize)
+        textField.font = .body.withSize(Layout.fontSize)
         textField.layer.cornerRadius = Layout.cornerRadius
         textField.clipsToBounds = true
         return textField
@@ -68,7 +68,7 @@ final class AppTextField: UIView {
         mainTextField.attributedPlaceholder = NSAttributedString(
             string: placeholder ?? "",
             attributes: [
-                .font: AppFonts.body.font,
+                .font: UIFont.body,
                 .foregroundColor : AssetColors.labelColor.color
 
                 

@@ -15,7 +15,6 @@ import UIKit
 
 final class PlayerOverviewView: UIView {
 
-    /// Club kartına toxunanda çağırılır.
     var onSelectClub: ((ClubReference) -> Void)?
 
     private var club: ClubReference?
@@ -62,7 +61,6 @@ final class PlayerOverviewView: UIView {
 
         stack.addArrangedSubview(summaryCard(content))
 
-        // Son 5 oyunun reytinqi, köhnədən yeniyə (ən yenisi sağda).
         let ratings = Array(content.matches.prefix(5).compactMap { $0.rating }.reversed())
         if !ratings.isEmpty {
             stack.addArrangedSubview(ratingsCard(ratings))
@@ -105,12 +103,15 @@ final class PlayerOverviewView: UIView {
         return InfoCardView(title: "Player info", body: rows)
     }
 
-    /// Toxunanda klub səhifəsi açılır.
     private func clubCard(_ club: ClubReference) -> UIView {
         let crest = ClubCrestView(size: 44, inset: 8)
         crest.configure(initials: club.name)
 
-        let nameLabel = InfoUI.label(club.name, font: AppFonts.semiBold.font, color: .white)
+        let nameLabel = InfoUI.label(
+            club.name,
+            font: .semiBold,
+            color: .white
+        )
         let countryText = [club.flag, club.country].compactMap { $0 }.joined(separator: " ")
         let countryLabel = InfoUI.label(countryText,
                                         font: UIFont.systemFont(ofSize: 13, weight: .regular),

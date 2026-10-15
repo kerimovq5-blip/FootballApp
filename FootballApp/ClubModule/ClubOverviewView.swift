@@ -139,7 +139,7 @@ final class ClubOverviewView: UIView {
 
     private func competitionsCard(_ names: [String]) -> UIView {
         let rows = UIStackView(arrangedSubviews: names.map {
-            makeLabel($0, font: AppFonts.regularBody.font, color: .white)
+            makeLabel($0, font: .regularBody, color: .white)
         })
         rows.axis = .vertical
         rows.spacing = 8
@@ -149,7 +149,7 @@ final class ClubOverviewView: UIView {
     // MARK: - Hazır parçalar
 
     private func makeCard(title: String, body: UIView) -> UIView {
-        let titleLabel = makeLabel(title, font: AppFonts.semiBold.font, color: .white)
+        let titleLabel = makeLabel(title, font: .semiBold, color: .white)
 
         let inner = UIStackView(arrangedSubviews: [titleLabel, body])
         inner.axis = .vertical
@@ -170,11 +170,20 @@ final class ClubOverviewView: UIView {
     }
 
     private func makeInfoRow(_ title: String, _ value: String) -> UIView {
-        let titleLabel = makeLabel(title, font: AppFonts.regularBody.font,
-                                   color: UIColor.white.withAlphaComponent(0.6))
+        let titleLabel = makeLabel(
+            title,
+            font: .regularBody,
+            color: UIColor.white.withAlphaComponent(
+                0.6
+            )
+        )
         titleLabel.setContentHuggingPriority(.required, for: .horizontal)
 
-        let valueLabel = makeLabel(value, font: AppFonts.semiBold.font, color: .white)
+        let valueLabel = makeLabel(
+            value,
+            font: .semiBold,
+            color: .white
+        )
         valueLabel.textAlignment = .right
         valueLabel.numberOfLines = 0
 

@@ -36,7 +36,7 @@ final class PlayerMatchesView: UIView {
     private lazy var emptyLabel: UILabel = {
         let label = UILabel()
         label.text = "No matches available."
-        label.font = AppFonts.regularBody.font
+        label.font = .regularBody
         label.textColor = UIColor.white.withAlphaComponent(0.6)
         label.textAlignment = .center
         label.isHidden = true
@@ -103,7 +103,7 @@ extension PlayerMatchesView: UITableViewDelegate {
 
     func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
         let container = UIView()
-        let label = InfoUI.label("Recent matches", font: AppFonts.semiBold.font, color: .white)
+        let label = InfoUI.label("Recent matches", font: .semiBold, color: .white)
         container.addSubviews(label)
         label
             .leading(container.leadingAnchor, AppLayout.screenPadding.value).0
