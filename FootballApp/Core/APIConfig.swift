@@ -32,7 +32,11 @@ enum APIConfig {
     /// Bu günə nisbətən verilən gün ("yyyy-MM-dd"): -1 dünən, 0 bu gün, 1 sabah.
     /// Pulsuz plan yalnız bu üç gün üçün oyun verir.
     static func date(dayOffset: Int) -> String {
-        let date = Calendar.current.date(byAdding: .day, value: dayOffset, to: Date()) ?? Date()
+        let date = Calendar.current.date(
+            byAdding: .day,
+            value: dayOffset,
+            to: Date()
+        ) ?? Date()
         let formatter = DateFormatter()
         formatter.dateFormat = "yyyy-MM-dd"
         formatter.locale = Locale(identifier: "en_US_POSIX")
