@@ -96,7 +96,7 @@ final class PlayerOverviewView: UIView {
     private func infoCard(_ profile: PlayerProfile) -> UIView {
         let rows = InfoUI.rows([
             ("Position", profile.position.singularTitle),
-            ("Nationality", "\(profile.flag) \(profile.nationality)"),
+            ("Nationality", profile.nationality.isEmpty ? "–" : "\(profile.flag) \(profile.nationality)"),
             ("Age", "\(profile.age)"),
             ("Height", "\(profile.heightCm) cm"),
             ("Preferred foot", profile.preferredFoot),

@@ -96,8 +96,8 @@ final class ClubDetailController: UIViewController {
         matchesView.onSelectMatch = { [weak self] matchID in
             self?.coordinator?.showMatchDetail(matchID: matchID)
         }
-        standingView.onSelectClub = { [weak self] name in
-            self?.coordinator?.showClubDetail(for: ClubReference(name: name))
+        standingView.onSelectClub = { [weak self] club in
+            self?.coordinator?.showClubDetail(for: club)
         }
         clubName = viewModel.club.name
         squadView.onSelectPlayer = { [weak self] player in

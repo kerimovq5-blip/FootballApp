@@ -71,7 +71,7 @@ final class ClubSquadView: UIView {
         groups = PlayerPosition.allCases.compactMap { position in
             let players = content.squad
                 .filter { $0.position == position }
-                .sorted { $0.number < $1.number }
+                .sorted { ($0.number == 0 ? Int.max : $0.number) < ($1.number == 0 ? Int.max : $1.number) }
             return players.isEmpty ? nil : PositionGroup(position: position, players: players)
         }
         emptyLabel.isHidden = !groups.isEmpty
@@ -199,9 +199,14 @@ final class ClubPlayerCell: UITableViewCell {
     }
 
     func configure(with player: SquadPlayer) {
-        numberLabel.text = "\(player.number)"
+        numberLabel.text = player.number > 0 ? "\(player.number)" : "–"
         nameLabel.text = player.name
-        detailLabel.text = "\(player.flag) \(player.nationality) · \(player.age) yrs"
+
+        var parts: [String] = []
+        if !player.nationality.isEmpty { parts.append("\(player.flag) \(player.nationality)") }
+        if player.age > 0 { parts.append("\(player.age) yrs") }
+        detailLabel.text = parts.joined(separator: " · ")
+        detailLabel.isHidden = parts.isEmpty
     }
 
     private func setupViews() {

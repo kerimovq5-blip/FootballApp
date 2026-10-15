@@ -160,7 +160,8 @@ final class PlayerDetailController: UIViewController {
         let profile = content.profile
         nameLabel.text = profile.name
         clubLabel.text = "\(profile.club.name) · #\(profile.number)"
-        detailLabel.text = "\(profile.flag) \(profile.nationality) · \(profile.position.singularTitle)"
+        let origin = profile.nationality.isEmpty ? "" : "\(profile.flag) \(profile.nationality) · "
+        detailLabel.text = origin + profile.position.singularTitle
         avatarView.configure(initials: PlayerDetailController.initials(for: profile.name))
 
         overviewView.configure(with: content)

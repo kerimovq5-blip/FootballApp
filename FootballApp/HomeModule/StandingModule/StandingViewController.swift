@@ -148,8 +148,8 @@ extension StandingViewController: UITableViewDataSource {
 extension StandingViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
-        let standing = viewModel.standings[indexPath.row]
-        coordinator?.showClubDetail(for: ClubReference(name: standing.teamName))
+        let standing = viewModel.standings[indexPath.row]   // StandingViewController-də: viewModel.standings[indexPath.row]
+        coordinator?.showClubDetail(for: ClubReference(name: standing.teamName, id: standing.teamID))
     }
 }
 extension StandingViewController: HidesNavigationBar {}

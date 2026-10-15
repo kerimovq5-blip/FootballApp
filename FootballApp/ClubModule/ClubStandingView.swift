@@ -15,9 +15,9 @@ import UIKit
 
 final class ClubStandingView: UIView {
 
-    /// Başqa klubun sətrinə toxunanda klubun adı ötürülür.
-    var onSelectClub: ((String) -> Void)?
-
+    
+    /// Başqa klubun sətrinə toxunanda klub istinadı ötürülür.
+    var onSelectClub: ((ClubReference) -> Void)?
     private var tables: [ClubTable] = []
     private var selectedIndex = 0
     private var clubKey = ""
@@ -212,6 +212,6 @@ extension ClubStandingView: UITableViewDelegate {
         let standing = standings[indexPath.row]
         // Klubun öz sətri ona eyni səhifəni yenidən açmasın.
         guard ClubKey.make(standing.teamName) != clubKey else { return }
-        onSelectClub?(standing.teamName)
+        onSelectClub?(ClubReference(name: standing.teamName, id: standing.teamID))
     }
 }

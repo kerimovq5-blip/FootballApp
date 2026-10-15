@@ -1,12 +1,4 @@
 //
-//  APIResponse.swift
-//  FootballApp
-//
-//  Created by Servan on 14.10.26.
-//
-
-
-//
 //  APIFootballModels.swift
 //  FootballApp
 //
@@ -63,44 +55,44 @@ struct APIErrors: Decodable {
 
 // MARK: - Oyun
 
-struct FixtureDTO: Decodable {
+struct FixtureDTO: Codable {
 
-    struct Info: Decodable {
+    struct Info: Codable {
         let id: Int
         let date: String
         let status: Status
     }
 
-    struct Status: Decodable {
+    struct Status: Codable {
         let short: String?
         let elapsed: Int?
         let extra: Int?
     }
 
-    struct LeagueInfo: Decodable {
+    struct LeagueInfo: Codable {
         let id: Int
         let name: String
         let country: String?
         let flag: String?
     }
 
-    struct Team: Decodable {
+    struct Team: Codable {
         let id: Int?
         let name: String
         let logo: String?
     }
 
-    struct Teams: Decodable {
+    struct Teams: Codable {
         let home: Team
         let away: Team
     }
 
-    struct Goals: Decodable {
+    struct Goals: Codable {
         let home: Int?
         let away: Int?
     }
 
-    struct Score: Decodable {
+    struct Score: Codable {
         let halftime: Goals?
     }
 
@@ -118,19 +110,19 @@ struct FixtureDTO: Decodable {
 
 // MARK: - Hadisələr
 
-struct EventDTO: Decodable {
+struct EventDTO: Codable {
 
-    struct Time: Decodable {
+    struct Time: Codable {
         let elapsed: Int?
         let extra: Int?
     }
 
-    struct TeamRef: Decodable {
+    struct TeamRef: Codable {
         let id: Int?
         let name: String?
     }
 
-    struct PlayerRef: Decodable {
+    struct PlayerRef: Codable {
         let id: Int?
         let name: String?
     }
@@ -147,18 +139,18 @@ struct EventDTO: Decodable {
 
 // MARK: - Heyətlər
 
-struct LineupDTO: Decodable {
+struct LineupDTO: Codable {
 
-    struct TeamRef: Decodable {
+    struct TeamRef: Codable {
         let id: Int?
         let name: String?
     }
 
-    struct Slot: Decodable {
+    struct Slot: Codable {
         let player: Player
     }
 
-    struct Player: Decodable {
+    struct Player: Codable {
         let id: Int?
         let name: String?
         let number: Int?
@@ -174,13 +166,13 @@ struct LineupDTO: Decodable {
 
 // MARK: - Statistika
 
-struct TeamStatisticsDTO: Decodable {
+struct TeamStatisticsDTO: Codable {
 
-    struct TeamRef: Decodable {
+    struct TeamRef: Codable {
         let id: Int?
     }
 
-    struct Entry: Decodable {
+    struct Entry: Codable {
         let type: String
         let value: StatValue?
     }
@@ -190,7 +182,7 @@ struct TeamStatisticsDTO: Decodable {
 }
 
 /// Statistika dəyəri rəqəm (5), mətn ("42%") və ya null ola bilər.
-enum StatValue: Decodable {
+enum StatValue: Codable {
     case number(Double)
     case text(String)
 
@@ -207,6 +199,14 @@ enum StatValue: Decodable {
         }
     }
 
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.singleValueContainer()
+        switch self {
+        case .number(let number): try container.encode(number)
+        case .text(let text): try container.encode(text)
+        }
+    }
+
     var displayText: String {
         switch self {
         case .number(let number):
@@ -216,18 +216,21 @@ enum StatValue: Decodable {
         }
     }
 }
+
 // MARK: - Cədvəl
 
-struct StandingsDTO: Decodable {
+struct StandingsDTO: Codable {
 
-    struct Info: Decodable {
+    struct Info: Codable {
         let id: Int
         let name: String
+        let country: String?
+        let flag: String?
         /// Qruplar massivi: adi liqada bir qrup, turnirlərdə bir neçə qrup ola bilər.
         let standings: [[Row]]
     }
 
-    struct Row: Decodable {
+    struct Row: Codable {
         let rank: Int
         let team: Team
         /// "Promotion - Champions League ...", "Relegation - ..." kimi.
@@ -237,13 +240,13 @@ struct StandingsDTO: Decodable {
         let away: Record?
     }
 
-    struct Team: Decodable {
+    struct Team: Codable {
         let id: Int?
         let name: String
         let logo: String?
     }
 
-    struct Record: Decodable {
+    struct Record: Codable {
         let played: Int
         let win: Int
         let draw: Int
@@ -251,7 +254,7 @@ struct StandingsDTO: Decodable {
         let goals: Goals
     }
 
-    struct Goals: Decodable {
+    struct Goals: Codable {
         let scored: Int
         let conceded: Int
 
@@ -262,4 +265,42 @@ struct StandingsDTO: Decodable {
     }
 
     let league: Info
+}
+
+// MARK: - Komanda və heyət
+
+struct TeamInfoDTO: Codable {
+
+    struct Team: Codable {
+        let id: Int
+        let name: String
+        let country: String?
+        let founded: Int?
+        /// Milli komandadırsa true.
+        let national: Bool?
+        let logo: String?
+    }
+
+    struct Venue: Codable {
+        let name: String?
+        let city: String?
+        let capacity: Int?
+    }
+
+    let team: Team
+    let venue: Venue?
+}
+
+struct SquadDTO: Codable {
+
+    struct Player: Codable {
+        let id: Int?
+        let name: String
+        let age: Int?
+        let number: Int?
+        /// "Goalkeeper", "Defender", "Midfielder", "Attacker".
+        let position: String?
+    }
+
+    let players: [Player]
 }

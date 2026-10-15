@@ -57,24 +57,21 @@ struct AppEnvironment {
     }
 
     /// Real API qoşulduqca mock servislər burada real servislərlə əvəz olunur (dilim-dilim).
-    /// Real API qoşulduqca mock servislər burada real servislərlə əvəz olunur (dilim-dilim).
     static var live: AppEnvironment {
         let client = APIFootballClient.shared
         let home = APIHomeService(client: client)
         let explore = MockExploreService()
-        let mockStanding = MockStandingService()
 
         return AppEnvironment(
             home: home,
             matchDetail: APIMatchDetailService(client: client),
             explore: explore,
             standing: APIStandingService(client: client),
-            // Klub və axtarış öz dilimlərinə qədər mock cədvəllərdə qalır:
-            // bütün liqaları çəkib hər açılışda 8-9 sorğu işlədərdilər.
-            club: MockClubService(standingService: mockStanding, homeService: home),
+            club: APIClubService(client: client),
+            // Axtarış öz dilimində gələcək; o vaxta qədər mock cədvəllərdə işləyir.
             search: MockSearchService(homeService: home,
                                       exploreService: explore,
-                                      standingService: mockStanding)
+                                      standingService: MockStandingService())
         )
     }
 

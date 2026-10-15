@@ -20,8 +20,9 @@ struct ClubReference {
     /// Mənbə bilirsə (məs. Explore reytinqi) ötürülür, yoxsa liqadan götürülür.
     var country: String? = nil
     var flag: String? = nil
+    /// API komanda id-si. Məlumdursa adla axtarış sorğusu qənaət olunur.
+    var id: Int? = nil
 }
-
 enum ClubKey {
     /// Hərf böyüklüyü və işarələr (é, ş, ç...) nəzərə alınmadan müqayisə üçün açar.
     static func make(_ name: String) -> String {
