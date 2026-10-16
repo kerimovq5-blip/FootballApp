@@ -5,17 +5,10 @@
 //  Created by Servan on 11.10.26.
 //
 
-
-//
-//  ClubService.swift
-//  FootballApp
-//
-
 import Foundation
 
 protocol ClubProviding {
-    func fetchClub(_ club: ClubReference,
-                   completion: @escaping (Result<ClubDetailContent, Error>) -> Void)
+    func fetchClub(_ club: ClubReference) async -> Result<ClubDetailContent, Error>
 }
 
 /// Real API gələnə qədər test datası: Standing və Home mock-larını birləşdirir.
@@ -30,38 +23,44 @@ struct MockClubService: ClubProviding {
         self.homeService = homeService
     }
 
-    func fetchClub(_ club: ClubReference,
-                   completion: @escaping (Result<ClubDetailContent, Error>) -> Void) {
+    func fetchClub(_ club: ClubReference) async -> Result<ClubDetailContent, Error> {
         let key = ClubKey.make(club.name)
-        collectTables(leagues: standingService.leagues[...], key: key, collected: []) { tables in
-            homeService.fetchHome { homeResult in
-                let homeLeagues = (try? homeResult.get().leagues) ?? []
-                completion(.success(
-                    MockClubService.makeContent(club: club, key: key, tables: tables, homeLeagues: homeLeagues)
-                ))
-            }
-        }
+        let tables = await collectTables(leagues: standingService.leagues, key: key)
+        let homeLeagues = await loadHomeLeagues()
+
+        return .success(
+            MockClubService.makeContent(club: club, key: key, tables: tables, homeLeagues: homeLeagues)
+        )
     }
 
     // MARK: - Cədvəllər
 
     /// Klubun olduğu bütün cədvəlləri bir-bir yığır (liqaların sırası saxlanılır).
-    private func collectTables(leagues: ArraySlice<League>,
-                               key: String,
-                               collected: [ClubTable],
-                               completion: @escaping ([ClubTable]) -> Void) {
-        guard let league = leagues.first else {
-            completion(collected)
-            return
-        }
-        standingService.fetchStandings(for: league, filter: .all) { result in
-            var next = collected
+    private func collectTables(leagues: [League], key: String) async -> [ClubTable] {
+        var collected: [ClubTable] = []
+
+        for league in leagues {
+            let result: Result<[Standing], Error> = await withCheckedContinuation { continuation in
+                standingService.fetchStandings(for: league, filter: .all) {
+                    continuation.resume(returning: $0)
+                }
+            }
+
             if case .success(let standings) = result,
                standings.contains(where: { ClubKey.make($0.teamName) == key }) {
-                next.append(ClubTable(league: league, standings: standings))
+                collected.append(ClubTable(league: league, standings: standings))
             }
-            self.collectTables(leagues: leagues.dropFirst(), key: key, collected: next, completion: completion)
         }
+        return collected
+    }
+
+    private func loadHomeLeagues() async -> [League] {
+        let result: Result<HomeContent, Error> = await withCheckedContinuation { continuation in
+            homeService.fetchHome {
+                continuation.resume(returning: $0)
+            }
+        }
+        return (try? result.get().leagues) ?? []
     }
 
     // MARK: - Məzmun

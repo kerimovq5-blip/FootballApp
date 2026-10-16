@@ -12,9 +12,6 @@ protocol ClubNavigating: AnyObject {
     func showMatchDetail(matchID: Int)
 }
 
-/// Standart implementasiya: coordinator-un öz navigation controller-inə push edir.
-/// Home və Account öz showMatchDetail-lərini saxlayır (onlara servis inject olunur), qalanlar bunu işlədir.
-/// Servislər `AppEnvironment.current`-dən gəlir.
 extension ClubNavigating where Self: NavigationCoordinator {
 
     func showClubDetail(for club: ClubReference) {

@@ -29,7 +29,8 @@ struct MockPlayerService: PlayerProviding {
 
     func fetchPlayer(_ player: PlayerReference,
                      completion: @escaping (Result<PlayerDetailContent, Error>) -> Void) {
-        clubService.fetchClub(ClubReference(name: player.clubName ?? "")) { result in
+        Task {
+            let result =  await clubService.fetchClub(ClubReference(name: player.clubName ?? ""))
             switch result {
             case .success(let club):
                 completion(.success(MockPlayerService.makeContent(player: player, club: club)))
@@ -37,6 +38,7 @@ struct MockPlayerService: PlayerProviding {
                 completion(.failure(error))
             }
         }
+    
     }
 
     // MARK: - Məzmun

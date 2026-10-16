@@ -6,18 +6,12 @@
 //
 
 
-//
-//  APIFootballMapper.swift
-//  FootballApp
-//
-
 import UIKit
 
 enum APIFootballMapper {
 
     // MARK: - Home
 
-    /// Oyunları liqalara görə qruplaşdırır; yalnız `allowedIDs`, həmin sıra ilə.
     static func leagues(from fixtures: [FixtureDTO], allowedIDs: [Int]) -> [League] {
         let grouped = Dictionary(grouping: fixtures, by: { $0.league.id })
 

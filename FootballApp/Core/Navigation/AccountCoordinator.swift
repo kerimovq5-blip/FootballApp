@@ -4,7 +4,6 @@ final class AccountCoordinator: NSObject, NavigationCoordinator, ProfileNavigati
     let navigationController: UINavigationController
     var childCoordinators: [Coordinator] = []
 
-    /// MainTabBarCoordinator-a xəbər verir; sessiyanı silmək və ekranı dəyişmək onun yuxarısının işidir.
     var onLogout: (() -> Void)?
 
     private let authService: AuthProviding
@@ -71,7 +70,7 @@ final class AccountCoordinator: NSObject, NavigationCoordinator, ProfileNavigati
     }
 
     func logout() {
-           // Profil, Activity və bildiriş seçimləri istifadəçiyə aiddir; Settings cihaza aid olduğu üçün qalır.
+          
            profileStore.clear()
            activityStore.clear()
            subscriptions.clear()
@@ -97,8 +96,6 @@ extension AccountCoordinator: UINavigationControllerDelegate {
     func navigationController(_ navigationController: UINavigationController,
                               willShow viewController: UIViewController,
                               animated: Bool) {
-        // Bu tab-da bütün ekranların öz header-i var, nav bar həmişə gizlidir.
-        // Bar gizli olanda UIKit swipe-back jestini söndürür; burada qaytarırıq.
         navigationController.interactivePopGestureRecognizer?.delegate = self
     }
 }
@@ -106,7 +103,6 @@ extension AccountCoordinator: UINavigationControllerDelegate {
 // MARK: - UIGestureRecognizerDelegate
 
 extension AccountCoordinator: UIGestureRecognizerDelegate {
-    /// Root ekranda jest başlamasın (yoxsa UI donur).
     func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {
         navigationController.viewControllers.count > 1
     }

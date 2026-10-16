@@ -77,7 +77,6 @@ struct FirebaseAuthService: AuthProviding {
                 completion(.failure(AuthError.unknown(0)))
                 return
             }
-            // The account already exists at this point; a failed name update is not fatal.
             let change = user.createProfileChangeRequest()
             change.displayName = name
             change.commitChanges { _ in

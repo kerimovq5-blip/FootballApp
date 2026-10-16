@@ -14,27 +14,29 @@
 import Foundation
 
 final class ClubDetailViewModel {
-
+    
     var onLoaded: ((ClubDetailContent) -> Void)?
     var onFailed: ((String) -> Void)?
-
+    
     let club: ClubReference
     private let service: ClubProviding
-
+    
     init(club: ClubReference, service: ClubProviding) {
         self.club = club
         self.service = service
     }
-
+    
     func load() {
-        service.fetchClub(club) { [weak self] result in
+        Task {[weak self ] in
             guard let self else { return }
-            switch result {
-            case .success(let content):
-                self.onLoaded?(content)
-            case .failure(let error):
-                self.onFailed?(error.localizedDescription)
+            let result = await service.fetchClub(self.club)
+                switch result {
+                case .success(let content):
+                    self.onLoaded?(content)
+                case .failure(let error):
+                    self.onFailed?(error.localizedDescription)
+                }
             }
         }
     }
-}
+
