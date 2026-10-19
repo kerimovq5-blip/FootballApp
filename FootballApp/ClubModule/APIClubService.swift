@@ -23,41 +23,24 @@ struct APIClubService: ClubProviding {
         }
     }
 
-    // MARK: - Körpü: closure → async
-
-    private func bridge<T>(
-        _ call: (@escaping (Result<T, Error>) -> Void) -> Void
-    ) async throws -> T {
-        try await withCheckedThrowingContinuation { continuation in
-            call { continuation.resume(with: $0) }
-        }
-    }
-
     // MARK: - Komandanı tapmaq
 
     /// id məlumdursa birbaşa, yoxsa ad ilə axtarışla (1 əlavə sorğu).
     private func resolveTeam(for club: ClubReference) async throws -> TeamInfoDTO {
         if let id = club.id {
-            let items: [TeamInfoDTO] = try await bridge { done in
-                client.team(id: id) { done($0) }
-            }
-            guard let item = items.first else { throw APIError.notFound }
+            guard let item = try await client.team(id: id).first else { throw APIError.notFound }
             return item
         }
 
         let query = Self.searchText(for: club.name)
-        let items: [TeamInfoDTO] = try await bridge { done in
-            client.teams(search: query) { done($0) }
-        }
+        let items = try await client.teams(search: query)
         if let team = Self.pick(from: items, for: club.name) { return team }
 
         // Ehtiyat: ən uzun sözlə yenidən axtar (məs. "Paris Saint Germain" → "Germain").
         guard let word = Self.longestWord(in: query), word != query else {
             throw APIError.notFound
         }
-        let retryItems: [TeamInfoDTO] = try await bridge { done in
-            client.teams(search: word) { done($0) }
-        }
+        let retryItems = try await client.teams(search: word)
         guard let team = Self.pick(from: retryItems, for: club.name) else {
             throw APIError.notFound
         }
@@ -72,15 +55,9 @@ struct APIClubService: ClubProviding {
         let id = team.team.id
         let season = APIConfig.season
 
-        async let fixtures: [FixtureDTO]? = try? bridge { done in
-            client.fixtures(team: id, season: season) { done($0) }
-        }
-        async let standings: [StandingsDTO]? = try? bridge { done in
-            client.standings(team: id, season: season) { done($0) }
-        }
-        async let squad: [SquadDTO]? = try? bridge { done in
-            client.squad(team: id) { done($0) }
-        }
+        async let fixtures = try? client.fixtures(team: id, season: season)
+        async let standings = try? client.standings(team: id, season: season)
+        async let squad = try? client.squad(team: id)
 
         return APIFootballMapper.clubDetail(
             reference: reference,

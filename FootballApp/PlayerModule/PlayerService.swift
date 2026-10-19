@@ -14,8 +14,7 @@
 import Foundation
 
 protocol PlayerProviding {
-    func fetchPlayer(_ player: PlayerReference,
-                     completion: @escaping (Result<PlayerDetailContent, Error>) -> Void)
+    func fetchPlayer(_ player: PlayerReference) async -> Result<PlayerDetailContent, Error>
 }
 
 /// Real API gələnə qədər test datası. Bütün rəqəmlər uydurmadır, oyunçu adından hesablanır.
@@ -27,18 +26,9 @@ struct MockPlayerService: PlayerProviding {
         self.clubService = clubService
     }
 
-    func fetchPlayer(_ player: PlayerReference,
-                     completion: @escaping (Result<PlayerDetailContent, Error>) -> Void) {
-        Task {
-            let result =  await clubService.fetchClub(ClubReference(name: player.clubName ?? ""))
-            switch result {
-            case .success(let club):
-                completion(.success(MockPlayerService.makeContent(player: player, club: club)))
-            case .failure(let error):
-                completion(.failure(error))
-            }
-        }
-    
+    func fetchPlayer(_ player: PlayerReference) async -> Result<PlayerDetailContent, Error> {
+        let result = await clubService.fetchClub(ClubReference(name: player.clubName ?? ""))
+        return result.map { MockPlayerService.makeContent(player: player, club: $0) }
     }
 
     // MARK: - Məzmun

@@ -6,11 +6,6 @@
 //
 
 
-//
-//  ClubModels.swift
-//  FootballApp
-//
-
 import UIKit
 
 /// Klubu tanıtmaq üçün yüngül istinad. Mock datada Home, Explore və Standing fərqli id işlədir,

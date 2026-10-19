@@ -59,7 +59,7 @@ final class StandingViewController: UIViewController {
         tableView.separatorStyle = .none
         tableView.showsVerticalScrollIndicator = false
         tableView.rowHeight = UITableView.automaticDimension
-        tableView.estimatedRowHeight = 52
+        tableView.estimatedRowHeight = 50
         tableView.dataSource = self
         tableView.delegate = self
         tableView.register(LeagueStandingCell.self, forCellReuseIdentifier: LeagueStandingCell.reuseID)
@@ -148,7 +148,8 @@ extension StandingViewController: UITableViewDataSource {
 extension StandingViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
-        let standing = viewModel.standings[indexPath.row]   // StandingViewController-də: viewModel.standings[indexPath.row]
+        let standing = viewModel.standings[indexPath.row]
+        // StandingViewController-də: viewModel.standings[indexPath.row]
         coordinator?.showClubDetail(for: ClubReference(name: standing.teamName, id: standing.teamID))
     }
 }

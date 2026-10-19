@@ -24,46 +24,48 @@ final class NetworkManager {
         self.header = header
     }
     
-    func request <T : Decodable>(
-        endPoint : EndPoint ,
-        completion: @escaping (Result<T,Error>) -> Void){
-            let builtRequest = urlRequest(endPoint: endPoint)
-            let callback : (Result<T,Error>) -> Void = {result in
-                DispatchQueue.main.async {
-                    completion(result)
-                }
-            }
-            switch builtRequest {
-            case .success(let urlRequest):
-                session.dataTask(with: urlRequest) { data, response, error in
-                    if let error { callback(.failure(error)); return }
-                    guard let http = response as? HTTPURLResponse else {
-                        callback(.failure(LocalError.invalidResponse)); return
-                    }
-                    guard let data else { callback(.failure(LocalError.noData)); return }
-                    guard (200..<300).contains(http.statusCode) else {
-                        if var model = try? JSONDecoder().decode(ErrorModel.self, from: data) {
-                            model.setStatusCode(statusCode: http.statusCode)
-                            callback(.failure(LocalError.backEndError(model)))
-                        } else {
-                            callback(.failure(LocalError.invalidResponse))
-                        }
-                        return
-                    }
-                    do {
-                        callback(.success(try JSONDecoder().decode(T.self, from: data)))
-                    } catch {
-                        #if DEBUG
-                        print("Decode error for \(T.self): \(error)")
-                        #endif
-                        callback(.failure(LocalError.invalidDecode))
-                    }
-                }.resume()
-            case .failure(let error):
-                callback(.failure(error))
-            }
-            
+    // MARK: - async/await
+
+    /// Əsas sorğu metodu. Xəta olanda `LocalError` atır.
+    func request<T: Decodable>(endPoint: EndPoint) async throws -> T {
+        let urlRequest = try urlRequest(endPoint: endPoint).get()
+        let (data, response) = try await session.data(for: urlRequest)
+
+        guard let http = response as? HTTPURLResponse else {
+            throw LocalError.invalidResponse
         }
+        guard (200..<300).contains(http.statusCode) else {
+            if var model = try? JSONDecoder().decode(ErrorModel.self, from: data) {
+                model.setStatusCode(statusCode: http.statusCode)
+                throw LocalError.backEndError(model)
+            }
+            throw LocalError.invalidResponse
+        }
+        do {
+            return try JSONDecoder().decode(T.self, from: data)
+        } catch {
+            #if DEBUG
+            print("Decode error for \(T.self): \(error)")
+            #endif
+            throw LocalError.invalidDecode
+        }
+    }
+
+    // MARK: - Completion (köhnə kod üçün)
+
+    /// Hələ closure ilə işləyən ekranlar üçün. İçəridə async versiyanı çağırır.
+    func request<T: Decodable>(
+        endPoint: EndPoint,
+        completion: @escaping (Result<T, Error>) -> Void) {
+        Task { @MainActor in
+            do {
+                let value: T = try await request(endPoint: endPoint)
+                completion(.success(value))
+            } catch {
+                completion(.failure(error))
+            }
+        }
+    }
     func urlRequest(endPoint : EndPoint ) -> Result<URLRequest, Error>{
         let path = "\(mainPath)\(endPoint.path)"
         guard var url = URL(string: path) else {

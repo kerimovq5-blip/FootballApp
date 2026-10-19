@@ -27,16 +27,15 @@ final class ClubDetailViewModel {
     }
     
     func load() {
-        Task {[weak self ] in
+        Task { [weak self] in
             guard let self else { return }
-            let result = await service.fetchClub(self.club)
-                switch result {
-                case .success(let content):
-                    self.onLoaded?(content)
-                case .failure(let error):
-                    self.onFailed?(error.localizedDescription)
-                }
+            let result = await service.fetchClub(club)
+            switch result {
+            case .success(let content):
+                onLoaded?(content)
+            case .failure(let error):
+                onFailed?(error.localizedDescription)
             }
         }
     }
-
+}

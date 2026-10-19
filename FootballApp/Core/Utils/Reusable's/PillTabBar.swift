@@ -67,6 +67,7 @@ final class PillTabBar: UIView {
         case spread
         /// Tab-lar soldan düzülür, qalan yer boş qalır.
         case leading
+        case trailing
     }
 
     var onSelect: ((Int) -> Void)?
@@ -93,14 +94,24 @@ final class PillTabBar: UIView {
             stack.addArrangedSubview(button)
         }
 
+        // .leading-də stack düymələr qədər endədir, ona görə width qaydası lazım deyil.
+        // .spread və .trailing isə görünən eni doldurmalıdır.
+        let fillsWidth: Bool
         switch alignment {
         case .spread:
             stack.distribution = .equalSpacing
+            fillsWidth = true
         case .leading:
+            // Spacer yoxdur: scroll düz sonuncu tab-da bitir.
+            stack.distribution = .fill
+            fillsWidth = false
+        case .trailing:
             stack.distribution = .fill
             let spacer = UIView()
             spacer.setContentHuggingPriority(.defaultLow, for: .horizontal)
-            stack.addArrangedSubview(spacer)
+            spacer.widthAnchor.constraint(greaterThanOrEqualToConstant: 0).isActive = true
+            stack.insertArrangedSubview(spacer, at: 0)
+            fillsWidth = true
         }
 
         scrollView.showsHorizontalScrollIndicator = false
@@ -116,11 +127,17 @@ final class PillTabBar: UIView {
         stack
             .top(scrollView.contentLayoutGuide.topAnchor).0
             .leading(scrollView.contentLayoutGuide.leadingAnchor).0
-            .trailing(scrollView.contentLayoutGuide.trailingAnchor).0
+            .trailing(scrollView.contentLayoutGuide.trailingAnchor ).0
             .bottom(scrollView.contentLayoutGuide.bottomAnchor)
 
-        // Tab-lar azdırsa görünən eni doldurur (spread / leading işləyir), çoxdursa scroll olur.
-        stack.widthAnchor.constraint(greaterThanOrEqualTo: scrollView.frameLayoutGuide.widthAnchor).isActive = true
+        if fillsWidth {
+            // Tab-lar azdırsa görünən eni doldurur, çoxdursa scroll olur.
+            stack.widthAnchor.constraint(greaterThanOrEqualTo: scrollView.frameLayoutGuide.widthAnchor).isActive = true
+            // Lazım olandan geniş olmasın, yoxsa scroll sonuncu tab-dan sonra boşluğa gedir.
+            let fitWidth = stack.widthAnchor.constraint(equalTo: scrollView.frameLayoutGuide.widthAnchor)
+            fitWidth.priority = .defaultLow
+            fitWidth.isActive = true
+        }
         // Sətrin hündürlüyü düymələrin hündürlüyündən gəlir.
         scrollView.heightAnchor.constraint(equalTo: scrollView.contentLayoutGuide.heightAnchor).isActive = true
 

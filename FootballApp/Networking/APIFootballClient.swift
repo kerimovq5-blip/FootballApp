@@ -43,7 +43,7 @@ final class APIFootballClient {
         self.cacheDirectory = directory
     }
 
-    // MARK: - Sorğular
+    // MARK: - Sorğular (completion, köhnə ekranlar üçün)
 
     /// Bir tarixdəki bütün oyunlar (hamısı bir sorğuda; liqalara görə sonra süzülür).
     func fixtures(date: String, completion: @escaping (Result<[FixtureDTO], Error>) -> Void) {
@@ -99,8 +99,84 @@ final class APIFootballClient {
         call(.squad(team: team), ttl: 24 * 60 * 60, completion: completion)
     }
 
+    // MARK: - Sorğular (async/await)
+
+    func fixtures(date: String) async throws -> [FixtureDTO] {
+        try await fetch(.fixtures(date: date, timezone: TimeZone.current.identifier), ttl: 10 * 60)
+    }
+
+    func fixture(id: Int) async throws -> FixtureDTO {
+        let items: [FixtureDTO] = try await fetch(.fixture(id: id), ttl: 2 * 60)
+        guard let item = items.first else { throw APIError.notFound }
+        return item
+    }
+
+    func headToHead(home: Int, away: Int) async throws -> [FixtureDTO] {
+        try await fetch(.headToHead(home: home, away: away, last: 10), ttl: 24 * 60 * 60)
+    }
+
+    func standings(league: Int, season: Int) async throws -> [StandingsDTO] {
+        try await fetch(.standings(league: league, season: season), ttl: 6 * 60 * 60)
+    }
+
+    func standings(team: Int, season: Int) async throws -> [StandingsDTO] {
+        try await fetch(.teamStandings(team: team, season: season), ttl: 6 * 60 * 60)
+    }
+
+    func team(id: Int) async throws -> [TeamInfoDTO] {
+        try await fetch(.team(id: id), ttl: 7 * 24 * 60 * 60)
+    }
+
+    func teams(search: String) async throws -> [TeamInfoDTO] {
+        try await fetch(.teamSearch(name: search), ttl: 7 * 24 * 60 * 60)
+    }
+
+    func fixtures(team: Int, season: Int) async throws -> [FixtureDTO] {
+        try await fetch(.teamFixtures(team: team, season: season), ttl: 60 * 60)
+    }
+
+    func squad(team: Int) async throws -> [SquadDTO] {
+        try await fetch(.squad(team: team), ttl: 24 * 60 * 60)
+    }
+
     // MARK: - Əsas çağırış
 
+    /// Keşdə varsa keşdən, yoxsa şəbəkədən. Hər iki yol (async və completion) bundan keçir.
+    private func fetch<Item: Codable>(_ endpoint: FootballEndpoint,
+                                      ttl: TimeInterval) async throws -> [Item] {
+        guard !apiKey.isEmpty else { throw APIError.missingKey }
+
+        let key = cacheKey(for: endpoint)
+        if let cached: [Item] = cachedValue(for: key, ttl: ttl) {
+            return cached
+        }
+
+        #if DEBUG
+        print("API ▶︎ GET \(key)")
+        #endif
+
+        do {
+            let response: APIResponse<Item> = try await network.request(endPoint: endpoint)
+            if let message = response.errors.message {
+                #if DEBUG
+                print("API ✗ \(key): \(message)")
+                #endif
+                throw APIError.server(message)
+            }
+            store(response.response, for: key)
+            return response.response
+        } catch {
+            #if DEBUG
+            if !(error is APIError) {
+                print("API ✗ \(key): \(error.localizedDescription)")
+            }
+            #endif
+            throw error
+        }
+    }
+
+    /// Completion versiyası. Keşdə olan cavab əvvəlki kimi dərhal (sinxron) qaytarılır,
+    /// ona görə ekranlarda "loading" yanıb-sönməsi olmur.
     private func call<Item: Codable>(_ endpoint: FootballEndpoint,
                                      ttl: TimeInterval,
                                      completion: @escaping (Result<[Item], Error>) -> Void) {
@@ -108,33 +184,15 @@ final class APIFootballClient {
             completion(.failure(APIError.missingKey))
             return
         }
-
-        let key = cacheKey(for: endpoint)
-        if let cached: [Item] = cachedValue(for: key, ttl: ttl) {
+        if let cached: [Item] = cachedValue(for: cacheKey(for: endpoint), ttl: ttl) {
             completion(.success(cached))
             return
         }
-
-        #if DEBUG
-        print("API ▶︎ GET \(key)")
-        #endif
-
-        network.request(endPoint: endpoint) { [weak self] (result: Result<APIResponse<Item>, Error>) in
-            switch result {
-            case .success(let response):
-                if let message = response.errors.message {
-                    #if DEBUG
-                    print("API ✗ \(key): \(message)")
-                    #endif
-                    completion(.failure(APIError.server(message)))
-                } else {
-                    self?.store(response.response, for: key)
-                    completion(.success(response.response))
-                }
-            case .failure(let error):
-                #if DEBUG
-                print("API ✗ \(key): \(error.localizedDescription)")
-                #endif
+        Task { @MainActor in
+            do {
+                let items: [Item] = try await fetch(endpoint, ttl: ttl)
+                completion(.success(items))
+            } catch {
                 completion(.failure(error))
             }
         }

@@ -27,13 +27,14 @@ final class PlayerDetailViewModel {
     }
 
     func load() {
-        service.fetchPlayer(player) { [weak self] result in
+        Task { [weak self] in
             guard let self else { return }
+            let result = await service.fetchPlayer(player)
             switch result {
             case .success(let content):
-                self.onLoaded?(content)
+                onLoaded?(content)
             case .failure(let error):
-                self.onFailed?(error.localizedDescription)
+                onFailed?(error.localizedDescription)
             }
         }
     }
