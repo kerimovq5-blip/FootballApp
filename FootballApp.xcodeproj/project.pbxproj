@@ -83,6 +83,7 @@
 				4681384D3063D2EA009ADC2B /* Sources */,
 				4681384E3063D2EA009ADC2B /* Frameworks */,
 				4681384F3063D2EA009ADC2B /* Resources */,
+				F2B75F3A30878ED300F7DFFE /* ShellScript */,
 			);
 			buildRules = (
 			);
@@ -147,6 +148,26 @@
 		};
 /* End PBXResourcesBuildPhase section */
 
+/* Begin PBXShellScriptBuildPhase section */
+		F2B75F3A30878ED300F7DFFE /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# Type a script or drag a script file from your workspace to insert its path.\n   export PATH=\"$PATH:$HOME/.local/bin:/opt/homebrew/bin\"\n   if command -v swiftlint >/dev/null 2>&1; then\n     swiftlint\n   else\n     echo \"warning: SwiftLint quraşdırılmayıb. README-yə bax.\"\n   fi\n";
+		};
+/* End PBXShellScriptBuildPhase section */
+
 /* Begin PBXSourcesBuildPhase section */
 		4681384D3063D2EA009ADC2B /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
@@ -167,6 +188,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 837438Y7G2;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = FootballApp/Info.plist;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -204,6 +226,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 837438Y7G2;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = FootballApp/Info.plist;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
