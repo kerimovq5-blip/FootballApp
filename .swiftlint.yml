@@ -1,0 +1,80 @@
+# SwiftLint konfiqurasiyası
+# Sənədlər: https://realm.github.io/SwiftLint/rule-directory.html
+#
+# Məqsəd: mövcud kodda heç bir "error" olmasın (error build-i dayandırır),
+# yalnız düzəldilə bilən xəbərdarlıqlar qalsın. Çoxunu avtomatik düzəltmək üçün:
+#   swiftlint --fix
+
+included:
+  - FootballApp
+
+excluded:
+  - FootballApp/Core/Secrets.swift
+
+# Əlavə (opt-in) qaydalar: tez-tez rast gəlinən səhvləri tutur.
+opt_in_rules:
+  - empty_count                    # array.count == 0 əvəzinə isEmpty
+  - empty_string                   # text == "" əvəzinə isEmpty
+  - first_where                    # filter { }.first əvəzinə first(where:)
+  - contains_over_first_not_nil    # first(where:) != nil əvəzinə contains
+  - last_where
+  - closure_spacing
+  - operator_usage_whitespace
+  - unneeded_parentheses_in_closure_argument
+  - weak_delegate                  # delegate-lər weak olmalıdır
+
+# --- Qaydaların ayarları ---
+
+identifier_name:
+  min_length:
+    warning: 2     # tək hərfli adlar xəbərdarlıq verir, amma build-i dayandırmır
+    error: 1
+  max_length:
+    warning: 50
+    error: 70
+  excluded:
+    - id
+    - x
+    - y
+    - i
+    - vc
+
+line_length:
+  warning: 140
+  error: 200
+  ignores_comments: true
+  ignores_urls: true
+
+trailing_whitespace:
+  ignores_empty_lines: true        # Xcode boş sətirlərdə girinti saxlayır
+
+type_body_length:
+  warning: 350
+  error: 600
+
+function_body_length:
+  warning: 60
+  error: 200
+
+file_length:
+  warning: 400
+  error: 1000
+
+function_parameter_count:
+  warning: 6
+  error: 8
+  ignores_default_parameters: true
+
+large_tuple:
+  warning: 3
+  error: 4
+
+nesting:
+  type_level: 2
+
+cyclomatic_complexity:
+  warning: 12
+  error: 20
+  ignores_case_statements: true    # böyük switch-lər (dataSource) normaldır
+
+reporter: xcode
