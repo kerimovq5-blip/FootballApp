@@ -9,7 +9,23 @@
 /* Begin PBXBuildFile section */
 		46F8E9AA307A527B00072257 /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 46F8E9A9307A527B00072257 /* FirebaseAuth */; };
 		46F8E9AC307A527B00072257 /* FirebaseCore in Frameworks */ = {isa = PBXBuildFile; productRef = 46F8E9AB307A527B00072257 /* FirebaseCore */; };
+		F2B75A8630877B1300F7DFFE /* RxCocoa in Frameworks */ = {isa = PBXBuildFile; productRef = F2B75A8530877B1300F7DFFE /* RxCocoa */; };
+		F2B75A8B30877B1300F7DFFE /* RxRelay in Frameworks */ = {isa = PBXBuildFile; productRef = F2B75A8A30877B1300F7DFFE /* RxRelay */; };
+		F2B75A9030877B1300F7DFFE /* RxSwift in Frameworks */ = {isa = PBXBuildFile; productRef = F2B75A8F30877B1300F7DFFE /* RxSwift */; };
 /* End PBXBuildFile section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		F2B75A9930877B1400F7DFFE /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		468138513063D2EA009ADC2B /* FootballApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = FootballApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -41,7 +57,10 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F2B75A9030877B1300F7DFFE /* RxSwift in Frameworks */,
 				46F8E9AC307A527B00072257 /* FirebaseCore in Frameworks */,
+				F2B75A8B30877B1300F7DFFE /* RxRelay in Frameworks */,
+				F2B75A8630877B1300F7DFFE /* RxCocoa in Frameworks */,
 				46F8E9AA307A527B00072257 /* FirebaseAuth in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -83,6 +102,7 @@
 				4681384D3063D2EA009ADC2B /* Sources */,
 				4681384E3063D2EA009ADC2B /* Frameworks */,
 				4681384F3063D2EA009ADC2B /* Resources */,
+				F2B75A9930877B1400F7DFFE /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
@@ -95,6 +115,9 @@
 			packageProductDependencies = (
 				46F8E9A9307A527B00072257 /* FirebaseAuth */,
 				46F8E9AB307A527B00072257 /* FirebaseCore */,
+				F2B75A8530877B1300F7DFFE /* RxCocoa */,
+				F2B75A8A30877B1300F7DFFE /* RxRelay */,
+				F2B75A8F30877B1300F7DFFE /* RxSwift */,
 			);
 			productName = FootballApp;
 			productReference = 468138513063D2EA009ADC2B /* FootballApp.app */;
@@ -126,6 +149,7 @@
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
 				46F8E9A8307A527B00072257 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
+				F2B75A7F30877ACB00F7DFFE /* XCRemoteSwiftPackageReference "RxSwift" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 468138523063D2EA009ADC2B /* Products */;
@@ -173,7 +197,7 @@
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				IPHONEOS_DEPLOYMENT_TARGET = 18.6;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -210,7 +234,7 @@
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				IPHONEOS_DEPLOYMENT_TARGET = 18.6;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -387,6 +411,14 @@
 				minimumVersion = 13.0.1;
 			};
 		};
+		F2B75A7F30877ACB00F7DFFE /* XCRemoteSwiftPackageReference "RxSwift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/ReactiveX/RxSwift";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 6.10.2;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -399,6 +431,21 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 46F8E9A8307A527B00072257 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
 			productName = FirebaseCore;
+		};
+		F2B75A8530877B1300F7DFFE /* RxCocoa */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = F2B75A7F30877ACB00F7DFFE /* XCRemoteSwiftPackageReference "RxSwift" */;
+			productName = RxCocoa;
+		};
+		F2B75A8A30877B1300F7DFFE /* RxRelay */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = F2B75A7F30877ACB00F7DFFE /* XCRemoteSwiftPackageReference "RxSwift" */;
+			productName = RxRelay;
+		};
+		F2B75A8F30877B1300F7DFFE /* RxSwift */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = F2B75A7F30877ACB00F7DFFE /* XCRemoteSwiftPackageReference "RxSwift" */;
+			productName = RxSwift;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
