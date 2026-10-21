@@ -6,6 +6,8 @@
 //
 
 import UIKit
+import RxSwift
+import RxCocoa
 
 final class SearchController: UIViewController {
 
@@ -14,6 +16,7 @@ final class SearchController: UIViewController {
     private let viewModel: SearchViewModel
     private let subscriptions: MatchSubscriptionStoring
     private var didFocusSearchField = false
+    private let disposeBag = DisposeBag()
 
     init(viewModel: SearchViewModel,
          subscriptions: MatchSubscriptionStoring = UserDefaultsMatchSubscriptionStore.shared) {
@@ -64,10 +67,6 @@ final class SearchController: UIViewController {
         icon.frame = CGRect(x: 0, y: 0, width: 44, height: 44)
         field.leftView = icon
         field.leftViewMode = .always
-
-        field.addAction(UIAction { [weak self] _ in
-            self?.queryChanged()
-        }, for: .editingChanged)
         return field
     }()
     private lazy var scopeTabBar: PillTabBar = {
@@ -176,6 +175,17 @@ final class SearchController: UIViewController {
         viewModel.onFailed = { [weak self] message in
             self?.showAlert(message: message)
         }
+
+        // Hər hərfdə yox, yazmağı 0.3 san. dayandıranda axtar.
+        // distinctUntilChanged işlədilmir: X düyməsi və son axtarışlar mətni
+        // birbaşa updateQuery ilə dəyişir, Rx bundan xəbər tutmur.
+        searchField.rx.text.orEmpty
+            .skip(1) // ilk boş dəyəri ötür, load() onsuz da ekranı qurur
+            .debounce(.milliseconds(300), scheduler: MainScheduler.instance)
+            .subscribe(onNext: { [weak self] text in
+                self?.viewModel.updateQuery(text)
+            })
+            .disposed(by: disposeBag)
     }
 
     private func render() {
@@ -209,10 +219,6 @@ final class SearchController: UIViewController {
     }
 
     // MARK: - Actions
-
-    private func queryChanged() {
-        viewModel.updateQuery(searchField.text ?? "")
-    }
 
     private func openLeague(_ league: League) {
         view.endEditing(true)
@@ -251,6 +257,8 @@ final class SearchController: UIViewController {
 extension SearchController: UITextFieldDelegate {
 
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        // Debounce hələ bitməyibsə, son mətni dərhal tətbiq et.
+        viewModel.updateQuery(textField.text ?? "")
         viewModel.commitQuery()
         textField.resignFirstResponder()
         return true
