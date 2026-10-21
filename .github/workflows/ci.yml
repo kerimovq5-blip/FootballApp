@@ -1,4 +1,4 @@
-# Hər PR-da və main-ə hər push-da: SwiftLint, build və unit testlər.
+# Hər PR-da və main-ə hər push-da: SwiftLint, iOS build + testlər, Cloud Functions build.
 name: CI
 
 on:
@@ -58,15 +58,6 @@ jobs:
           echo "Using simulator $UDID"
           echo "DESTINATION=id=$UDID" >> "$GITHUB_ENV"
 
-      # Secrets.swift git-də yoxdur. Testlər şəbəkəyə getmir, ona görə boş açar kifayətdir.
-      - name: Create Secrets.swift
-        run: |
-          cat > FootballApp/Core/Secrets.swift <<'EOF'
-          enum Secrets {
-              static let apiKey = ""
-          }
-          EOF
-
       # Firebase və RxSwift hər dəfə yenidən yüklənməsin.
       - name: Cache Swift packages
         uses: actions/cache@v4
@@ -95,3 +86,25 @@ jobs:
           name: TestResults
           path: TestResults.xcresult
           retention-days: 7
+
+  functions:
+    name: Functions
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: functions
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: functions/package-lock.json
+
+      - name: Install
+        run: npm ci
+
+      - name: Type-check and build
+        run: npm run build
