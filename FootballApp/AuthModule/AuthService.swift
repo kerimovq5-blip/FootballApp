@@ -204,4 +204,4 @@ struct MockAuthService: AuthProviding {
     func logout(completion: @escaping (Result<Void, Error>) -> Void) {
         completion(.success(()))
     }
-} 
+}

@@ -5,8 +5,6 @@
 //  Created by Servan on 05.10.26.
 //
 
-
-
 import UIKit
 import PhotosUI
 
@@ -260,7 +258,7 @@ final class EditProfileViewController: UIViewController {
             name: nameField.text.trimmingCharacters(in: .whitespacesAndNewlines),
             email: original.email,
             bio: bioField.text.trimmingCharacters(in: .whitespacesAndNewlines),
-            avatar: selectedAvatar ,
+            avatar: selectedAvatar,
             phone: phoneField.text.trimmingCharacters(in: .whitespacesAndNewlines),
             address: addressField.text.trimmingCharacters(in: .whitespacesAndNewlines)
         )

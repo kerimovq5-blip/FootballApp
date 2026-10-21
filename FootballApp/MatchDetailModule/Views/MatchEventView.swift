@@ -211,5 +211,5 @@ private final class MatchEventRow: UIView {
         stack.spacing = 8
         return stack
     }
-    @objc private func contentTapped() { onTap?() } 
+    @objc private func contentTapped() { onTap?() }
 }

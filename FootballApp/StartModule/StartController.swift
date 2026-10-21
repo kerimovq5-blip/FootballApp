@@ -5,12 +5,11 @@
 //  Created by Servan on 23.09.26.
 //
 
-
 import UIKit
 
 final class StartController: UIViewController {
 
-    weak var coordinator : OnboardingNavigating?
+    weak var coordinator: OnboardingNavigating?
 
     private lazy var backview: UIView = {
         let view = UIView()

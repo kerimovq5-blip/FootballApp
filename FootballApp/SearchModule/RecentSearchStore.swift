@@ -5,7 +5,6 @@
 //  Created by Servan on 10.10.26.
 //
 
-
 //
 //  RecentSearchStore.swift
 //  FootballApp

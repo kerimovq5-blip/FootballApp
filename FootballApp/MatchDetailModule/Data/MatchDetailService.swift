@@ -67,4 +67,3 @@ struct MockMatchDetailService: MatchDetailProviding {
         UIImage(named: team.lowercased().filter { $0.isLetter })
     }
 }
-

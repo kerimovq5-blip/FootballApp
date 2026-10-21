@@ -60,7 +60,7 @@ struct MatchEvent {
     let side: Side
     let player: String
     /// "Assist: Saka", "Out: Traore" kimi əlavə məlumat.
-    var detail: String? = nil
+    var detail: String?
 
     static func halfTime(score: String) -> MatchEvent {
         MatchEvent(minute: "HT", kind: .halfTime, side: .home, player: "", detail: score)

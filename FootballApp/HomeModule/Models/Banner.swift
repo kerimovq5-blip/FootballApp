@@ -9,6 +9,6 @@ import UIKit
 struct Banner {
     let categoryTitle: String
     let title: String
-    let dateText: String       
+    let dateText: String
     let image: UIImage?
 }

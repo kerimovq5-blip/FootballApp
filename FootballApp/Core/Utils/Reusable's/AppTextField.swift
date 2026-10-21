@@ -69,9 +69,8 @@ final class AppTextField: UIView {
             string: placeholder ?? "",
             attributes: [
                 .font: UIFont.body,
-                .foregroundColor : AssetColors.labelColor.color
+                .foregroundColor: AssetColors.labelColor.color
 
-                
             ]
         )
         mainTextField.isSecureTextEntry = isSecure

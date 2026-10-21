@@ -29,8 +29,8 @@ extension UIFont {
             return UIFont.systemFont(ofSize: 13, weight: .medium)
         }
 
-        //MARK: Body
-        //----------------------------------------
+        // MARK: Body
+        // ----------------------------------------
         @nonobjc class var body: UIFont {
             return UIFont.systemFont(ofSize: 16, weight: .regular)
         }

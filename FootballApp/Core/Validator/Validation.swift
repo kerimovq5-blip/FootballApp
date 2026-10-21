@@ -7,11 +7,11 @@
 
 import UIKit
 @MainActor
-enum Validator{
+enum Validator {
     static func isValidEmail(email: String) -> Bool {
         let emailRegEx = "[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,64}"
         
-        let emailPredicate = NSPredicate(format:"SELF MATCHES %@", emailRegEx)
+        let emailPredicate = NSPredicate(format: "SELF MATCHES %@", emailRegEx)
         return emailPredicate.evaluate(with: email)
     }
     
@@ -72,7 +72,7 @@ final class FieldValidationController {
         if validator(text) {
             checkButton.setImage(UIImage(systemName: "checkmark.circle.fill"), for: .normal)
             checkButton.tintColor = .systemGreen
-            textField.layer.borderColor =  UIColor.lightGray.cgColor
+            textField.layer.borderColor = UIColor.lightGray.cgColor
         } else {
             checkButton.setImage(UIImage(systemName: "xmark.circle.fill"), for: .normal)
             checkButton.tintColor = UIColor.green

@@ -9,7 +9,7 @@ import UIKit
 
 extension UIColor {
     // MARK: - Main
-    //----------------------------------------
+    // ----------------------------------------
     @nonobjc class var background: UIColor {
         return UIColor(named: "Background")!
     }
@@ -19,7 +19,7 @@ extension UIColor {
     }
 
     // MARK: - Text
-    //----------------------------------------
+    // ----------------------------------------
     @nonobjc class var textPrimary: UIColor {
         return UIColor(named: "TextPrimary")!
     }
@@ -41,7 +41,7 @@ extension UIColor {
     }
 
     // MARK: - Button / Accent
-    //----------------------------------------
+    // ----------------------------------------
     @nonobjc class var accent: UIColor {
         return UIColor(named: "AccentColor")!
     }

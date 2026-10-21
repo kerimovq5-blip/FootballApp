@@ -19,20 +19,20 @@ struct EmailRule: ValidationPattern {
 
 struct MinLengthRule: ValidationPattern {
     let length: Int
-    let fieldName : String
+    let fieldName: String
     func validate(_ value: String) -> String? {
         value.count >= length ? nil : "\(fieldName) en az \(length) should be characters."
     }
 }
 
 struct NotEmptyRule: ValidationPattern {
-    let fieldName : String
+    let fieldName: String
     func validate(_ value: String) -> String? {
         value.isEmpty ? "\(fieldName) shoud not be empty." : nil
     }
 }
 
-enum FormValidator  {
+enum FormValidator {
     static func validate(_ fields: [(value: String, rules: [ValidationPattern])]) -> String? {
         for field in fields {
             for rule in field.rules {

@@ -9,7 +9,7 @@ import UIKit
 
 final class HomeController: UIViewController {
     
-    weak var coordinator : HomeNavigating?
+    weak var coordinator: HomeNavigating?
     private let viewModel: HomeViewModel
     private let subscriptions: MatchSubscriptionStoring
 
@@ -46,8 +46,6 @@ final class HomeController: UIViewController {
         return button
     }()
 
-    
-    
     private lazy var collectionView: UICollectionView = {
         let cv = UICollectionView(frame: .zero, collectionViewLayout: makeLayout())
         cv.backgroundColor = .clear
@@ -64,7 +62,6 @@ final class HomeController: UIViewController {
                            withReuseIdentifier: LeagueHeaderView.reuseID)
         return cv
     }()
-    
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -85,11 +82,11 @@ final class HomeController: UIViewController {
         }
     }
     private func setupLayout() {
-        view.addSubviews(headLabel,notificationButton,searchButton,collectionView)
+        view.addSubviews(headLabel, notificationButton, searchButton, collectionView)
         
         headLabel
-            .leading(view.leadingAnchor,AppLayout.mediumSpacing.value).0
-            .top(view.safeAreaLayoutGuide.topAnchor,AppLayout.mediumSpacing.value)
+            .leading(view.leadingAnchor, AppLayout.mediumSpacing.value).0
+            .top(view.safeAreaLayoutGuide.topAnchor, AppLayout.mediumSpacing.value)
         notificationButton
             .trailing(view.trailingAnchor, -AppLayout.mediumSpacing.value).0
             .centerY(headLabel.centerYAnchor).0
@@ -107,10 +104,8 @@ final class HomeController: UIViewController {
             .bottom(view.bottomAnchor)
     }
     
-    
     @objc private func searchTapped() { coordinator?.showSearch() }
     @objc private func notificationTapped() { coordinator?.showNotifications() }
-    
     
     private func makeLayout() -> UICollectionViewCompositionalLayout {
         UICollectionViewCompositionalLayout { [weak self] sectionIndex, _ in

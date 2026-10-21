@@ -5,8 +5,6 @@
 //  Created by Servan on 05.10.26.
 //
 
-
-
 import UIKit
 
 /// Dairəvi profil şəkli. Şəkil yoxdursa, mərkəzdə sadə person ikonu göstərir.

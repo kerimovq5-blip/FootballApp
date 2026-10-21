@@ -5,7 +5,6 @@
 //  Created by Servan on 11.10.26.
 //
 
-
 //
 //  ClubStandingView.swift
 //  FootballApp
@@ -15,7 +14,6 @@ import UIKit
 
 final class ClubStandingView: UIView {
 
-    
     var onSelectClub: ((ClubReference) -> Void)?
     
     private var tables: [ClubTable] = []

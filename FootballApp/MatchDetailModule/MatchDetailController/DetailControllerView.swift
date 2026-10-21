@@ -1,6 +1,5 @@
 import UIKit
 
-
 final class MatchDetailController: UIViewController {
 
     private let viewModel: MatchDetailViewModel
@@ -45,7 +44,7 @@ final class MatchDetailController: UIViewController {
     }()
 
     private lazy var contentStack: UIStackView = {
-        let stack = UIStackView(arrangedSubviews: [headerView, segmentControl,eventsView,statsView, lineUpView, h2hView])
+        let stack = UIStackView(arrangedSubviews: [headerView, segmentControl, eventsView, statsView, lineUpView, h2hView])
         stack.axis = .vertical
         stack.spacing = AppLayout.mediumSpacing.value
         stack.isLayoutMarginsRelativeArrangement = true

@@ -41,7 +41,6 @@ final class MatchFilterCell: UICollectionViewCell {
             .top(contentView.topAnchor).0
             .bottom(contentView.bottomAnchor)
             
-            
             for (index, filter) in MatchFilter.allCases.enumerated() {
                 let button = UIButton(type: .system)
                 button.setTitle(filter.title, for: .normal)
