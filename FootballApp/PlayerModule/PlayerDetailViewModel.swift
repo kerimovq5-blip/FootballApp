@@ -15,7 +15,7 @@ import Foundation
 final class PlayerDetailViewModel {
 
     var onLoaded: ((PlayerDetailContent) -> Void)?
-    var onFailed: ((String) -> Void)?
+    var onFailed: ((UserFacingError) -> Void)?
 
     let player: PlayerReference
     private let service: PlayerProviding
@@ -33,7 +33,7 @@ final class PlayerDetailViewModel {
             case .success(let content):
                 onLoaded?(content)
             case .failure(let error):
-                onFailed?(error.localizedDescription)
+                onFailed?(UserFacingError(error))
             }
         }
     }

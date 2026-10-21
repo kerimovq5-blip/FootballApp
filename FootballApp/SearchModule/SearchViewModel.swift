@@ -30,7 +30,7 @@ final class SearchViewModel {
 
     /// Nəticə dəyişəndə çağırılır; ekran reload edir.
     var onChange: (() -> Void)?
-    var onFailed: ((String) -> Void)?
+    var onFailed: ((UserFacingError) -> Void)?
 
     private(set) var scope: SearchScope = .all
     private(set) var sections: [SearchSection] = []
@@ -116,7 +116,7 @@ final class SearchViewModel {
                 self.content = content
                 self.refresh()
             case .failure(let error):
-                self.onFailed?(error.localizedDescription)
+                self.onFailed?(UserFacingError(error))
             }
         }
     }

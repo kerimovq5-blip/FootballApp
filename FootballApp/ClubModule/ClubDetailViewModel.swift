@@ -15,7 +15,7 @@ import Foundation
 final class ClubDetailViewModel {
     
     var onLoaded: ((ClubDetailContent) -> Void)?
-    var onFailed: ((String) -> Void)?
+    var onFailed: ((UserFacingError) -> Void)?
     
     let club: ClubReference
     private let service: ClubProviding
@@ -33,7 +33,7 @@ final class ClubDetailViewModel {
             case .success(let content):
                 onLoaded?(content)
             case .failure(let error):
-                onFailed?(error.localizedDescription)
+                onFailed?(UserFacingError(error))
             }
         }
     }
