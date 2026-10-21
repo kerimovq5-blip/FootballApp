@@ -8,9 +8,6 @@
 included:
   - FootballApp
 
-excluded:
-  - FootballApp/Core/Secrets.swift
-
 # Əlavə (opt-in) qaydalar: tez-tez rast gəlinən səhvləri tutur.
 opt_in_rules:
   - empty_count                    # array.count == 0 əvəzinə isEmpty

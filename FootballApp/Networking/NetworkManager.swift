@@ -25,8 +25,10 @@ final class NetworkManager {
     // MARK: - async/await
 
     /// Əsas sorğu metodu. Xəta olanda `LocalError` atır.
-    func request<T: Decodable>(endPoint: EndPoint) async throws -> T {
-        let urlRequest = try urlRequest(endPoint: endPoint).get()
+    /// `extraHeaders`: yalnız bu sorğuya aid header-lər (məsələn, istifadəçi token-i).
+    func request<T: Decodable>(endPoint: EndPoint,
+                               extraHeaders: [String: String] = [:]) async throws -> T {
+        let urlRequest = try urlRequest(endPoint: endPoint, extraHeaders: extraHeaders).get()
         let (data, response) = try await session.data(for: urlRequest)
 
         guard let http = response as? HTTPURLResponse else {
@@ -64,15 +66,15 @@ final class NetworkManager {
             }
         }
     }
-    func urlRequest(endPoint: EndPoint ) -> Result<URLRequest, Error> {
+    func urlRequest(endPoint: EndPoint,
+                    extraHeaders: [String: String] = [:]) -> Result<URLRequest, Error> {
         let path = "\(mainPath)\(endPoint.path)"
         guard var url = URL(string: path) else {
             return  .failure(LocalError.invalidURL)
-            
         }
         url.append(queryItems: endPoint.queryItems )
         var urlReuqest = URLRequest(url: url)
-        header.forEach({
+        header.merging(extraHeaders) { _, new in new }.forEach({
             urlReuqest.setValue($1, forHTTPHeaderField: $0)
         })
         urlReuqest.httpMethod = endPoint.method.rawValue
