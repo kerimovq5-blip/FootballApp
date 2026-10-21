@@ -18,7 +18,7 @@ enum AssetColors: String {
     case textPrimary = "TextPrimary"
     case textSecondary = "TextSecondary"
     case accent = "AccentColor"
-    case buttonTitlecolor , titleColor = "ButtonTitleColor"
+    case buttonTitlecolor, titleColor = "ButtonTitleColor"
     case labelColor = "LabelColor"
     case placeholderColor = "placeholdercolor"
     case backgroundColor2 = "backgroundColor2"
@@ -27,8 +27,6 @@ enum AssetColors: String {
         return UIColor(named: self.rawValue) ?? .clear
     }
 }
-
-
 
 enum AppRadius {
     case buttonRadius

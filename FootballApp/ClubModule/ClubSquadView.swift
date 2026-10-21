@@ -5,7 +5,6 @@
 //  Created by Servan on 11.10.26.
 //
 
-
 //
 //  ClubSquadView.swift
 //  FootballApp

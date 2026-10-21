@@ -5,7 +5,6 @@
 //  Created by Servan on 14.10.26.
 //
 
-
 import UIKit
 
 enum APIFootballMapper {

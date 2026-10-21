@@ -5,20 +5,18 @@
 //  Created by Kerimov Qehreman on 27.09.26.
 //
 
-
 import Foundation
 
 final class NetworkManager {
      let session: URLSession
-     let mainPath : String
-     let header : [String:String]
-    
+     let mainPath: String
+     let header: [String: String]
     
     init(
-        session : URLSession ,
-        mainPath : String ,
-        header: [ String:String]
-    ){
+        session: URLSession,
+        mainPath: String,
+        header: [ String: String]
+    ) {
         self.session = session
         self.mainPath = mainPath
         self.header = header
@@ -66,7 +64,7 @@ final class NetworkManager {
             }
         }
     }
-    func urlRequest(endPoint : EndPoint ) -> Result<URLRequest, Error>{
+    func urlRequest(endPoint: EndPoint ) -> Result<URLRequest, Error> {
         let path = "\(mainPath)\(endPoint.path)"
         guard var url = URL(string: path) else {
             return  .failure(LocalError.invalidURL)
@@ -75,20 +73,20 @@ final class NetworkManager {
         url.append(queryItems: endPoint.queryItems )
         var urlReuqest = URLRequest(url: url)
         header.forEach({
-            urlReuqest.setValue($1 , forHTTPHeaderField: $0)
+            urlReuqest.setValue($1, forHTTPHeaderField: $0)
         })
         urlReuqest.httpMethod = endPoint.method.rawValue
         if let body = endPoint.requestBody {
             switch body {
-            case .rawdata(let  data) :
+            case .rawdata(let  data):
                 urlReuqest.httpBody = data
-            case .encodable(let encodable) :
+            case .encodable(let encodable):
                 do {
                     urlReuqest.httpBody = try JSONEncoder().encode(encodable)
                 } catch {
                     return .failure(error)
                 }
-            case .dictionary(let dictionary) :
+            case .dictionary(let dictionary):
                 do {
                     let data = try JSONSerialization.data( withJSONObject: dictionary )
                     urlReuqest.httpBody = data
@@ -100,8 +98,8 @@ final class NetworkManager {
         return.success(urlReuqest)
     }
     
-    func loadData(urlString : String , completion : @escaping (Result<Data, Error>)->Void){
-        let callback : (Result<Data,Error>) -> Void = {result in
+    func loadData(urlString: String, completion: @escaping (Result<Data, Error>) -> Void) {
+        let callback: (Result<Data, Error>) -> Void = {result in
             DispatchQueue.main.async {
                 completion(result)
             }
@@ -110,7 +108,7 @@ final class NetworkManager {
             callback(.failure(LocalError.invalidURL))
             return
         }
-        session.dataTask(with: url, completionHandler: { data , response, error in
+        session.dataTask(with: url, completionHandler: { data, _, error in
             if let error = error {
                 callback(.failure(error))
                 return

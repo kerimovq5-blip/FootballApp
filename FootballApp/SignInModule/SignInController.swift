@@ -2,7 +2,7 @@ import UIKit
 
 final class SignInController: UIViewController {
 
-    weak var coordinator : AuthNavigating?
+    weak var coordinator: AuthNavigating?
     private let viewModel: SignInViewModel
 
     init(viewModel: SignInViewModel) {

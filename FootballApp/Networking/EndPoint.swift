@@ -8,11 +8,11 @@
 import UIKit
 
 protocol EndPoint {
-    var path : String { get }
-    var method : HTTPMethod { get  }
-    var queryItems : [URLQueryItem] { get  }
-    var requestBody : RequestBody? { get  }
-    var requestAuth : Bool { get  }
+    var path: String { get }
+    var method: HTTPMethod { get  }
+    var queryItems: [URLQueryItem] { get  }
+    var requestBody: RequestBody? { get  }
+    var requestAuth: Bool { get  }
 }
 
 enum HTTPMethod: String {
@@ -29,7 +29,7 @@ enum RequestBody {
     case dictionary([String: Encodable])
 }
 
-struct ErrorModel : LocalizedError, Decodable {
+struct ErrorModel: LocalizedError, Decodable {
     let statusmessage: String?
     private(set) var statuscode: Int?
     let success: Bool?

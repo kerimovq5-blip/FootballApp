@@ -7,7 +7,7 @@
 
 import UIKit
 
-final class MainTabbarController : UITabBarController {
+final class MainTabbarController: UITabBarController {
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .systemBackground

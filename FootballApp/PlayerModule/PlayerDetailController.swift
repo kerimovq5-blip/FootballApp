@@ -5,7 +5,6 @@
 //  Created by Servan on 12.10.26.
 //
 
-
 //
 //  PlayerDetailController.swift
 //  FootballApp

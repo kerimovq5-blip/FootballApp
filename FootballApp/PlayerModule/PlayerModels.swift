@@ -5,7 +5,6 @@
 //  Created by Servan on 12.10.26.
 //
 
-
 //
 //  PlayerModels.swift
 //  FootballApp
@@ -16,8 +15,8 @@ import UIKit
 /// Oyunçunu tanıtmaq üçün yüngül istinad. Mock datada ad və klub ilə tanınır; API gələndə id əlavə olunacaq.
 struct PlayerReference {
     let name: String
-    var clubName: String? = nil
-    var number: Int? = nil
+    var clubName: String?
+    var number: Int?
 }
 
 enum PlayerTab: CaseIterable {

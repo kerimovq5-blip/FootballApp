@@ -71,5 +71,3 @@ final class H2HMeetingRow: UIView {
         scoreLabel.text = "\(meeting.homeScore) - \(meeting.awayScore)"
     }
 }
-
-

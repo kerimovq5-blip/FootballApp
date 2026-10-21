@@ -5,7 +5,6 @@
 //  Created by Servan on 11.10.26.
 //
 
-
 import UIKit
 
 /// Klubu tanıtmaq üçün yüngül istinad. Mock datada Home, Explore və Standing fərqli id işlədir,
@@ -13,10 +12,10 @@ import UIKit
 struct ClubReference {
     let name: String
     /// Mənbə bilirsə (məs. Explore reytinqi) ötürülür, yoxsa liqadan götürülür.
-    var country: String? = nil
-    var flag: String? = nil
+    var country: String?
+    var flag: String?
     /// API komanda id-si. Məlumdursa adla axtarış sorğusu qənaət olunur.
-    var id: Int? = nil
+    var id: Int?
 }
 enum ClubKey {
     /// Hərf böyüklüyü və işarələr (é, ş, ç...) nəzərə alınmadan müqayisə üçün açar.
