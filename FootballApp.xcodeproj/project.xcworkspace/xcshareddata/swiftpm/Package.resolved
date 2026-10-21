@@ -1,5 +1,5 @@
 {
-  "originHash" : "fc494ae213b352fc476555c2b7911ae520604e8a19ab8432fc783acaba846b4e",
+  "originHash" : "c32249523e658aa7e1bac77151a18e952dda9fb6e409449969ec913b7e57c6fc",
   "pins" : [
     {
       "identity" : "abseil-cpp-binary",
@@ -119,12 +119,12 @@
       }
     },
     {
-      "identity" : "swiftlintplugins",
+      "identity" : "rxswift",
       "kind" : "remoteSourceControl",
-      "location" : "https://github.com/SimplyDanny/SwiftLintPlugins",
+      "location" : "https://github.com/ReactiveX/RxSwift",
       "state" : {
-        "revision" : "ef7d692fc6706e8f5628e26bcafaefa445c58a97",
-        "version" : "0.65.1"
+        "revision" : "132aea4f236ccadc51590b38af0357a331d51fa2",
+        "version" : "6.10.2"
       }
     }
   ],
