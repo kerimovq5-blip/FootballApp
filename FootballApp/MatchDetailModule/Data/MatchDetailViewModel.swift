@@ -3,7 +3,7 @@ import Foundation
 final class MatchDetailViewModel {
 
     var onLoaded: ((MatchDetailData) -> Void)?
-    var onFailed: ((UserFacingError) -> Void)?
+    var onFailed: ((String) -> Void)?
 
     private let matchID: Int
     private let service: MatchDetailProviding
@@ -30,7 +30,7 @@ final class MatchDetailViewModel {
                 )
                 self.onLoaded?(data)
             case .failure(let error):
-                self.onFailed?(UserFacingError(error))
+                self.onFailed?(error.localizedDescription)
             }
         }
     }

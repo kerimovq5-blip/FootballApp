@@ -81,13 +81,13 @@ struct StandingViewModelTests {
     @Test("Xəta olanda mesaj ötürülür, köhnə cədvəl qalır")
     func failure() {
         viewModel.load()
-        var failure: UserFacingError?
+        var failure: String?
         viewModel.onFailed = { failure = $0 }
 
         service.result = .failure(TestError(message: "Limit reached"))
         viewModel.selectLeague(at: 1)
 
-        #expect(failure?.message == "Limit reached")
+        #expect(failure == "Limit reached")
         #expect(viewModel.numberOfRows == 2)
     }
 
@@ -124,11 +124,11 @@ struct ClubDetailViewModelTests {
         let service = FakeClubService(result: .failure(TestError(message: "Club not found")))
         let viewModel = ClubDetailViewModel(club: ClubReference(name: "Unknown FC"), service: service)
 
-        let error: UserFacingError = await withCheckedContinuation { continuation in
+        let message: String = await withCheckedContinuation { continuation in
             viewModel.onFailed = { continuation.resume(returning: $0) }
             viewModel.load()
         }
 
-        #expect(error.message == "Club not found")
+        #expect(message == "Club not found")
     }
 }

@@ -56,16 +56,6 @@ final class ExploreViewController: UIViewController {
         return tableView
     }()
 
-    /// Siyahının yerində: yüklənir və ya xəta + "Try again".
-    private lazy var stateView: StateView = {
-        let stateView = StateView()
-        stateView.onRetry = { [weak self] in
-            self?.showLoading()
-            self?.viewModel.load()
-        }
-        return stateView
-    }()
-
     // MARK: - Lifecycle
 
     override func viewDidLoad() {
@@ -73,7 +63,6 @@ final class ExploreViewController: UIViewController {
         view.backgroundColor = AssetColors.background.color
         setupLayout()
         bindViewModel()
-        showLoading()
         viewModel.load()
     }
 
@@ -81,7 +70,7 @@ final class ExploreViewController: UIViewController {
 
     private func setupLayout() {
         let padding = AppLayout.screenPadding.value
-        view.addSubviews(titleLabel, tabBar, columnHeader, tableView, stateView)
+        view.addSubviews(titleLabel, tabBar, columnHeader, tableView)
 
         titleLabel
             .leading(view.leadingAnchor, padding).0
@@ -105,8 +94,6 @@ final class ExploreViewController: UIViewController {
             .leading(view.leadingAnchor).0
             .trailing(view.trailingAnchor).0
             .bottom(view.bottomAnchor)
-
-        stateView.pinEdges(to: tableView)
     }
 
     private func bindViewModel() {
@@ -116,20 +103,14 @@ final class ExploreViewController: UIViewController {
         viewModel.onChange = { [weak self] in
             self?.reload()
         }
-        viewModel.onFailed = { [weak self] error in
-            self?.tableView.isHidden = true
-            self?.stateView.show(error)
+        viewModel.onFailed = { [weak self] message in
+            let alert = UIAlertController(title: "Error", message: message, preferredStyle: .alert)
+            alert.addAction(UIAlertAction(title: "OK", style: .default))
+            self?.present(alert, animated: true)
         }
     }
 
-    private func showLoading() {
-        tableView.isHidden = true
-        stateView.showLoading()
-    }
-
     private func reload() {
-        stateView.hide()
-        tableView.isHidden = false
         updateColumnHeader()
         UIView.transition(with: tableView, duration: 0.2, options: .transitionCrossDissolve, animations: {
             self.tableView.reloadData()

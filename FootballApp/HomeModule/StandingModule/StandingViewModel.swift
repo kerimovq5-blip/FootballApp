@@ -16,7 +16,7 @@ final class StandingViewModel {
 
     /// Cədvəl dəyişəndə çağırılır; ekran reload edir.
     var onChange: (() -> Void)?
-    var onFailed: ((UserFacingError) -> Void)?
+    var onFailed: ((String) -> Void)?
 
     private(set) var selectedLeagueIndex = 0
     private(set) var selectedFilter: StandingFilter = .all
@@ -64,7 +64,7 @@ final class StandingViewModel {
                 self.standings = standings
                 self.onChange?()
             case .failure(let error):
-                self.onFailed?(UserFacingError(error))
+                self.onFailed?(error.localizedDescription)
             }
         }
     }

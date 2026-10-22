@@ -172,8 +172,8 @@ final class SearchController: UIViewController {
         viewModel.onChange = { [weak self] in
             self?.render()
         }
-        viewModel.onFailed = { [weak self] error in
-            self?.showAlert(title: error.title, message: error.message)
+        viewModel.onFailed = { [weak self] message in
+            self?.showAlert(message: message)
         }
 
         // Hər hərfdə yox, yazmağı 0.3 san. dayandıranda axtar.
