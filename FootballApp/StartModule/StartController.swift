@@ -20,7 +20,7 @@ final class StartController: UIViewController {
 
     private lazy var firstPageImage: UIImageView = {
         let image = UIImageView()
-        image.image = UIImage(named: "mbappe")
+        image.image = UIImage(named: "startHero")
         image.contentMode = .scaleAspectFit
         return image
     }()
@@ -36,7 +36,7 @@ final class StartController: UIViewController {
         )
         attributed.append(
             NSAttributedString(
-                string: "\n\nSearch millions of jobs and get the inside scoop on companies. Wait for what? Let’s get start it!",
+                string: "\n\nLive scores, fixtures, standings and club news, all in one place. Let’s get started!",
                 attributes: [
                     .foregroundColor: UIColor.gray,
                     .font: UIFont.systemFont(ofSize: 16, weight: .regular)
