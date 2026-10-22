@@ -61,6 +61,8 @@ struct MatchEvent {
     let player: String
     /// "Assist: Saka", "Out: Traore" kimi əlavə məlumat.
     var detail: String?
+    /// `player`-in API id-si (oyunçu səhifəsini açmaq üçün).
+    var playerID: Int?
 
     static func halfTime(score: String) -> MatchEvent {
         MatchEvent(minute: "HT", kind: .halfTime, side: .home, player: "", detail: score)

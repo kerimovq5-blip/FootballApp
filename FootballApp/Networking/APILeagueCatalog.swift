@@ -20,7 +20,7 @@ enum APILeagueCatalog {
         let name: String
         let country: String
         let flag: String
-        /// Mock və ya başqa mənbələrdə işlənən alternativ adlar.
+        /// API-nin və ya başqa ekranların işlətdiyi alternativ adlar.
         let aliases: [String]
     }
 
@@ -48,7 +48,7 @@ enum APILeagueCatalog {
     }
 
     /// Verilən liqanın API-Football id-sini tapır. Əvvəl ad (və ləqəb) ilə axtarılır,
-    /// çünki Explore hələ mock id-lər işlədir; tapılmasa id-yə baxılır.
+    /// çünki bəzi ekranlar liqanı adla ötürür; tapılmasa id-yə baxılır.
     static func apiID(for league: League) -> Int? {
         let key = ClubKey.make(league.name)
         if let match = entries.first(where: { entry in

@@ -14,6 +14,8 @@ struct LineupPlayer {
     var goals = 0
     var yellowCards = 0
     var isSentOff = false
+    /// API id-si (oyunçu səhifəsini açmaq üçün).
+    var id: Int?
 }
 
 struct TeamLineup {

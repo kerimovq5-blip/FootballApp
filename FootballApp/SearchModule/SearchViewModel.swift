@@ -4,7 +4,6 @@
 //
 
 import Foundation
-import UIKit
 
 enum SearchScope: CaseIterable {
     case all, teams, players
@@ -46,6 +45,15 @@ final class SearchViewModel {
     private var content: SearchContent?
     private var query = ""
 
+    /// API-dən gələn komanda və oyunçular, təmizlənmiş sorğuya görə (eyni sorğu təkrar göndərilmir).
+    private var remoteCache: [String: RemoteSearchResults] = [:]
+    /// Hazırkı sorğunun API nəticəsi; sorğu qısadırsa və ya hələ gəlməyibsə nil.
+    private var remote: RemoteSearchResults?
+    /// API axtarışı alınmadısa (internet, limit) boş nəticə əvəzinə bu göstərilir.
+    private var remoteError: UserFacingError?
+    /// Gedən API axtarışı. Yeni sorğu köhnəsini ləğv edir; testlər bitməsini gözləyir.
+    private(set) var remoteTask: Task<Void, Never>?
+
     /// All tabında hər kateqoriyadan neçə nəticə göstərilir (qalanı "See all" ilə).
     private static let previewLimit = 3
     private static let teamsLimit = 30
@@ -74,7 +82,21 @@ final class SearchViewModel {
         if trimmedQuery.isEmpty {
             return "Search for teams, players and leagues.\nYour recent searches will appear here."
         }
+        if isSearching {
+            return "Searching…"
+        }
+        if let remoteError {
+            return remoteError.message
+        }
+        if SearchQuery.cleaned(trimmedQuery).count < SearchQuery.minimumLength {
+            return "Type at least \(SearchQuery.minimumLength) letters to search teams and players."
+        }
         return "No results for “\(trimmedQuery)”.\nCheck the spelling or try another name."
+    }
+
+    /// Komanda və oyunçu axtarışı gedir.
+    var isSearching: Bool {
+        remoteTask != nil
     }
 
     func numberOfItems(in section: Int) -> Int {
@@ -123,6 +145,7 @@ final class SearchViewModel {
 
     func updateQuery(_ text: String) {
         query = text
+        startRemoteSearch()
         refresh()
     }
 
@@ -165,8 +188,9 @@ final class SearchViewModel {
         }
 
         let source = content ?? SearchContent(leagues: [], matchLeagues: [])
-        let foundClubs = source.clubs.filter { matches($0.name, text) }
-        let foundPlayers = source.players.filter { matches($0.reference.name, text) }
+        // API artıq sorğuya uyğun olanları qaytarır, yerli filtr lazım deyil.
+        let foundClubs = remote?.clubs ?? []
+        let foundPlayers = remote?.players ?? []
         clubMatchCount = foundClubs.count
         playerMatchCount = foundPlayers.count
 
@@ -200,6 +224,45 @@ final class SearchViewModel {
         result += matchResults.indices.map { SearchSection.matches(leagueIndex: $0) }
         sections = result
         onChange?()
+    }
+
+    /// Komanda və oyunçular API-dən axtarılır (debounce ekranda edilir).
+    private func startRemoteSearch() {
+        remoteTask?.cancel()
+        remoteTask = nil
+        remoteError = nil
+
+        let key = SearchQuery.cleaned(trimmedQuery).lowercased()
+        guard key.count >= SearchQuery.minimumLength else {
+            remote = nil
+            return
+        }
+        if let cached = remoteCache[key] {
+            remote = cached
+            return
+        }
+
+        remote = nil
+        let text = trimmedQuery
+        remoteTask = Task { [weak self, service] in
+            let outcome: Result<RemoteSearchResults, Error>
+            do {
+                outcome = .success(try await service.searchRemote(text))
+            } catch {
+                outcome = .failure(error)
+            }
+            // Yeni sorğu yazılıbsa bu cavab artıq lazım deyil.
+            guard let self, !Task.isCancelled else { return }
+            switch outcome {
+            case .success(let results):
+                self.remoteCache[key] = results
+                self.remote = results
+            case .failure(let error):
+                self.remoteError = UserFacingError(error)
+            }
+            self.remoteTask = nil
+            self.refresh()
+        }
     }
 
     /// Hərf böyüklüyü və işarələr (ü, ş, ö...) nəzərə alınmır.

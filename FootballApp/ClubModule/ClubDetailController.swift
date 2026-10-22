@@ -103,7 +103,8 @@ final class ClubDetailController: UIViewController {
             guard let self else { return }
             self.coordinator?.showPlayerDetail(for: PlayerReference(name: player.name,
                                                                     clubName: self.clubName,
-                                                                    number: player.number))
+                                                                    number: player.number,
+                                                                    id: player.id))
         }
         bindViewModel()
         stateView.showLoading()

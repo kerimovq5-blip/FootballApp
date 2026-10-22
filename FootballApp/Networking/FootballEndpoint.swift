@@ -15,6 +15,10 @@ enum FootballEndpoint: EndPoint {
     case teamFixtures(team: Int, season: Int)
     case teamStandings(team: Int, season: Int)
     case squad(team: Int)
+    case player(id: Int, season: Int)
+    case playerSearch(name: String)
+    case topScorers(league: Int, season: Int)
+    case topAssists(league: Int, season: Int)
 
     var path: String {
         switch self {
@@ -23,6 +27,10 @@ enum FootballEndpoint: EndPoint {
         case .standings, .teamStandings: return "/standings"
         case .team, .teamSearch: return "/teams"
         case .squad: return "/players/squads"
+        case .player: return "/players"
+        case .playerSearch: return "/players/profiles"
+        case .topScorers: return "/players/topscorers"
+        case .topAssists: return "/players/topassists"
         }
     }
 
@@ -53,6 +61,14 @@ enum FootballEndpoint: EndPoint {
                     URLQueryItem(name: "season", value: "\(season)")]
         case .squad(let team):
             return [URLQueryItem(name: "team", value: "\(team)")]
+        case .player(let id, let season):
+            return [URLQueryItem(name: "id", value: "\(id)"),
+                    URLQueryItem(name: "season", value: "\(season)")]
+        case .playerSearch(let name):
+            return [URLQueryItem(name: "search", value: name)]
+        case .topScorers(let league, let season), .topAssists(let league, let season):
+            return [URLQueryItem(name: "league", value: "\(league)"),
+                    URLQueryItem(name: "season", value: "\(season)")]
         }
     }
 

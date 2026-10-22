@@ -98,7 +98,7 @@ final class LeagueStandingCell: UITableViewCell {
     func configure(with standing: Standing, isHighlighted: Bool = false) {
         positionLabel.text = "\(standing.position)"
         teamLabel.text = standing.teamName
-        crestView.image = standing.crestImageName.flatMap(UIImage.init(named:))
+        crestView.image = nil
         crestURL = standing.crestURL
         if let url = standing.crestURL {
             ImageLoader.shared.load(url) { [weak self] image in

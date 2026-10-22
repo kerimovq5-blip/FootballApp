@@ -1,31 +1,28 @@
 //
-//  PlayerReference.swift
+//  PlayerModels.swift
 //  FootballApp
 //
 //  Created by Servan on 12.10.26.
 //
 
-//
-//  PlayerModels.swift
-//  FootballApp
-//
+import Foundation
 
-import UIKit
-
-/// Oyunçunu tanıtmaq üçün yüngül istinad. Mock datada ad və klub ilə tanınır; API gələndə id əlavə olunacaq.
+/// Oyunçunu tanıtmaq üçün yüngül istinad. `id` məlumdursa oyunçu birbaşa açılır,
+/// yoxdursa (məs. köhnə hadisə datası) adla axtarılır.
 struct PlayerReference {
     let name: String
     var clubName: String?
     var number: Int?
+    /// API-Football oyunçu id-si.
+    var id: Int?
 }
 
 enum PlayerTab: CaseIterable {
-    case overview, matches, statistics
+    case overview, statistics
 
     var title: String {
         switch self {
         case .overview: return "Overview"
-        case .matches: return "Matches"
         case .statistics: return "Statistics"
         }
     }
@@ -33,33 +30,17 @@ enum PlayerTab: CaseIterable {
 
 struct PlayerProfile {
     let name: String
-    let number: Int
-    let position: PlayerPosition
-    let age: Int
+    let number: Int?
+    let position: PlayerPosition?
+    let age: Int?
+    /// API-nin yazdığı kimi ("Brazil"); məlum deyilsə boş.
     let nationality: String
+    /// Bayraq emojisi; tapılmasa boş.
     let flag: String
-    let heightCm: Int
-    let preferredFoot: String
+    /// "180 cm"
+    let height: String?
+    let photoURL: String?
     let club: ClubReference
-}
-
-struct PlayerMatch {
-    /// Oyun detalı olan oyunlarda dolu olur.
-    let matchID: Int?
-    let competition: String
-    let dateText: String
-    let home: String
-    let away: String
-    let homeScore: Int?
-    let awayScore: Int?
-    let minutes: Int
-    let goals: Int
-    let assists: Int
-    let yellowCards: Int
-    let redCards: Int
-    let rating: Double?
-
-    var didPlay: Bool { minutes > 0 }
 }
 
 struct PlayerStatRow {
@@ -74,23 +55,9 @@ struct PlayerStatSection {
 
 struct PlayerDetailContent {
     let profile: PlayerProfile
-    /// "2026/27" kimi.
+    /// "2024/25" kimi.
     let season: String
     /// Overview-dakı 4 əsas göstərici.
     let summary: [PlayerStatRow]
-    /// Ən yenisi birinci.
-    let matches: [PlayerMatch]
     let statistics: [PlayerStatSection]
-}
-
-enum PlayerRating {
-    static func text(_ value: Double) -> String {
-        String(format: "%.1f", value)
-    }
-
-    static func color(_ value: Double) -> UIColor {
-        if value >= 7.0 { return .systemGreen }
-        if value >= 6.0 { return .systemOrange }
-        return .systemRed
-    }
 }

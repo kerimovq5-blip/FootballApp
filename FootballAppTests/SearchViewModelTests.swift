@@ -15,7 +15,7 @@ struct SearchViewModelTests {
     private let recents: InMemoryRecentSearchStore
 
     init() {
-        service = FakeSearchService(content: Self.content)
+        service = FakeSearchService(content: Self.content, remote: Self.remote)
         recents = InMemoryRecentSearchStore()
     }
 
@@ -38,7 +38,14 @@ struct SearchViewModelTests {
         }
     }
 
-    /// 4 "Arsenal" (All tabının limiti 3-dür), türk hərfləri olan klub, iki liqa, iki oyun.
+    /// API axtarışının bitməsini gözləyir (testdə debounce yoxdur).
+    private func search(_ viewModel: SearchViewModel, _ text: String) async {
+        viewModel.updateQuery(text)
+        let task = viewModel.remoteTask
+        await task?.value
+    }
+
+    /// İki liqa və iki oyun (yerli siyahı).
     private static var content: SearchContent {
         SearchContent(
             leagues: [
@@ -50,7 +57,13 @@ struct SearchViewModelTests {
                     TestData.match(id: 1, home: "Arsenal", away: "Chelsea"),
                     TestData.match(id: 2, home: "Beşiktaş", away: "Galatasaray")
                 ])
-            ],
+            ]
+        )
+    }
+
+    /// 4 "Arsenal" (All tabının limiti 3-dür), türk hərfləri olan klub, üç oyunçu (API cavabı).
+    private static var remote: RemoteSearchResults {
+        RemoteSearchResults(
             clubs: [
                 ClubReference(name: "Arsenal"),
                 ClubReference(name: "Arsenal Tula"),
@@ -60,11 +73,11 @@ struct SearchViewModelTests {
                 ClubReference(name: "Chelsea")
             ],
             players: [
-                PlayerSearchResult(reference: PlayerReference(name: "Bukayo Saka", clubName: "Arsenal"),
+                PlayerSearchResult(reference: PlayerReference(name: "Bukayo Saka", id: 1),
                                    position: .forward, flag: "🏴"),
-                PlayerSearchResult(reference: PlayerReference(name: "Mohamed Salah", clubName: "Liverpool"),
+                PlayerSearchResult(reference: PlayerReference(name: "Mohamed Salah", id: 2),
                                    position: .forward, flag: "🇪🇬"),
-                PlayerSearchResult(reference: PlayerReference(name: "William Saliba", clubName: "Arsenal"),
+                PlayerSearchResult(reference: PlayerReference(name: "William Saliba", id: 3),
                                    position: .defender, flag: "🇫🇷")
             ]
         )
@@ -108,7 +121,7 @@ struct SearchViewModelTests {
 
     // MARK: - Axtarış
 
-    @Test("Liqa adına və ölkəsinə görə tapılır")
+    @Test("Liqa adına və ölkəsinə görə dərhal tapılır (API gözlənilmir)")
     func findsLeagues() {
         let viewModel = makeViewModel()
         viewModel.load()
@@ -121,20 +134,20 @@ struct SearchViewModelTests {
     }
 
     @Test("Hərf böyüklüyü və türk hərfləri nəzərə alınmır")
-    func caseAndDiacriticInsensitive() {
+    func caseAndDiacriticInsensitive() async {
         let viewModel = makeViewModel()
         viewModel.load()
-        viewModel.updateQuery("BESIKTAS")
+        await search(viewModel, "BESIKTAS")
 
         #expect(viewModel.clubResults.map(\.name) == ["Beşiktaş"])
         #expect(viewModel.matchResults.first?.matches.map(\.id) == [2])
     }
 
     @Test("All tabında klublar 3 ilə məhdudlaşır və \"See all\" göstərilir")
-    func allScopeLimit() {
+    func allScopeLimit() async {
         let viewModel = makeViewModel()
         viewModel.load()
-        viewModel.updateQuery("arsenal")
+        await search(viewModel, "arsenal")
 
         #expect(viewModel.clubResults.count == 3)
         #expect(viewModel.showsSeeAll(for: .clubs))
@@ -142,10 +155,10 @@ struct SearchViewModelTests {
     }
 
     @Test("Teams tabında bütün klublar göstərilir, başqa heç nə yox")
-    func teamsScope() {
+    func teamsScope() async {
         let viewModel = makeViewModel()
         viewModel.load()
-        viewModel.updateQuery("arsenal")
+        await search(viewModel, "arsenal")
         viewModel.select(scope: .teams)
 
         #expect(viewModel.clubResults.count == 4)
@@ -154,33 +167,83 @@ struct SearchViewModelTests {
     }
 
     @Test("Players tabında yalnız oyunçular göstərilir")
-    func playersScope() {
+    func playersScope() async {
         let viewModel = makeViewModel()
         viewModel.load()
-        viewModel.updateQuery("sa")
+        await search(viewModel, "sal")
         viewModel.select(scope: .players)
 
-        #expect(viewModel.playerResults.map(\.reference.name) == ["Bukayo Saka", "Mohamed Salah", "William Saliba"])
+        #expect(viewModel.playerResults.map(\.reference.name) == ["Mohamed Salah", "William Saliba"])
         #expect(sectionNames(viewModel) == ["players"])
     }
 
     @Test("Nəticə yoxdursa sorğunu göstərən mesaj çıxır")
-    func noResults() {
+    func noResults() async {
         let viewModel = makeViewModel()
         viewModel.load()
-        viewModel.updateQuery("xyz")
+        await search(viewModel, "xyz")
 
         #expect(sectionNames(viewModel).isEmpty)
         #expect(viewModel.placeholderMessage?.contains("xyz") == true)
     }
 
+    // MARK: - API axtarışı
+
+    @Test("3 hərfdən qısa sorğu API-yə getmir və ipucu göstərilir")
+    func shortQueryDoesNotHitAPI() {
+        let viewModel = makeViewModel()
+        viewModel.load()
+        viewModel.updateQuery("zz")
+
+        #expect(service.remoteQueries.isEmpty)
+        #expect(viewModel.remoteTask == nil)
+        #expect(viewModel.placeholderMessage?.contains("at least 3 letters") == true)
+    }
+
+    @Test("Cavab gələnə qədər \"Searching…\" göstərilir")
+    func searchingMessage() async {
+        let viewModel = makeViewModel()
+        viewModel.load()
+        viewModel.updateQuery("xyz")
+
+        #expect(viewModel.isSearching)
+        #expect(viewModel.placeholderMessage == "Searching…")
+
+        let task = viewModel.remoteTask
+        await task?.value
+        #expect(!viewModel.isSearching)
+    }
+
+    @Test("Eyni sorğu ikinci dəfə API-yə göndərilmir")
+    func repeatedQueryUsesCache() async {
+        let viewModel = makeViewModel()
+        viewModel.load()
+        await search(viewModel, "arsenal")
+        await search(viewModel, "")
+        await search(viewModel, "Arsenal ")
+
+        #expect(service.remoteQueries == ["arsenal"])
+        #expect(viewModel.clubResults.count == 3)
+    }
+
+    @Test("API xətası boş nəticə əvəzinə izahla göstərilir")
+    func remoteFailure() async {
+        service.remoteError = URLError(.notConnectedToInternet)
+        let viewModel = makeViewModel()
+        viewModel.load()
+        await search(viewModel, "tottenham")
+
+        #expect(sectionNames(viewModel).isEmpty)
+        #expect(viewModel.placeholderMessage == UserFacingError.offline.message)
+    }
+
     // MARK: - Son axtarışlar
 
     @Test("Nəticəsi olan sorğu son axtarışlara kəsilmiş şəkildə yazılır")
-    func commitWithResults() {
+    func commitWithResults() async {
         let viewModel = makeViewModel()
         viewModel.load()
-        viewModel.updateQuery("  Saka  ")
+        await search(viewModel, "  Saka  ")
         viewModel.commitQuery()
 
         #expect(recents.items == ["Saka"])
@@ -188,10 +251,10 @@ struct SearchViewModelTests {
     }
 
     @Test("Nəticəsi olmayan sorğu son axtarışlara yazılmır")
-    func commitWithoutResults() {
+    func commitWithoutResults() async {
         let viewModel = makeViewModel()
         viewModel.load()
-        viewModel.updateQuery("xyz")
+        await search(viewModel, "xyz")
         viewModel.commitQuery()
 
         #expect(recents.items.isEmpty)

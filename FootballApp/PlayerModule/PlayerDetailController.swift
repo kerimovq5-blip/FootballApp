@@ -77,7 +77,6 @@ final class PlayerDetailController: UIViewController {
 
     private let contentContainer = UIView()
     private let overviewView = PlayerOverviewView()
-    private let matchesView = PlayerMatchesView()
     private let statsView = PlayerStatsView()
 
     // MARK: - Lifecycle
@@ -100,9 +99,6 @@ final class PlayerDetailController: UIViewController {
         }
         overviewView.onSelectClub = { [weak self] club in
             self?.coordinator?.showClubDetail(for: club)
-        }
-        matchesView.onSelectMatch = { [weak self] matchID in
-            self?.coordinator?.showMatchDetail(matchID: matchID)
         }
 
         viewModel.onLoaded = { [weak self] content in
@@ -132,7 +128,7 @@ final class PlayerDetailController: UIViewController {
         let padding = AppLayout.screenPadding.value
         view.addSubviews(backButton, headerStack, tabBar, contentContainer, stateView)
         stateView.pinEdges(to: contentContainer)
-        contentContainer.addSubviews(overviewView, matchesView, statsView)
+        contentContainer.addSubviews(overviewView, statsView)
 
         backButton
             .leading(view.leadingAnchor, padding).0
@@ -156,7 +152,7 @@ final class PlayerDetailController: UIViewController {
             .trailing(view.trailingAnchor).0
             .bottom(view.bottomAnchor)
 
-        [overviewView, matchesView, statsView].forEach { pin($0, to: contentContainer) }
+        [overviewView, statsView].forEach { pin($0, to: contentContainer) }
     }
 
     private func pin(_ child: UIView, to parent: UIView) {
@@ -170,13 +166,17 @@ final class PlayerDetailController: UIViewController {
     private func apply(_ content: PlayerDetailContent) {
         let profile = content.profile
         nameLabel.text = profile.name
-        clubLabel.text = "\(profile.club.name) · #\(profile.number)"
-        let origin = profile.nationality.isEmpty ? "" : "\(profile.flag) \(profile.nationality) · "
-        detailLabel.text = origin + profile.position.singularTitle
-        avatarView.configure(initials: PlayerDetailController.initials(for: profile.name))
+        clubLabel.text = [profile.club.name, profile.number.map { "#\($0)" }]
+            .compactMap { $0 }
+            .joined(separator: " · ")
+        let origin = [profile.flag, profile.nationality].filter { !$0.isEmpty }.joined(separator: " ")
+        detailLabel.text = [origin, profile.position?.singularTitle ?? ""]
+            .filter { !$0.isEmpty }
+            .joined(separator: " · ")
+        avatarView.configure(initials: PlayerDetailController.initials(for: profile.name),
+                             imageURL: profile.photoURL)
 
         overviewView.configure(with: content)
-        matchesView.configure(with: content)
         statsView.configure(with: content)
 
         contentContainer.isHidden = false
@@ -185,7 +185,6 @@ final class PlayerDetailController: UIViewController {
 
     private func showTab(_ tab: PlayerTab) {
         overviewView.isHidden = tab != .overview
-        matchesView.isHidden = tab != .matches
         statsView.isHidden = tab != .statistics
     }
 

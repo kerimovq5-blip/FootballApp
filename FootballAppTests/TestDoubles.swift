@@ -29,7 +29,7 @@ extension TestData {
     }
 
     static func standing(position: Int, team: String) -> Standing {
-        Standing(position: position, teamName: team, crestImageName: nil,
+        Standing(position: position, teamName: team,
                  played: 10, wins: 5, draws: 3, losses: 2, goalsFor: 15, goalsAgainst: 10,
                  zone: .none)
     }
@@ -82,17 +82,32 @@ final class FakeStandingService: StandingProviding {
 
 // MARK: - Search
 
+/// API kimi davranır: komanda və oyunçuları adında sorğu olanlara görə süzür.
 @MainActor
 final class FakeSearchService: SearchProviding {
 
     var result: Result<SearchContent, Error>
+    var remote: RemoteSearchResults
+    var remoteError: Error?
+    private(set) var remoteQueries: [String] = []
 
-    init(content: SearchContent) {
+    init(content: SearchContent, remote: RemoteSearchResults = RemoteSearchResults()) {
         result = .success(content)
+        self.remote = remote
     }
 
     func fetchSearchContent(completion: @escaping (Result<SearchContent, Error>) -> Void) {
         completion(result)
+    }
+
+    func searchRemote(_ query: String) async throws -> RemoteSearchResults {
+        remoteQueries.append(query)
+        if let remoteError { throw remoteError }
+        func matches(_ name: String) -> Bool {
+            name.range(of: query, options: [.caseInsensitive, .diacriticInsensitive]) != nil
+        }
+        return RemoteSearchResults(clubs: remote.clubs.filter { matches($0.name) },
+                                   players: remote.players.filter { matches($0.reference.name) })
     }
 }
 
@@ -143,5 +158,29 @@ final class FakeClubService: ClubProviding {
             tables: [],
             squad: []
         )
+    }
+}
+
+// MARK: - Explore
+
+@MainActor
+final class FakeExploreService: ExploreProviding {
+
+    let leagues: [League]
+    var result: Result<[RankingEntry], Error> = .success([])
+    private(set) var requests: [(kind: TopPlayersKind, leagueID: Int)] = []
+
+    init(leagues: [League]) {
+        self.leagues = leagues
+    }
+
+    func topPlayers(_ kind: TopPlayersKind, in league: League) async throws -> [RankingEntry] {
+        requests.append((kind: kind, leagueID: league.id))
+        return try result.get()
+    }
+
+    static func entry(rank: Int, name: String) -> RankingEntry {
+        RankingEntry(rank: rank, name: name, subtitle: "Arsenal", imageURL: nil, value: "10",
+                     player: PlayerReference(name: name, id: rank))
     }
 }

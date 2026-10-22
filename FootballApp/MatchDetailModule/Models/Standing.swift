@@ -24,7 +24,6 @@ enum StandingZone {
 struct Standing {
     let position: Int
     let teamName: String
-    let crestImageName: String?
     let played: Int
     let wins: Int
     let draws: Int
@@ -32,7 +31,7 @@ struct Standing {
     let goalsFor: Int
     let goalsAgainst: Int
     let zone: StandingZone
-    /// API-dən gələn loqo ünvanı (mock-da assets-dən `crestImageName` işlənir).
+    /// API-dən gələn loqo ünvanı.
     var crestURL: String?
     /// API-dən gələn komanda id-si (klub səhifəsini birbaşa açmaq üçün).
     var teamID: Int?

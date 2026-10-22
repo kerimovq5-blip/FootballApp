@@ -9,45 +9,48 @@ import Foundation
 
 enum ExploreTab: Int, CaseIterable {
     case leagues
-    case uefaClubs
-    case fifaNations
-    case uefaCountries
+    case topScorers
+    case topAssists
 
     var title: String {
         switch self {
         case .leagues: return "Leagues"
-        case .uefaClubs: return "UEFA Clubs"
-        case .fifaNations: return "FIFA Nations"
-        case .uefaCountries: return "UEFA Countries"
+        case .topScorers: return "Top scorers"
+        case .topAssists: return "Top assists"
         }
     }
 
-    /// Sıralama cədvəlinin sütun başlığı; liqalar siyahısında cədvəl başlığı yoxdur.
-    var columnTitle: String? {
+    /// Reytinq tab-larında hansı siyahının göstərildiyi; Leagues tab-ında nil.
+    var topPlayersKind: TopPlayersKind? {
         switch self {
         case .leagues: return nil
-        case .uefaClubs: return "Club"
-        case .fifaNations: return "Nation"
-        case .uefaCountries: return "Country"
+        case .topScorers: return .goals
+        case .topAssists: return .assists
         }
     }
 }
 
-/// Üç sıralama cədvəli (UEFA klublar, FIFA ölkələr, UEFA ölkə xalları) eyni sətir modelindən istifadə edir.
+enum TopPlayersKind {
+    case goals
+    case assists
+
+    /// Cədvəlin sağ sütununun başlığı.
+    var valueTitle: String {
+        switch self {
+        case .goals: return "Goals"
+        case .assists: return "Assists"
+        }
+    }
+}
+
+/// Reytinq sətri: sıra, oyunçu, klubu və göstərici (qol və ya məhsuldar ötürmə).
 struct RankingEntry {
     let rank: Int
     let name: String
-    /// Klubda ölkə, FIFA-da konfederasiya.
+    /// Oyunçunun klubu.
     let subtitle: String?
-    let flag: String
-    let points: String
-    /// Sıra dəyişikliyi (müsbət = yüksəlib). Olmayan cədvəllərdə nil.
-    let change: Int?
-}
-
-struct ExploreContent {
-    let leagues: [League]
-    let uefaClubs: [RankingEntry]
-    let fifaNations: [RankingEntry]
-    let uefaCountries: [RankingEntry]
+    let imageURL: String?
+    let value: String
+    /// Sətrə toxunanda açılan oyunçu.
+    let player: PlayerReference?
 }

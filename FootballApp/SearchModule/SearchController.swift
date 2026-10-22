@@ -176,12 +176,12 @@ final class SearchController: UIViewController {
             self?.showAlert(title: error.title, message: error.message)
         }
 
-        // Hər hərfdə yox, yazmağı 0.3 san. dayandıranda axtar.
+        // Hər hərfdə yox, yazmağı 0.5 san. dayandıranda axtar (hər axtarış API sorğusudur).
         // distinctUntilChanged işlədilmir: X düyməsi və son axtarışlar mətni
         // birbaşa updateQuery ilə dəyişir, Rx bundan xəbər tutmur.
         searchField.rx.text.orEmpty
             .skip(1) // ilk boş dəyəri ötür, load() onsuz da ekranı qurur
-            .debounce(.milliseconds(300), scheduler: MainScheduler.instance)
+            .debounce(.milliseconds(500), scheduler: MainScheduler.instance)
             .subscribe(onNext: { [weak self] text in
                 self?.viewModel.updateQuery(text)
             })
@@ -242,7 +242,6 @@ final class SearchController: UIViewController {
     }
 
     private func clubIcon(for club: ClubReference) -> SearchRowCell.Icon {
-        if let crest = ClubKey.crest(for: club.name) { return .image(crest) }
         if let flag = club.flag { return .emoji(flag) }
         return .symbol("shield")
     }
@@ -320,9 +319,12 @@ extension SearchController: UICollectionViewDataSource {
                 withReuseIdentifier: SearchRowCell.reuseID, for: indexPath
             ) as? SearchRowCell else { return UICollectionViewCell() }
             let player = viewModel.playerResults[indexPath.item]
-            cell.configure(icon: .emoji(player.flag),
+            let subtitle = [player.nationality, player.position?.singularTitle]
+                .compactMap { $0 }
+                .joined(separator: " · ")
+            cell.configure(icon: player.flag.isEmpty ? .symbol("person") : .emoji(player.flag),
                            title: player.reference.name,
-                           subtitle: "\(player.reference.clubName ?? "") · \(player.position.singularTitle)",
+                           subtitle: subtitle.isEmpty ? nil : subtitle,
                            accessorySymbol: "chevron.right")
             return cell
         case .matches:

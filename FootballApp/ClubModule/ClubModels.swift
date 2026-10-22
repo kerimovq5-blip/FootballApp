@@ -7,11 +7,10 @@
 
 import UIKit
 
-/// Klubu tanıtmaq üçün yüngül istinad. Mock datada Home, Explore və Standing fərqli id işlədir,
-/// ona görə klub adı ilə tanınır. API gələndə id əlavə olunacaq.
+/// Klubu tanıtmaq üçün yüngül istinad. `id` məlumdursa klub birbaşa açılır, yoxdursa adla axtarılır.
 struct ClubReference {
     let name: String
-    /// Mənbə bilirsə (məs. Explore reytinqi) ötürülür, yoxsa liqadan götürülür.
+    /// Mənbə bilirsə (məs. axtarış nəticəsi) ötürülür, yoxsa liqadan götürülür.
     var country: String?
     var flag: String?
     /// API komanda id-si. Məlumdursa adla axtarış sorğusu qənaət olunur.
@@ -22,11 +21,6 @@ enum ClubKey {
     static func make(_ name: String) -> String {
         name.folding(options: [.diacriticInsensitive, .caseInsensitive], locale: nil)
             .filter { $0.isLetter }
-    }
-
-    /// Assets-də "realmadrid" kimi adlı loqo varsa tapır.
-    static func crest(for name: String) -> UIImage? {
-        UIImage(named: name.lowercased().filter { $0.isLetter }) ?? UIImage(named: make(name))
     }
 }
 
@@ -73,6 +67,8 @@ struct SquadPlayer {
     let age: Int
     let nationality: String
     let flag: String
+    /// API id-si (oyunçu səhifəsini açmaq üçün).
+    var id: Int?
 }
 
 enum ClubResult {

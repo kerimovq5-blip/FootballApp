@@ -166,14 +166,17 @@ enum APIFootballMapper {
             // API-də `player` çıxan, `assist` girən oyunçudur; bizdə əsas ad girən oyunçudur.
             return MatchEvent(minute: minute, kind: kind, side: side,
                               player: dto.assist?.name ?? "–",
-                              detail: dto.player?.name.map { "Out: \($0)" })
+                              detail: dto.player?.name.map { "Out: \($0)" },
+                              playerID: dto.assist?.id)
         case .goal, .penaltyGoal:
             return MatchEvent(minute: minute, kind: kind, side: side,
                               player: dto.player?.name ?? "–",
-                              detail: dto.assist?.name.map { "Assist: \($0)" })
+                              detail: dto.assist?.name.map { "Assist: \($0)" },
+                              playerID: dto.player?.id)
         default:
             return MatchEvent(minute: minute, kind: kind, side: side,
-                              player: dto.player?.name ?? "–")
+                              player: dto.player?.name ?? "–",
+                              playerID: dto.player?.id)
         }
     }
 
@@ -213,7 +216,8 @@ enum APIFootballMapper {
                                 name: player.name ?? "–",
                                 goals: goals,
                                 yellowCards: yellow,
-                                isSentOff: sentOff)
+                                isSentOff: sentOff,
+                                id: player.id)
         }
         return TeamLineup(teamName: name, formation: dto.formation ?? "", players: players)
     }
@@ -344,7 +348,6 @@ enum APIFootballMapper {
                                     zone: StandingZone) -> Standing {
         Standing(position: position,
                  teamName: row.team.name,
-                 crestImageName: nil,
                  played: record.played,
                  wins: record.win,
                  draws: record.draw,
@@ -404,7 +407,8 @@ enum APIFootballMapper {
                         position: mapPosition(player.position),
                         age: player.age ?? 0,
                         nationality: "",
-                        flag: "")
+                        flag: "",
+                        id: player.id)
         }
 
         let profile = ClubProfile(name: name,
@@ -440,7 +444,7 @@ enum APIFootballMapper {
                          isLive: status.isLive)
     }
 
-    private static func mapPosition(_ position: String?) -> PlayerPosition {
+    static func mapPosition(_ position: String?) -> PlayerPosition {
         switch (position ?? "").lowercased() {
         case "goalkeeper": return .goalkeeper
         case "defender": return .defender

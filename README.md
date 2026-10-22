@@ -26,24 +26,13 @@ Data [API-Football](https://www.api-football.com) (api-sports.io) xidmətindən 
        static let apiKey = "SƏNİN_API_AÇARIN"
    }
    ```
-   Açar olmadan da tətbiq açılır, amma real data əvəzinə xəta göstərilir
-   (aşağıdakı **Mock rejimi**-ndən istifadə et).
+   Açar olmadan da tətbiq açılır, amma data əvəzinə xəta göstərilir.
 3. `FootballApp.xcodeproj`-u aç. Xcode paketləri özü yükləyəcək
    (ilk dəfə bir neçə dəqiqə çəkə bilər).
 4. Simulator seç və **Cmd + R**.
 
 > ⚠️ `Secrets.swift`, token, sertifikat və ya başqa gizli faylları heç vaxt
 > commit etmə və zip ilə paylaşma.
-
-## Mock rejimi
-
-API açarı olmadan və ya limit xərcləmədən işləmək üçün:
-
-**Product → Scheme → Edit Scheme… → Run → Arguments → Arguments Passed On Launch**
-bölməsinə `-useMockData` əlavə et.
-
-Servislərin hansının mock, hansının real olduğu
-[`Core/AppEnvironment.swift`](FootballApp/Core/AppEnvironment.swift)-də seçilir.
 
 ## API limitləri
 
@@ -84,7 +73,8 @@ FootballApp/
 - **MVVM + Coordinator.** ViewController ekranı çəkir, ViewModel datanı hazırlayır,
   Coordinator ekranlar arası keçidi idarə edir. ViewController başqa ekranı özü açmır.
 - **Servislər protokol arxasındadır** (`HomeProviding`, `ClubProviding` və s.).
-  Hər birinin `Mock…` və `API…` versiyası var, `AppEnvironment` hansının işlədiləcəyini seçir.
+  Tətbiqdə `API…` versiyası işləyir (`AppEnvironment`), testlər isə ViewModel-ə
+  öz saxta servislərini ötürür (`FootballAppTests/TestDoubles.swift`). Tətbiqdə uydurma data yoxdur.
 - **Şəbəkə:** `NetworkManager` (async/await) → `APIFootballClient` (keş + endpoint-lər)
   → `APIFootballMapper` (DTO → ekran modeli).
 

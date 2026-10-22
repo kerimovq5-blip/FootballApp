@@ -137,18 +137,8 @@ final class ExploreRankingCell: UITableViewCell {
         return label
     }()
 
-    private let flagCircle: UIView = {
-        let view = UIView()
-        view.backgroundColor = UIColor.white.withAlphaComponent(0.08)
-        view.layer.cornerRadius = 20
-        return view
-    }()
-
-    private let flagLabel: UILabel = {
-        let label = UILabel()
-        label.font = UIFont.systemFont(ofSize: 22)
-        return label
-    }()
+    /// Oyunçu şəkli; yüklənənə qədər baş hərflər.
+    private let photoView = ClubCrestView(size: 40, inset: 0)
 
     private let nameLabel: UILabel = {
         let label = UILabel()
@@ -172,13 +162,6 @@ final class ExploreRankingCell: UITableViewCell {
         return label
     }()
 
-    private let changeLabel: UILabel = {
-        let label = UILabel()
-        label.font = UIFont.systemFont(ofSize: 12, weight: .semibold)
-        label.textAlignment = .right
-        return label
-    }()
-
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         backgroundColor = .clear
@@ -194,41 +177,29 @@ final class ExploreRankingCell: UITableViewCell {
         rankLabel.text = "\(entry.rank)"
         // İlk üç yer vurğulanır.
         rankLabel.textColor = entry.rank <= 3 ? AppGradient.accentStart : UIColor.white.withAlphaComponent(0.7)
-        flagLabel.text = entry.flag
+        photoView.configure(initials: ExploreRankingCell.initials(for: entry.name), imageURL: entry.imageURL)
         nameLabel.text = entry.name
         subtitleLabel.text = entry.subtitle
         subtitleLabel.isHidden = entry.subtitle == nil
-        pointsLabel.text = entry.points
+        pointsLabel.text = entry.value
+    }
 
-        guard let change = entry.change else {
-            changeLabel.isHidden = true
-            return
-        }
-        changeLabel.isHidden = false
-        if change > 0 {
-            changeLabel.text = "▲ \(change)"
-            changeLabel.textColor = .systemGreen
-        } else if change < 0 {
-            changeLabel.text = "▼ \(abs(change))"
-            changeLabel.textColor = .systemRed
-        } else {
-            changeLabel.text = "–"
-            changeLabel.textColor = UIColor.white.withAlphaComponent(0.5)
-        }
+    private static func initials(for name: String) -> String {
+        name.split(separator: " ").prefix(2).compactMap { $0.first }.map(String.init).joined().uppercased()
     }
 
     private func setupViews() {
         let padding = AppLayout.screenPadding.value
 
         contentView.addSubviews(card)
-        card.addSubviews(rankLabel, flagCircle)
-        flagCircle.addSubviews(flagLabel)
+        card.addSubviews(rankLabel, photoView)
+        photoView.clipsToBounds = true
 
         let textStack = UIStackView(arrangedSubviews: [nameLabel, subtitleLabel])
         textStack.axis = .vertical
         textStack.spacing = 2
 
-        let pointsStack = UIStackView(arrangedSubviews: [pointsLabel, changeLabel])
+        let pointsStack = UIStackView(arrangedSubviews: [pointsLabel])
         pointsStack.axis = .vertical
         pointsStack.alignment = .trailing
         pointsStack.spacing = 2
@@ -248,23 +219,17 @@ final class ExploreRankingCell: UITableViewCell {
             .centerY(card.centerYAnchor).0
             .width(28)
 
-        flagCircle
+        photoView
             .leading(rankLabel.trailingAnchor, 8).0
             .top(card.topAnchor, 12).0
-            .bottom(card.bottomAnchor, -12).0
-            .width(40).0
-            .height(40)
-
-        flagLabel
-            .centerX(flagCircle.centerXAnchor).0
-            .centerY(flagCircle.centerYAnchor)
+            .bottom(card.bottomAnchor, -12)
 
         pointsStack
             .trailing(card.trailingAnchor, -14).0
             .centerY(card.centerYAnchor)
 
         textStack
-            .leading(flagCircle.trailingAnchor, 12).0
+            .leading(photoView.trailingAnchor, 12).0
             .centerY(card.centerYAnchor)
         textStack.trailingAnchor.constraint(lessThanOrEqualTo: pointsStack.leadingAnchor, constant: -8).isActive = true
     }
@@ -272,10 +237,7 @@ final class ExploreRankingCell: UITableViewCell {
 
 // MARK: - Cədvəl başlığı
 
-/// "#   Club   Pts" sütun başlıqları.
-// MARK: - Cədvəl başlığı
-
-/// "#   Club   Pts" sütun başlıqları. Cədvəlin üstündə sabit dayanır, cədvəlin içində yapışqan başlıq deyil.
+/// "#   Player   Goals" sütun başlıqları. Cədvəlin üstündə sabit dayanır, cədvəlin içində yapışqan başlıq deyil.
 final class ExploreRankingHeaderView: UIView {
 
     private let rankLabel = ExploreRankingHeaderView.makeLabel("#", alignment: .center)
@@ -306,8 +268,9 @@ final class ExploreRankingHeaderView: UIView {
         fatalError("init(coder:) has not been implemented")
     }
 
-    func configure(columnTitle: String) {
+    func configure(columnTitle: String, valueTitle: String) {
         nameLabel.text = columnTitle.uppercased()
+        pointsLabel.text = valueTitle.uppercased()
     }
 
     private static func makeLabel(_ text: String, alignment: NSTextAlignment) -> UILabel {

@@ -7,123 +7,113 @@ import Foundation
 
 struct PlayerSearchResult {
     let reference: PlayerReference
-    let position: PlayerPosition
+    let position: PlayerPosition?
+    /// Bayraq emojisi; tapılmasa boş.
     let flag: String
+    var nationality: String?
+    var photoURL: String?
 }
 
+/// Sorğusuz yüklənən hissə: yerli siyahıda filtrlənir.
 struct SearchContent {
     /// Axtarışda liqa kimi tapılan liqalar.
     let leagues: [League]
     /// Oyunları olan liqalar (Home ilə eyni mənbə).
     let matchLeagues: [League]
-    /// Axtarışda komanda kimi tapılan klublar.
+}
+
+/// Sorğuya görə API-dən gələn hissə.
+struct RemoteSearchResults {
     var clubs: [ClubReference] = []
-    /// Axtarışda oyunçu kimi tapılan futbolçular.
     var players: [PlayerSearchResult] = []
 }
 
 protocol SearchProviding {
+    /// Liqalar və bu günün oyunları (bir dəfə yüklənir).
     func fetchSearchContent(completion: @escaping (Result<SearchContent, Error>) -> Void)
+    /// Komanda və oyunçu axtarışı. Sorğu ən azı `SearchQuery.minimumLength` hərf olmalıdır.
+    func searchRemote(_ query: String) async throws -> RemoteSearchResults
 }
 
-/// Real API gələnə qədər test datası: Explore, Home və Standing mock-larını birləşdirir.
-struct MockSearchService: SearchProviding {
+enum SearchQuery {
+    /// API-Football komanda və oyunçu axtarışı ən azı 3 hərf istəyir.
+    static let minimumLength = 3
 
+    /// API yalnız hərf, rəqəm və boşluq qəbul edir: "Beşiktaş J.K." → "Besiktas J K".
+    static func cleaned(_ text: String) -> String {
+        let folded = text.folding(options: .diacriticInsensitive, locale: nil)
+        return String(folded.map { $0.isLetter || $0.isNumber ? $0 : " " })
+            .components(separatedBy: " ")
+            .filter { !$0.isEmpty }
+            .joined(separator: " ")
+    }
+
+    /// Oyunçu soyadla axtarılır: "Mohamed Salah" → "Salah".
+    static func playerSurname(_ text: String) -> String? {
+        cleaned(text)
+            .components(separatedBy: " ")
+            .last { $0.count >= minimumLength }
+    }
+}
+
+struct APISearchService: SearchProviding {
+
+    private let client: APIFootballClient
     private let homeService: HomeProviding
-    private let exploreService: ExploreProviding
-    private let standingService: StandingProviding
 
-    init(homeService: HomeProviding = MockHomeService(),
-         exploreService: ExploreProviding = MockExploreService(),
-         standingService: StandingProviding = MockStandingService()) {
+    init(client: APIFootballClient = .shared, homeService: HomeProviding) {
+        self.client = client
         self.homeService = homeService
-        self.exploreService = exploreService
-        self.standingService = standingService
     }
 
     func fetchSearchContent(completion: @escaping (Result<SearchContent, Error>) -> Void) {
-        exploreService.fetchExplore { exploreResult in
-            self.homeService.fetchHome { homeResult in
-                self.collectStandingClubs(leagues: self.standingService.leagues[...], collected: []) { standingClubs in
-                    switch (exploreResult, homeResult) {
-                    case (.success(let explore), .success(let home)):
-                        let clubs = MockSearchService.mergeClubs(explore: explore,
-                                                                 home: home,
-                                                                 standingClubs: standingClubs)
-                        completion(.success(SearchContent(leagues: explore.leagues,
-                                                          matchLeagues: home.leagues,
-                                                          clubs: clubs,
-                                                          players: MockSearchService.makePlayers(for: clubs))))
-                    case (.failure(let error), _), (_, .failure(let error)):
-                        completion(.failure(error))
-                    }
-                }
-            }
+        let leagues = APILeagueCatalog.leagues
+        homeService.fetchHome { result in
+            // Oyunlar yüklənməsə də komanda, oyunçu və liqa axtarışı işləsin.
+            let matchLeagues = (try? result.get().leagues) ?? []
+            completion(.success(SearchContent(leagues: leagues, matchLeagues: matchLeagues)))
         }
     }
 
-    // MARK: - Klublar
+    func searchRemote(_ query: String) async throws -> RemoteSearchResults {
+        let teamQuery = SearchQuery.cleaned(query)
+        let playerQuery = SearchQuery.playerSurname(query)
 
-    /// Liqa cədvəllərindəki komandalar (Avropa turnirləri keçilir, klublar domestik liqada artıq var).
-    private func collectStandingClubs(leagues: ArraySlice<League>,
-                                      collected: [ClubReference],
-                                      completion: @escaping ([ClubReference]) -> Void) {
-        guard let league = leagues.first else {
-            completion(collected)
-            return
-        }
-        guard league.country != "Europe" else {
-            collectStandingClubs(leagues: leagues.dropFirst(), collected: collected, completion: completion)
-            return
-        }
-        standingService.fetchStandings(for: league, filter: .all) { result in
-            var next = collected
-            if case .success(let standings) = result {
-                next += standings.map {
-                    ClubReference(name: $0.teamName, country: league.country, flag: league.flag)
-                }
+        async let teamItems = searchTeams(teamQuery)
+        async let playerItems = searchPlayers(playerQuery)
+
+        // Biri alınmasa digərinin nəticəsi yenə göstərilir; ikisi də alınmasa xəta.
+        var results = RemoteSearchResults()
+        var firstError: Error?
+        do {
+            results.clubs = try await teamItems.map { item in
+                ClubReference(name: item.team.name,
+                              country: item.team.country,
+                              flag: CountryFlag.emoji(forCountryName: item.team.country),
+                              id: item.team.id)
             }
-            self.collectStandingClubs(leagues: leagues.dropFirst(), collected: next, completion: completion)
+        } catch {
+            firstError = error
         }
+        do {
+            results.players = APIFootballMapper.playerSearchResults(from: try await playerItems)
+        } catch {
+            firstError = firstError ?? error
+        }
+
+        if results.clubs.isEmpty, results.players.isEmpty, let firstError {
+            throw firstError
+        }
+        return results
     }
 
-    /// Eyni klub bir dəfə qalır (ad işarələrdən asılı olmadan müqayisə olunur), əlifba sırası ilə.
-    private static func mergeClubs(explore: ExploreContent,
-                                   home: HomeContent,
-                                   standingClubs: [ClubReference]) -> [ClubReference] {
-        var all = explore.uefaClubs.map {
-            ClubReference(name: $0.name, country: $0.subtitle, flag: $0.flag)
-        }
-        all += standingClubs
-        for league in home.leagues {
-            for match in league.matches {
-                all.append(ClubReference(name: match.home))
-                all.append(ClubReference(name: match.away))
-            }
-        }
-
-        var seen = Set<String>()
-        return all
-            .filter { seen.insert(ClubKey.make($0.name)).inserted }
-            .sorted { $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending }
+    private func searchTeams(_ query: String) async throws -> [TeamInfoDTO] {
+        guard query.count >= SearchQuery.minimumLength else { return [] }
+        return try await client.teams(search: query)
     }
 
-    // MARK: - Oyunçular
-
-    /// Hər klubun test heyətindəki oyunçular (club səhifəsindəki heyətlə eynidir), ada görə sıralanmış.
-    private static func makePlayers(for clubs: [ClubReference]) -> [PlayerSearchResult] {
-        clubs
-            .flatMap { club in
-                MockSquad.make(clubKey: ClubKey.make(club.name),
-                               homeCountry: club.country,
-                               homeFlag: club.flag).map { player in
-                    PlayerSearchResult(
-                        reference: PlayerReference(name: player.name, clubName: club.name, number: player.number),
-                        position: player.position,
-                        flag: player.flag
-                    )
-                }
-            }
-            .sorted { $0.reference.name.localizedCaseInsensitiveCompare($1.reference.name) == .orderedAscending }
+    private func searchPlayers(_ surname: String?) async throws -> [PlayerProfileDTO] {
+        guard let surname else { return [] }
+        return try await client.players(search: surname)
     }
 }

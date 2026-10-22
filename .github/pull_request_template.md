@@ -20,6 +20,6 @@
 ## Yoxlama siyahısı
 
 - [ ] Layihə build olunur, yeni xəbərdarlıq (SwiftLint daxil) yoxdur
-- [ ] Həm real API, həm `-useMockData` rejimində yoxlanılıb
+- [ ] Real API ilə simulyatorda yoxlanılıb
 - [ ] `Secrets.swift`, token və ya başqa gizli fayl commit olunmayıb
 - [ ] Lazımsız `print` və köhnə (comment-ə alınmış) kod silinib

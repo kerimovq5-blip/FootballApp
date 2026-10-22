@@ -16,6 +16,8 @@ final class ClubCrestView: UIView {
 
     private let imageView = UIImageView()
     private let initialsLabel = UILabel()
+    /// Gec gələn şəkil başqa məzmunun üstünə yazılmasın deyə son istənən URL.
+    private var imageURL: String?
 
     init(size: CGFloat, inset: CGFloat) {
         super.init(frame: .zero)
@@ -48,9 +50,23 @@ final class ClubCrestView: UIView {
     }
 
     func configure(initials: String) {
+        configure(initials: initials, imageURL: nil)
+    }
+
+    /// Şəkil yüklənənə qədər (və ya yüklənməsə) baş hərflər görünür.
+    func configure(initials: String, imageURL: String?) {
+        self.imageURL = imageURL
         imageView.image = nil
         imageView.isHidden = true
         initialsLabel.text = initials
         initialsLabel.isHidden = false
+
+        guard let imageURL else { return }
+        ImageLoader.shared.load(imageURL) { [weak self] image in
+            guard let self, let image, self.imageURL == imageURL else { return }
+            self.imageView.image = image
+            self.imageView.isHidden = false
+            self.initialsLabel.isHidden = true
+        }
     }
 }

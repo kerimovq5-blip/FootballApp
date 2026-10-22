@@ -22,11 +22,3 @@ extension HomeProviding {
         fetchHome(dayOffset: 0, completion: completion)
     }
 }
-
-/// Real API gələnə qədər müvəqqəti implementasiya. Yalnız "bu gün" dolu gəlir.
-struct MockHomeService: HomeProviding {
-    func fetchHome(dayOffset: Int, completion: @escaping (Result<HomeContent, Error>) -> Void) {
-        let leagues = dayOffset == 0 ? MockData.leagues : []
-        completion(.success(HomeContent(leagues: leagues)))
-    }
-}

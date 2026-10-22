@@ -24,6 +24,7 @@ final class ExploreViewController: UIViewController {
 
     private enum Metrics {
         static let columnHeaderHeight: CGFloat = 32
+        static let leagueButtonHeight: CGFloat = 36
     }
 
     private lazy var titleLabel: UILabel = {
@@ -38,6 +39,24 @@ final class ExploreViewController: UIViewController {
         titles: ExploreTab.allCases.map { $0.title },
         alignment: .spread
     )
+
+    /// Reytinq tab-larında liqa seçimi (menyu ilə).
+    private lazy var leagueButton: UIButton = {
+        var config = UIButton.Configuration.filled()
+        config.baseBackgroundColor = UIColor.white.withAlphaComponent(0.08)
+        config.baseForegroundColor = .white
+        config.cornerStyle = .capsule
+        config.image = UIImage(systemName: "chevron.down",
+                               withConfiguration: UIImage.SymbolConfiguration(pointSize: 11, weight: .semibold))
+        config.imagePlacement = .trailing
+        config.imagePadding = 6
+        config.contentInsets = NSDirectionalEdgeInsets(top: 6, leading: 14, bottom: 6, trailing: 14)
+        let button = UIButton(configuration: config)
+        button.showsMenuAsPrimaryAction = true
+        button.isHidden = true
+        return button
+    }()
+    private var leagueButtonHeight: NSLayoutConstraint?
 
     private let columnHeader = ExploreRankingHeaderView()
     private var columnHeaderHeight: NSLayoutConstraint?
@@ -61,7 +80,7 @@ final class ExploreViewController: UIViewController {
         let stateView = StateView()
         stateView.onRetry = { [weak self] in
             self?.showLoading()
-            self?.viewModel.load()
+            self?.viewModel.retry()
         }
         return stateView
     }()
@@ -81,7 +100,7 @@ final class ExploreViewController: UIViewController {
 
     private func setupLayout() {
         let padding = AppLayout.screenPadding.value
-        view.addSubviews(titleLabel, tabBar, columnHeader, tableView, stateView)
+        view.addSubviews(titleLabel, tabBar, leagueButton, columnHeader, tableView, stateView)
 
         titleLabel
             .leading(view.leadingAnchor, padding).0
@@ -92,8 +111,16 @@ final class ExploreViewController: UIViewController {
             .leading(view.leadingAnchor, padding).0
             .trailing(view.trailingAnchor, -padding)
 
-        columnHeader
+        leagueButton
             .top(tabBar.bottomAnchor, AppLayout.smallSpacing.value).0
+            .leading(view.leadingAnchor, padding)
+        leagueButton.trailingAnchor.constraint(lessThanOrEqualTo: view.trailingAnchor, constant: -padding).isActive = true
+        let buttonHeight = leagueButton.heightAnchor.constraint(equalToConstant: 0)
+        buttonHeight.isActive = true
+        leagueButtonHeight = buttonHeight
+
+        columnHeader
+            .top(leagueButton.bottomAnchor, AppLayout.smallSpacing.value).0
             .leading(view.leadingAnchor).0
             .trailing(view.trailingAnchor)
         let heightConstraint = columnHeader.heightAnchor.constraint(equalToConstant: 0)
@@ -116,6 +143,10 @@ final class ExploreViewController: UIViewController {
         viewModel.onChange = { [weak self] in
             self?.reload()
         }
+        viewModel.onLoading = { [weak self] in
+            self?.updateHeader()
+            self?.showLoading()
+        }
         viewModel.onFailed = { [weak self] error in
             self?.tableView.isHidden = true
             self?.stateView.show(error)
@@ -130,7 +161,7 @@ final class ExploreViewController: UIViewController {
     private func reload() {
         stateView.hide()
         tableView.isHidden = false
-        updateColumnHeader()
+        updateHeader()
         UIView.transition(with: tableView, duration: 0.2, options: .transitionCrossDissolve, animations: {
             self.tableView.reloadData()
         })
@@ -138,19 +169,36 @@ final class ExploreViewController: UIViewController {
         tableView.setContentOffset(CGPoint(x: 0, y: -tableView.adjustedContentInset.top), animated: false)
     }
 
-    /// Sıralama tab-larında "# CLUB PTS" başlığı görünür, Leagues tab-ında yox olur.
-    private func updateColumnHeader() {
-        if let columnTitle = viewModel.selectedTab.columnTitle {
-            columnHeader.configure(columnTitle: columnTitle)
+    /// Reytinq tab-larında liqa seçimi və "# PLAYER GOALS" başlığı görünür, Leagues tab-ında gizlənir.
+    private func updateHeader() {
+        if let kind = viewModel.selectedTab.topPlayersKind {
+            columnHeader.configure(columnTitle: "Player", valueTitle: kind.valueTitle)
             columnHeader.isHidden = false
             columnHeaderHeight?.constant = Metrics.columnHeaderHeight
+            updateLeagueButton()
+            leagueButton.isHidden = false
+            leagueButtonHeight?.constant = Metrics.leagueButtonHeight
         } else {
             columnHeader.isHidden = true
             columnHeaderHeight?.constant = 0
+            leagueButton.isHidden = true
+            leagueButtonHeight?.constant = 0
         }
         UIView.animate(withDuration: 0.2) {
             self.view.layoutIfNeeded()
         }
+    }
+
+    private func updateLeagueButton() {
+        let selected = viewModel.selectedLeague
+        leagueButton.configuration?.title = selected.map { "\($0.flag) \($0.name)" } ?? "League"
+        let actions = viewModel.leagues.enumerated().map { index, league in
+            UIAction(title: "\(league.flag) \(league.name)",
+                     state: league.id == selected?.id ? .on : .off) { [weak self] _ in
+                self?.viewModel.selectLeague(at: index)
+            }
+        }
+        leagueButton.menu = UIMenu(children: actions)
     }
 }
 
@@ -188,13 +236,9 @@ extension ExploreViewController: UITableViewDelegate {
         switch viewModel.selectedTab {
         case .leagues:
             coordinator?.showLeagueDetail(for: viewModel.leagues[indexPath.row])
-        case .uefaClubs:
-            let entry = viewModel.rankings[indexPath.row]
-            coordinator?.showClubDetail(for: ClubReference(name: entry.name,
-                                                           country: entry.subtitle,
-                                                           flag: entry.flag))
-        case .fifaNations, .uefaCountries:
-            break
+        case .topScorers, .topAssists:
+            guard let player = viewModel.rankings[indexPath.row].player else { return }
+            coordinator?.showPlayerDetail(for: player)
         }
     }
 }

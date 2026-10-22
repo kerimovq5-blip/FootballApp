@@ -169,38 +169,3 @@ enum AuthError: LocalizedError {
         }
     }
 }
-
-// MARK: - Mock (kept for previews / tests)
-
-struct MockAuthService: AuthProviding {
-
-    var currentUser: AuthSession? {
-        AuthSession(uid: "mock-uid", name: "Test User", email: "test@example.com")
-    }
-
-    func login(email: String,
-               password: String,
-               completion: @escaping (Result<AuthSession, Error>) -> Void) {
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
-            completion(.success(AuthSession(uid: "mock-uid", name: nil, email: email)))
-        }
-    }
-
-    func register(name: String,
-                  email: String,
-                  password: String,
-                  completion: @escaping (Result<AuthSession, Error>) -> Void) {
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
-            completion(.success(AuthSession(uid: "mock-uid", name: name, email: email)))
-        }
-    }
-
-    func sendPasswordReset(email: String,
-                           completion: @escaping (Result<Void, Error>) -> Void) {
-        completion(.success(()))
-    }
-
-    func logout(completion: @escaping (Result<Void, Error>) -> Void) {
-        completion(.success(()))
-    }
-}

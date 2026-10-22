@@ -141,6 +141,26 @@ final class APIFootballClient {
         try await fetch(.squad(team: team), ttl: 24 * 60 * 60)
     }
 
+    /// Oyunçunun profili və mövsüm statistikası (hər turnir ayrıca).
+    func player(id: Int, season: Int) async throws -> PlayerStatsDTO {
+        let items: [PlayerStatsDTO] = try await fetch(.player(id: id, season: season), ttl: 12 * 60 * 60)
+        guard let item = items.first else { throw APIError.notFound }
+        return item
+    }
+
+    /// Soyada görə axtarış (ən azı 3 hərf).
+    func players(search: String) async throws -> [PlayerProfileDTO] {
+        try await fetch(.playerSearch(name: search), ttl: 7 * 24 * 60 * 60)
+    }
+
+    func topScorers(league: Int, season: Int) async throws -> [PlayerStatsDTO] {
+        try await fetch(.topScorers(league: league, season: season), ttl: 12 * 60 * 60)
+    }
+
+    func topAssists(league: Int, season: Int) async throws -> [PlayerStatsDTO] {
+        try await fetch(.topAssists(league: league, season: season), ttl: 12 * 60 * 60)
+    }
+
     // MARK: - Əsas çağırış
 
     /// Keşdə varsa keşdən, yoxsa şəbəkədən. Hər iki yol (async və completion) bundan keçir.

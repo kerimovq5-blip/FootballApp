@@ -111,12 +111,14 @@ final class MatchDetailController: UIViewController {
         let awayName = data.awayName
         eventsView.onPlayerTapped = { [weak self] event in
             let club = event.side == .home ? homeName : awayName
-            self?.coordinator?.showPlayerDetail(for: PlayerReference(name: event.player, clubName: club))
+            self?.coordinator?.showPlayerDetail(for: PlayerReference(name: event.player, clubName: club,
+                                                                     id: event.playerID))
         }
         lineUpView.onPlayerTapped = { [weak self] player, team in
             self?.coordinator?.showPlayerDetail(for: PlayerReference(name: player.name,
                                                                      clubName: team,
-                                                                     number: player.number))
+                                                                     number: player.number,
+                                                                     id: player.id))
         }
         statsView.configure(with: data.stats)
         eventsView.configure(events: data.events, hasStarted: data.hasStarted)

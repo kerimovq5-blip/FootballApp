@@ -59,12 +59,6 @@ final class PlayerOverviewView: UIView {
         club = content.profile.club
 
         stack.addArrangedSubview(summaryCard(content))
-
-        let ratings = Array(content.matches.prefix(5).compactMap { $0.rating }.reversed())
-        if !ratings.isEmpty {
-            stack.addArrangedSubview(ratingsCard(ratings))
-        }
-
         stack.addArrangedSubview(infoCard(content.profile))
         stack.addArrangedSubview(clubCard(content.profile.club))
     }
@@ -80,24 +74,16 @@ final class PlayerOverviewView: UIView {
         return InfoCardView(title: "Season \(content.season)", body: blocks)
     }
 
-    private func ratingsCard(_ ratings: [Double]) -> UIView {
-        let chips = UIStackView(arrangedSubviews: ratings.map { makeRatingChip($0) })
-        chips.axis = .horizontal
-        chips.spacing = 8
-
-        let row = UIStackView(arrangedSubviews: [chips, UIView()])
-        row.axis = .horizontal
-        return InfoCardView(title: "Last \(ratings.count) ratings", body: row)
-    }
-
     private func infoCard(_ profile: PlayerProfile) -> UIView {
+        let nationality = [profile.flag, profile.nationality]
+            .filter { !$0.isEmpty }
+            .joined(separator: " ")
         let rows = InfoUI.rows([
-            ("Position", profile.position.singularTitle),
-            ("Nationality", profile.nationality.isEmpty ? "–" : "\(profile.flag) \(profile.nationality)"),
-            ("Age", "\(profile.age)"),
-            ("Height", "\(profile.heightCm) cm"),
-            ("Preferred foot", profile.preferredFoot),
-            ("Shirt number", "#\(profile.number)")
+            ("Position", profile.position?.singularTitle ?? "–"),
+            ("Nationality", nationality.isEmpty ? "–" : nationality),
+            ("Age", profile.age.map { "\($0)" } ?? "–"),
+            ("Height", profile.height ?? "–"),
+            ("Shirt number", profile.number.map { "#\($0)" } ?? "–")
         ])
         return InfoCardView(title: "Player info", body: rows)
     }
@@ -133,18 +119,6 @@ final class PlayerOverviewView: UIView {
         let card = InfoCardView(title: "Club", body: row)
         card.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(clubTapped)))
         return card
-    }
-
-    private func makeRatingChip(_ rating: Double) -> UIView {
-        let label = InfoUI.label(PlayerRating.text(rating),
-                                 font: UIFont.systemFont(ofSize: 14, weight: .bold),
-                                 color: .white)
-        label.textAlignment = .center
-        label.backgroundColor = PlayerRating.color(rating)
-        label.layer.cornerRadius = 8
-        label.clipsToBounds = true
-        label.width(46).0.height(30)
-        return label
     }
 
     @objc private func clubTapped() {
