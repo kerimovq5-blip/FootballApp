@@ -13,13 +13,17 @@ enum HomeSection {
     case filter
     case league(index: Int)
     case empty
+    /// Seçilmiş günün datası yüklənir.
+    case loading
+    /// Data yüklənmədi; "Try again" ilə yenidən cəhd edilir.
+    case error
 }
 
 final class HomeViewModel {
 
     /// Data, gün və ya filter dəyişəndə çağırılır; ekran reload edir.
     var onChange: (() -> Void)?
-    var onFailed: ((String) -> Void)?
+    var onFailed: ((UserFacingError) -> Void)?
 
     private let service: HomeProviding
 
@@ -27,7 +31,9 @@ final class HomeViewModel {
     private(set) var selectedDay: HomeDay = .today
     private(set) var selectedFilter: MatchFilter = .all
     private(set) var filteredLeagues: [League] = []
-    private(set) var sections: [HomeSection] = [.banner, .day, .filter]
+    private(set) var sections: [HomeSection] = [.banner, .day, .filter, .loading]
+    /// Son yükləmənin xətası; uğurlu cavab və ya yeni gün seçimi onu silir.
+    private(set) var loadError: UserFacingError?
 
     private var leagues: [League] = []
     /// Seçilmiş günün datası gəlməyib də "oyun yoxdur" yazısı çıxmasın.
@@ -59,9 +65,13 @@ final class HomeViewModel {
                 self.banners = content.banners
                 self.leagues = content.leagues
                 self.hasLoaded = true
+                self.loadError = nil
                 self.refresh()
             case .failure(let error):
-                self.onFailed?(error.localizedDescription)
+                let failure = UserFacingError(error)
+                self.loadError = failure
+                self.refresh()
+                self.onFailed?(failure)
             }
         }
     }
@@ -72,6 +82,14 @@ final class HomeViewModel {
         // Köhnə günün oyunları yeni gün yüklənənə qədər görünməsin.
         leagues = []
         hasLoaded = false
+        loadError = nil
+        refresh()
+        load()
+    }
+
+    /// Xəta ekranındakı "Try again".
+    func retry() {
+        loadError = nil
         refresh()
         load()
     }
@@ -111,8 +129,14 @@ final class HomeViewModel {
 
         var result: [HomeSection] = [.banner, .day, .filter]
         result += filteredLeagues.indices.map { HomeSection.league(index: $0) }
-        if hasLoaded && filteredLeagues.isEmpty {
-            result.append(.empty)
+        if filteredLeagues.isEmpty {
+            if loadError != nil {
+                result.append(.error)
+            } else if hasLoaded {
+                result.append(.empty)
+            } else {
+                result.append(.loading)
+            }
         }
         sections = result
         onChange?()

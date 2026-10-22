@@ -4,7 +4,7 @@ final class NotificationsViewModel {
 
     /// Data yenilənəndə çağırılır; ekran reload edir.
     var onChange: (() -> Void)?
-    var onFailed: ((String) -> Void)?
+    var onFailed: ((UserFacingError) -> Void)?
 
     /// Yalnız bildirişi açılmış oyunlar, liqalara görə qruplaşdırılmış.
     private(set) var leagues: [League] = []
@@ -32,7 +32,7 @@ final class NotificationsViewModel {
                 }
                 self.onChange?()
             case .failure(let error):
-                self.onFailed?(error.localizedDescription)
+                self.onFailed?(UserFacingError(error))
             }
         }
     }
