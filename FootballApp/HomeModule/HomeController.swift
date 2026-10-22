@@ -57,6 +57,7 @@ final class HomeController: UIViewController {
         cv.register(MatchFilterCell.self, forCellWithReuseIdentifier: MatchFilterCell.reuseID)
         cv.register(DayPickerCell.self, forCellWithReuseIdentifier: DayPickerCell.reuseID)
         cv.register(HomeEmptyCell.self, forCellWithReuseIdentifier: HomeEmptyCell.reuseID)
+        cv.register(HomeStateCell.self, forCellWithReuseIdentifier: HomeStateCell.reuseID)
         cv.register(LeagueHeaderView.self,
                            forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader,
                            withReuseIdentifier: LeagueHeaderView.reuseID)
@@ -75,11 +76,7 @@ final class HomeController: UIViewController {
         viewModel.onChange = { [weak self] in
             self?.collectionView.reloadData()
         }
-        viewModel.onFailed = { [weak self] message in
-            let alert = UIAlertController(title: "Error", message: message, preferredStyle: .alert)
-            alert.addAction(UIAlertAction(title: "OK", style: .default))
-            self?.present(alert, animated: true)
-        }
+        // Xəta alert ilə yox, oyunların yerində (HomeSection.error) göstərilir.
     }
     private func setupLayout() {
         view.addSubviews(headLabel, notificationButton, searchButton, collectionView)
@@ -115,6 +112,7 @@ final class HomeController: UIViewController {
             case .day, .filter: return self.filterSection()
             case .league: return self.leagueSection()
             case .empty: return self.emptySection()
+            case .loading, .error: return self.stateSection()
             }
         }
     }
@@ -186,6 +184,14 @@ final class HomeController: UIViewController {
             section.boundarySupplementaryItems = [header]
             return section
         }
+    /// Yüklənmə və xəta: ekranın qalan hissəsini təxminən dolduran hündürlük.
+    private func stateSection() -> NSCollectionLayoutSection {
+        let size = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .absolute(320))
+        let item = NSCollectionLayoutItem(layoutSize: size)
+        let group = NSCollectionLayoutGroup.horizontal(layoutSize: size, subitems: [item])
+        return NSCollectionLayoutSection(group: group)
+    }
+
     private func emptySection() -> NSCollectionLayoutSection {
         let size = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .absolute(120))
         let item = NSCollectionLayoutItem(layoutSize: size)
@@ -217,7 +223,7 @@ extension HomeController: UICollectionViewDataSource {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         switch viewModel.sections[section] {
         case .banner: return viewModel.banners.count
-        case .day, .filter, .empty: return 1
+        case .day, .filter, .empty, .loading, .error: return 1
         case .league: return viewModel.league(inSection: section)?.matches.count ?? 0
         }
     }
@@ -257,6 +263,9 @@ extension HomeController: UICollectionViewDataSource {
             ) as? HomeEmptyCell else { return UICollectionViewCell() }
             cell.configure(message: viewModel.emptyMessage)
             return cell
+
+        case .loading, .error:
+            return stateCell(collectionView, at: indexPath)
         case .league:
             guard let cell = collectionView.dequeueReusableCell(
                 withReuseIdentifier: MatchCell.reuseID,
@@ -275,6 +284,22 @@ extension HomeController: UICollectionViewDataSource {
         }
         
         }
+    /// Yüklənmə və ya xəta hüceyrəsi (oyunların yerində).
+    private func stateCell(_ collectionView: UICollectionView, at indexPath: IndexPath) -> UICollectionViewCell {
+        guard let cell = collectionView.dequeueReusableCell(
+            withReuseIdentifier: HomeStateCell.reuseID, for: indexPath
+        ) as? HomeStateCell else { return UICollectionViewCell() }
+
+        if let error = viewModel.loadError {
+            cell.configure(error: error) { [weak self] in
+                self?.viewModel.retry()
+            }
+        } else {
+            cell.configureLoading()
+        }
+        return cell
+    }
+
     func collectionView(_ collectionView: UICollectionView,
                             viewForSupplementaryElementOfKind kind: String,
                             at indexPath: IndexPath) -> UICollectionReusableView {

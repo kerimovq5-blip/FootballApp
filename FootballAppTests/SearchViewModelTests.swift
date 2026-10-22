@@ -214,10 +214,10 @@ struct SearchViewModelTests {
     func loadFailure() {
         service.result = .failure(TestError(message: "Server error"))
         let viewModel = makeViewModel()
-        var failure: String?
+        var failure: UserFacingError?
         viewModel.onFailed = { failure = $0 }
 
         viewModel.load()
-        #expect(failure == "Server error")
+        #expect(failure?.message == "Server error")
     }
 }
