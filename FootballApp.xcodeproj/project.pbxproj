@@ -12,6 +12,7 @@
 		F2B75A8630877B1300F7DFFE /* RxCocoa in Frameworks */ = {isa = PBXBuildFile; productRef = F2B75A8530877B1300F7DFFE /* RxCocoa */; };
 		F2B75A8B30877B1300F7DFFE /* RxRelay in Frameworks */ = {isa = PBXBuildFile; productRef = F2B75A8A30877B1300F7DFFE /* RxRelay */; };
 		F2B75A9030877B1300F7DFFE /* RxSwift in Frameworks */ = {isa = PBXBuildFile; productRef = F2B75A8F30877B1300F7DFFE /* RxSwift */; };
+		F2B7756E308A233400F7DFFE /* FirebaseCrashlytics in Frameworks */ = {isa = PBXBuildFile; productRef = F2B7756D308A233400F7DFFE /* FirebaseCrashlytics */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -71,6 +72,7 @@
 				F2B75A9030877B1300F7DFFE /* RxSwift in Frameworks */,
 				46F8E9AC307A527B00072257 /* FirebaseCore in Frameworks */,
 				F2B75A8B30877B1300F7DFFE /* RxRelay in Frameworks */,
+				F2B7756E308A233400F7DFFE /* FirebaseCrashlytics in Frameworks */,
 				F2B75A8630877B1300F7DFFE /* RxCocoa in Frameworks */,
 				46F8E9AA307A527B00072257 /* FirebaseAuth in Frameworks */,
 			);
@@ -123,6 +125,7 @@
 				4681384F3063D2EA009ADC2B /* Resources */,
 				F2B75F3A30878ED300F7DFFE /* ShellScript */,
 				F2B75A9930877B1400F7DFFE /* Embed Frameworks */,
+				F2B7756F308A239D00F7DFFE /* ShellScript */,
 			);
 			buildRules = (
 			);
@@ -138,6 +141,7 @@
 				F2B75A8530877B1300F7DFFE /* RxCocoa */,
 				F2B75A8A30877B1300F7DFFE /* RxRelay */,
 				F2B75A8F30877B1300F7DFFE /* RxSwift */,
+				F2B7756D308A233400F7DFFE /* FirebaseCrashlytics */,
 			);
 			productName = FootballApp;
 			productReference = 468138513063D2EA009ADC2B /* FootballApp.app */;
@@ -241,6 +245,28 @@
 			shellPath = /bin/sh;
 			shellScript = "# Type a script or drag a script file from your workspace to insert its path.\n   export PATH=\"$PATH:$HOME/.local/bin:/opt/homebrew/bin\"\n   if command -v swiftlint >/dev/null 2>&1; then\n     swiftlint\n   else\n     echo \"warning: SwiftLint quraşdırılmayıb. README-yə bax.\"\n   fi\n";
 		};
+		F2B7756F308A239D00F7DFFE /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"$(SRCROOT)/${DWARF_DSYM_FOLDER_PATH}/${DWARF_DSYM_FILE_NAME}",
+				"$(SRCROOT)/${DWARF_DSYM_FOLDER_PATH}/${DWARF_DSYM_FILE_NAME}/Contents/Resources/DWARF/${PRODUCT_NAME}",
+				"$(SRCROOT)/${DWARF_DSYM_FOLDER_PATH}/${DWARF_DSYM_FILE_NAME}/Contents/Info.plist",
+				"$(SRCROOT)/$(TARGET_BUILD_DIR)/$(UNLOCALIZED_RESOURCES_FOLDER_PATH)/GoogleService-Info.plist",
+				"$(SRCROOT)/$(TARGET_BUILD_DIR)/$(EXECUTABLE_PATH)",
+			);
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "if [ \"$CI\" = \"true\" ]; then echo \"CI: dSYM upload skipped\"; exit 0; fi\n\"${BUILD_DIR%/Build/*}/SourcePackages/checkouts/firebase-ios-sdk/Crashlytics/run\"\n";
+		};
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
@@ -277,6 +303,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = 837438Y7G2;
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -594,6 +621,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = F2B75A7F30877ACB00F7DFFE /* XCRemoteSwiftPackageReference "RxSwift" */;
 			productName = RxSwift;
+		};
+		F2B7756D308A233400F7DFFE /* FirebaseCrashlytics */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 46F8E9A8307A527B00072257 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseCrashlytics;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

@@ -28,6 +28,8 @@ final class APIFootballClient {
     private let lock = NSLock()
     private var memory: [String: (storedAt: Date, value: Any)] = [:]
     private let cacheDirectory: URL?
+    /// Gözlənilməz xətalar (oxunmayan cavab) Crashlytics-ə non-fatal kimi yazılır.
+    private let crashReporter: CrashReporting = FirebaseCrashReporter.shared
 
     init(apiKey: String = AppConfig.apiKey, session: URLSession = .shared) {
         self.apiKey = apiKey
@@ -154,6 +156,7 @@ final class APIFootballClient {
         #if DEBUG
         print("API ▶︎ GET \(key)")
         #endif
+        crashReporter.log("API GET \(key)")
 
         do {
             let response: APIResponse<Item> = try await network.request(endPoint: endpoint)
@@ -171,6 +174,11 @@ final class APIFootballClient {
                 print("API ✗ \(key): \(error.localizedDescription)")
             }
             #endif
+            // İnternet/limit kimi gözlənilən hallar yox, yalnız kodda və ya API formatında
+            // problem göstərən xətalar qeyd olunur.
+            if Self.isUnexpected(error) {
+                crashReporter.record(error, context: "API \(key)")
+            }
             throw error
         }
     }
@@ -195,6 +203,17 @@ final class APIFootballClient {
             } catch {
                 completion(.failure(error))
             }
+        }
+    }
+
+    /// Cavab gəlib, amma oxunmayıbsa: API formatı dəyişib və ya model səhvdir.
+    static func isUnexpected(_ error: Error) -> Bool {
+        guard let localError = error as? LocalError else { return false }
+        switch localError {
+        case .invalidDecode, .invalidData, .invalidResponse, .invalidURL:
+            return true
+        case .noData, .backEndError:
+            return false
         }
     }
 

@@ -5,11 +5,14 @@ final class AppCoordinator: Coordinator, OnboardingNavigating {
     var childCoordinators: [Coordinator] = []
 
     private let authService: AuthProviding
+    private let crashReporter: CrashReporting
 
     init(navigationController: UINavigationController,
-         authService: AuthProviding = FirebaseAuthService()) {
+         authService: AuthProviding = FirebaseAuthService(),
+         crashReporter: CrashReporting = FirebaseCrashReporter.shared) {
         self.navigationController = navigationController
         self.authService = authService
+        self.crashReporter = crashReporter
     }
 
     /// App always launches from the Start screen.
@@ -65,8 +68,12 @@ final class AppCoordinator: Coordinator, OnboardingNavigating {
         let tabBarController = MainTabbarController()
         let tabBarCoordinator = MainTabBarCoordinator(tabBarController: tabBarController, authService: authService)
 
+        // Crash hesabatında kimin olduğunu görmək üçün (UID; email göndərilmir).
+        crashReporter.setUser(id: authService.currentUser?.uid)
+
         tabBarCoordinator.onLogout = { [weak self, weak tabBarCoordinator] in
             self?.remove(tabBarCoordinator)
+            self?.crashReporter.setUser(id: nil)
             self?.authService.logout { _ in }
             self?.showStart(animated: true)
         }
