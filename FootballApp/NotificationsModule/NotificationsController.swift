@@ -98,10 +98,8 @@ final class NotificationsController: UIViewController {
         viewModel.onChange = { [weak self] in
             self?.render()
         }
-        viewModel.onFailed = { [weak self] message in
-            let alert = UIAlertController(title: "Error", message: message, preferredStyle: .alert)
-            alert.addAction(UIAlertAction(title: "OK", style: .default))
-            self?.present(alert, animated: true)
+        viewModel.onFailed = { [weak self] error in
+            self?.showAlert(title: error.title, message: error.message)
         }
     }
 

@@ -69,15 +69,27 @@ final class MatchDetailController: UIViewController {
             self?.showTab(tab)
         }
         bindViewModel()
+        stateView.showLoading()
         viewModel.load()
     }
 
+    /// Məzmunun yerində: yüklənir və ya xəta + "Try again".
+    private lazy var stateView: StateView = {
+        let stateView = StateView()
+        stateView.onRetry = { [weak self] in
+            self?.stateView.showLoading()
+            self?.viewModel.load()
+        }
+        return stateView
+    }()
+
     private func bindViewModel() {
         viewModel.onLoaded = { [weak self] data in
+            self?.stateView.hide()
             self?.apply(data)
         }
-        viewModel.onFailed = { [weak self] message in
-            self?.showError(message)
+        viewModel.onFailed = { [weak self] error in
+            self?.stateView.show(error)
         }
     }
 
@@ -115,15 +127,10 @@ final class MatchDetailController: UIViewController {
         showTab(.matchDetail)
     }
 
-    private func showError(_ message: String) {
-        let alert = UIAlertController(title: "Error", message: message, preferredStyle: .alert)
-        alert.addAction(UIAlertAction(title: "OK", style: .default))
-        present(alert, animated: true)
-    }
-
     private func setupHierarchy() {
         scrollView.addSubviews(contentStack)
-        view.addSubviews(backButton, titleLabel, scrollView)
+        view.addSubviews(backButton, titleLabel, scrollView, stateView)
+        stateView.pinEdges(to: scrollView)
     }
 
     private func setupLayout() {
