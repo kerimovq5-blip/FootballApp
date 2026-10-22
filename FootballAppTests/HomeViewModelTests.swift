@@ -30,8 +30,6 @@ struct HomeViewModelTests {
             case .filter: return "filter"
             case .league(let index): return "league\(index)"
             case .empty: return "empty"
-            case .loading: return "loading"
-            case .error: return "error"
             }
         }
     }
@@ -72,10 +70,10 @@ struct HomeViewModelTests {
         #expect(changes == 1)
     }
 
-    @Test("Cavab gəlməmiş \"oyun yoxdur\" yox, yüklənmə göstərilir")
-    func loadingStateWhileLoading() {
+    @Test("Cavab gəlməmiş \"oyun yoxdur\" bölməsi göstərilmir")
+    func noEmptyStateWhileLoading() {
         viewModel.load()
-        #expect(sectionNames == ["banner", "day", "filter", "loading"])
+        #expect(sectionNames == ["banner", "day", "filter"])
     }
 
     @Test("Oyun olmayan gündə \"oyun yoxdur\" bölməsi göstərilir")
@@ -87,43 +85,16 @@ struct HomeViewModelTests {
         #expect(viewModel.emptyMessage == "No matches on this day.")
     }
 
-    @Test("Xəta olanda oyunların yerində xəta bölməsi göstərilir")
+    @Test("Xəta olanda mesaj ekrana ötürülür")
     func loadFailure() {
-        var failure: UserFacingError?
+        var failure: String?
         viewModel.onFailed = { failure = $0 }
 
         viewModel.load()
         service.fail(0, message: "No internet")
 
-        #expect(failure?.message == "No internet")
-        #expect(viewModel.loadError?.message == "No internet")
-        #expect(sectionNames == ["banner", "day", "filter", "error"])
-    }
-
-    @Test("Try again: xəta silinir, yüklənmə göstərilir və yenidən soruşulur")
-    func retryAfterFailure() {
-        viewModel.load()
-        service.fail(0, message: "No internet")
-
-        viewModel.retry()
-
-        #expect(viewModel.loadError == nil)
-        #expect(sectionNames == ["banner", "day", "filter", "loading"])
-        #expect(service.requestedOffsets == [0, 0])
-
-        service.respond(1, leagues: [premierLeague])
-        #expect(sectionNames == ["banner", "day", "filter", "league0"])
-    }
-
-    @Test("Başqa gün seçəndə köhnə xəta silinir")
-    func selectDayClearsError() {
-        viewModel.load()
-        service.fail(0, message: "No internet")
-
-        viewModel.selectDay(.yesterday)
-
-        #expect(viewModel.loadError == nil)
-        #expect(sectionNames == ["banner", "day", "filter", "loading"])
+        #expect(failure == "No internet")
+        #expect(sectionNames == ["banner", "day", "filter"])
     }
 
     // MARK: - Filtr
@@ -172,7 +143,7 @@ struct HomeViewModelTests {
         #expect(service.requestedOffsets == [0, 1])
         #expect(viewModel.selectedDay == .tomorrow)
         #expect(viewModel.filteredLeagues.isEmpty)
-        #expect(sectionNames == ["banner", "day", "filter", "loading"])   // yüklənir, hələ "boş" deyil
+        #expect(sectionNames == ["banner", "day", "filter"])   // yüklənir, hələ "boş" deyil
     }
 
     @Test("Eyni günü yenidən seçmək yeni sorğu göndərmir")

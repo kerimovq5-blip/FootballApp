@@ -11,7 +11,7 @@ final class ExploreViewModel {
 
     /// Data və ya seçilmiş tab dəyişəndə çağırılır; ekran reload edir.
     var onChange: (() -> Void)?
-    var onFailed: ((UserFacingError) -> Void)?
+    var onFailed: ((String) -> Void)?
 
     private(set) var selectedTab: ExploreTab = .leagues
 
@@ -52,7 +52,7 @@ final class ExploreViewModel {
                 self.content = content
                 self.onChange?()
             case .failure(let error):
-                self.onFailed?(UserFacingError(error))
+                self.onFailed?(error.localizedDescription)
             }
         }
     }

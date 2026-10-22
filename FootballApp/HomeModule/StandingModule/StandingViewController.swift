@@ -66,16 +66,6 @@ final class StandingViewController: UIViewController {
         return tableView
     }()
 
-    /// Cədvəlin yerində: yüklənir və ya xəta + "Try again".
-    private lazy var stateView: StateView = {
-        let stateView = StateView()
-        stateView.onRetry = { [weak self] in
-            self?.showLoading()
-            self?.viewModel.load()
-        }
-        return stateView
-    }()
-
     // MARK: - Lifecycle
 
     override func viewDidLoad() {
@@ -83,7 +73,6 @@ final class StandingViewController: UIViewController {
         view.backgroundColor = AssetColors.background.color
         setupLayout()
         bindViewModel()
-        showLoading()
         viewModel.load()
     }
 
@@ -91,7 +80,7 @@ final class StandingViewController: UIViewController {
 
     private func setupLayout() {
         let padding = AppLayout.screenPadding.value
-        view.addSubviews(titleLabel, leagueTabBar, filterControl, columnHeader, tableView, stateView)
+        view.addSubviews(titleLabel, leagueTabBar, filterControl, columnHeader, tableView)
 
         titleLabel
             .leading(view.leadingAnchor, padding).0
@@ -117,8 +106,6 @@ final class StandingViewController: UIViewController {
             .leading(view.leadingAnchor, padding).0
             .trailing(view.trailingAnchor, -padding).0
             .bottom(view.bottomAnchor)
-
-        stateView.pinEdges(to: tableView)
     }
 
     private func bindViewModel() {
@@ -128,20 +115,12 @@ final class StandingViewController: UIViewController {
         viewModel.onChange = { [weak self] in
             self?.reload()
         }
-        viewModel.onFailed = { [weak self] error in
-            self?.tableView.isHidden = true
-            self?.stateView.show(error)
+        viewModel.onFailed = { [weak self] message in
+            self?.showAlert(message: message)
         }
     }
 
-    private func showLoading() {
-        tableView.isHidden = true
-        stateView.showLoading()
-    }
-
     private func reload() {
-        stateView.hide()
-        tableView.isHidden = false
         UIView.transition(with: tableView, duration: 0.2, options: .transitionCrossDissolve) {
             self.tableView.reloadData()
         }

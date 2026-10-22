@@ -106,32 +106,19 @@ final class PlayerDetailController: UIViewController {
         }
 
         viewModel.onLoaded = { [weak self] content in
-            self?.stateView.hide()
             self?.apply(content)
         }
-        viewModel.onFailed = { [weak self] error in
-            self?.stateView.show(error)
+        viewModel.onFailed = { [weak self] message in
+            self?.showAlert(message: message)
         }
-        stateView.showLoading()
         viewModel.load()
     }
-
-    /// Məzmunun yerində: yüklənir və ya xəta + "Try again".
-    private lazy var stateView: StateView = {
-        let stateView = StateView()
-        stateView.onRetry = { [weak self] in
-            self?.stateView.showLoading()
-            self?.viewModel.load()
-        }
-        return stateView
-    }()
 
     // MARK: - Setup
 
     private func setupLayout() {
         let padding = AppLayout.screenPadding.value
-        view.addSubviews(backButton, headerStack, tabBar, contentContainer, stateView)
-        stateView.pinEdges(to: contentContainer)
+        view.addSubviews(backButton, headerStack, tabBar, contentContainer)
         contentContainer.addSubviews(overviewView, matchesView, statsView)
 
         backButton
