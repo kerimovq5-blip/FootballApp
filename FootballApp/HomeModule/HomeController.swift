@@ -55,7 +55,6 @@ final class HomeController: UIViewController {
         cv.showsVerticalScrollIndicator = false
         cv.dataSource = self
         cv.delegate = self
-        cv.register(BannerCell.self, forCellWithReuseIdentifier: BannerCell.reuseID)
         cv.register(MatchCell.self, forCellWithReuseIdentifier: MatchCell.reuseID)
         cv.register(MatchFilterCell.self, forCellWithReuseIdentifier: MatchFilterCell.reuseID)
         cv.register(DayPickerCell.self, forCellWithReuseIdentifier: DayPickerCell.reuseID)
@@ -111,7 +110,6 @@ final class HomeController: UIViewController {
         UICollectionViewCompositionalLayout { [weak self] sectionIndex, _ in
             guard let self else { return nil }
             switch self.viewModel.sections[sectionIndex] {
-            case .banner: return self.bannerSection()
             case .day, .filter: return self.filterSection()
             case .league: return self.leagueSection()
             case .empty: return self.emptySection()
@@ -120,35 +118,6 @@ final class HomeController: UIViewController {
         }
     }
     
-    private func bannerSection() -> NSCollectionLayoutSection {
-        let item = NSCollectionLayoutItem(layoutSize: .init(
-            widthDimension: .fractionalWidth(1),
-            heightDimension: .fractionalHeight(1)
-        ))
-        item.contentInsets = .init(
-            top: 0,
-            leading: AppLayout.screenPadding.value,
-            bottom: 0,
-            trailing: AppLayout.screenPadding.value
-        )
-        let group = NSCollectionLayoutGroup.horizontal(
-            layoutSize: .init(
-                widthDimension: .fractionalWidth(1),
-                heightDimension: .fractionalWidth(0.5)
-            ),
-            subitems: [item]
-        )
-        let section = NSCollectionLayoutSection(group: group)
-        section.contentInsets = .init(
-            top: 16,
-            leading: 0,
-            bottom: 24,
-            trailing: 0
-        )
-        section.orthogonalScrollingBehavior = .groupPaging
-        
-        return section
-    }
     private func filterSection() -> NSCollectionLayoutSection {
             let size = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .absolute(44))
             let item = NSCollectionLayoutItem(layoutSize: size)
@@ -225,7 +194,6 @@ extension HomeController: UICollectionViewDataSource {
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         switch viewModel.sections[section] {
-        case .banner: return viewModel.banners.count
         case .day, .filter, .empty, .loading, .error: return 1
         case .league: return viewModel.league(inSection: section)?.matches.count ?? 0
         }
@@ -234,12 +202,6 @@ extension HomeController: UICollectionViewDataSource {
     func collectionView(_ collectionView: UICollectionView,
                         cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         switch viewModel.sections[indexPath.section] {
-        case .banner:
-            guard let cell = collectionView.dequeueReusableCell(
-                withReuseIdentifier: BannerCell.reuseID, for: indexPath
-            ) as? BannerCell else { return UICollectionViewCell() }
-            cell.configure(with: viewModel.banners[indexPath.item])
-            return cell
         case .filter:
                     guard let cell = collectionView.dequeueReusableCell(
                         withReuseIdentifier: MatchFilterCell.reuseID, for: indexPath) as? MatchFilterCell

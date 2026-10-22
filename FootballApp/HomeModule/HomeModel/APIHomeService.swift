@@ -25,8 +25,7 @@ struct APIHomeService: HomeProviding {
             switch result {
             case .success(let fixtures):
                 let leagues = APIFootballMapper.leagues(from: fixtures, allowedIDs: APIConfig.homeLeagueIDs)
-                // API-də banner yoxdur, bannerlər hələlik mock-dur.
-                completion(.success(HomeContent(banners: HomeMockData.banners, leagues: leagues)))
+                completion(.success(HomeContent(leagues: leagues)))
             case .failure(let error):
                 completion(.failure(error))
             }

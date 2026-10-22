@@ -4,11 +4,9 @@
 //
 //  Created by Servan on 03.10.26.
 //
-import UIKit
 import Foundation
 
 enum HomeSection {
-    case banner
     case day
     case filter
     case league(index: Int)
@@ -27,11 +25,10 @@ final class HomeViewModel {
 
     private let service: HomeProviding
 
-    private(set) var banners: [Banner] = []
     private(set) var selectedDay: HomeDay = .today
     private(set) var selectedFilter: MatchFilter = .all
     private(set) var filteredLeagues: [League] = []
-    private(set) var sections: [HomeSection] = [.banner, .day, .filter, .loading]
+    private(set) var sections: [HomeSection] = [.day, .filter, .loading]
     /// Son yükləmənin xətası; uğurlu cavab və ya yeni gün seçimi onu silir.
     private(set) var loadError: UserFacingError?
 
@@ -62,7 +59,6 @@ final class HomeViewModel {
             guard let self, currentRequest == self.requestID else { return }
             switch result {
             case .success(let content):
-                self.banners = content.banners
                 self.leagues = content.leagues
                 self.hasLoaded = true
                 self.loadError = nil
@@ -127,7 +123,7 @@ final class HomeViewModel {
             }
         }
 
-        var result: [HomeSection] = [.banner, .day, .filter]
+        var result: [HomeSection] = [.day, .filter]
         result += filteredLeagues.indices.map { HomeSection.league(index: $0) }
         if filteredLeagues.isEmpty {
             if loadError != nil {

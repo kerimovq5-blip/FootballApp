@@ -8,7 +8,6 @@
 import Foundation
 
 struct HomeContent {
-    let banners: [Banner]
     let leagues: [League]
 }
 
@@ -28,6 +27,6 @@ extension HomeProviding {
 struct MockHomeService: HomeProviding {
     func fetchHome(dayOffset: Int, completion: @escaping (Result<HomeContent, Error>) -> Void) {
         let leagues = dayOffset == 0 ? MockData.leagues : []
-        completion(.success(HomeContent(banners: HomeMockData.banners, leagues: leagues)))
+        completion(.success(HomeContent(leagues: leagues)))
     }
 }

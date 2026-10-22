@@ -51,7 +51,7 @@ final class FakeHomeService: HomeProviding {
 
     /// `index`-ci sorğuya cavab verir (0 = ilk sorğu).
     func respond(_ index: Int, leagues: [League]) {
-        pending[index](.success(HomeContent(banners: [], leagues: leagues)))
+        pending[index](.success(HomeContent(leagues: leagues)))
     }
 
     func fail(_ index: Int, message: String) {
