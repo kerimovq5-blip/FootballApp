@@ -14,9 +14,7 @@ import Foundation
 
 enum APIConfig {
 
-    /// Firebase Cloud Functions proxy (`functions/src/index.ts`). API açarı orada saxlanılır.
-    /// Endpoint yolları API-Football ilə eynidir: `/fixtures`, `/standings` və s.
-    static let baseURL = "https://europe-west1-footballapp-7a3f7.cloudfunctions.net/api"
+    static let baseURL = "https://v3.football.api-sports.io"
 
     /// Pulsuz plan yalnız köhnə mövsümləri açır (API xəta mesajında 2022–2024 yazdı).
     /// Ödənişli plana keçəndə bunu 2026 et. (Standing dilimində istifadə olunacaq.)

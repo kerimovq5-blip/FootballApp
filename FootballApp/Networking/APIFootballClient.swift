@@ -6,37 +6,34 @@
 import Foundation
 
 enum APIError: LocalizedError {
-    case notSignedIn
+    case missingKey
     case server(String)
     case notFound
 
     var errorDescription: String? {
         switch self {
-        case .notSignedIn: return "Please sign in to continue."
+        case .missingKey: return "API key is missing. Add it to Core/Secrets.swift."
         case .server(let message): return message
         case .notFound: return "Not found."
         }
     }
 }
 
-/// API-Football datası. Sorğular birbaşa API-yə yox, Firebase proxy-yə gedir
-/// (`functions/`): API açarı serverdədir, tətbiq yalnız istifadəçinin ID token-ini göndərir.
 final class APIFootballClient {
 
     static let shared = APIFootballClient()
 
-    private let tokenProvider: AuthTokenProviding
+    private let apiKey: String
     private let network: NetworkManager
     private let lock = NSLock()
     private var memory: [String: (storedAt: Date, value: Any)] = [:]
     private let cacheDirectory: URL?
 
-    init(tokenProvider: AuthTokenProviding = FirebaseAuthTokenProvider(),
-         session: URLSession = .shared) {
-        self.tokenProvider = tokenProvider
+    init(apiKey: String = AppConfig.apiKey, session: URLSession = .shared) {
+        self.apiKey = apiKey
         self.network = NetworkManager(session: session,
                                       mainPath: APIConfig.baseURL,
-                                      header: [:])
+                                      header: ["x-apisports-key": apiKey])
 
         let directory = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask).first?
             .appendingPathComponent("APIFootballCache", isDirectory: true)
@@ -147,6 +144,8 @@ final class APIFootballClient {
     /// Keşdə varsa keşdən, yoxsa şəbəkədən. Hər iki yol (async və completion) bundan keçir.
     private func fetch<Item: Codable>(_ endpoint: FootballEndpoint,
                                       ttl: TimeInterval) async throws -> [Item] {
+        guard !apiKey.isEmpty else { throw APIError.missingKey }
+
         let key = cacheKey(for: endpoint)
         if let cached: [Item] = cachedValue(for: key, ttl: ttl) {
             return cached
@@ -157,11 +156,7 @@ final class APIFootballClient {
         #endif
 
         do {
-            let token = try await tokenProvider.idToken()
-            let response: APIResponse<Item> = try await network.request(
-                endPoint: endpoint,
-                extraHeaders: ["Authorization": "Bearer \(token)"]
-            )
+            let response: APIResponse<Item> = try await network.request(endPoint: endpoint)
             if let message = response.errors.message {
                 #if DEBUG
                 print("API ✗ \(key): \(message)")
@@ -185,6 +180,10 @@ final class APIFootballClient {
     private func call<Item: Codable>(_ endpoint: FootballEndpoint,
                                      ttl: TimeInterval,
                                      completion: @escaping (Result<[Item], Error>) -> Void) {
+        guard !apiKey.isEmpty else {
+            completion(.failure(APIError.missingKey))
+            return
+        }
         if let cached: [Item] = cachedValue(for: cacheKey(for: endpoint), ttl: ttl) {
             completion(.success(cached))
             return

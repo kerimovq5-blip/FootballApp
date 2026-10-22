@@ -30,13 +30,6 @@ fastlane/screenshots/**/*.png
 fastlane/test_output
 
 # Gizli fayllar (heç vaxt commit etmə)
-# Köhnə lokal açar faylı (artıq istifadə olunmur, silə bilərsən)
 FootballApp/Core/Secrets.swift
 *.p12
 *.mobileprovision
-
-# Firebase
-.firebase/
-firebase-debug.log
-functions/node_modules/
-functions/lib/

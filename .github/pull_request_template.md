@@ -21,5 +21,5 @@
 
 - [ ] Layihə build olunur, yeni xəbərdarlıq (SwiftLint daxil) yoxdur
 - [ ] Həm real API, həm `-useMockData` rejimində yoxlanılıb
-- [ ] API açarı, token və ya başqa gizli məlumat commit olunmayıb
+- [ ] `Secrets.swift`, token və ya başqa gizli fayl commit olunmayıb
 - [ ] Lazımsız `print` və köhnə (comment-ə alınmış) kod silinib
