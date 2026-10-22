@@ -32,13 +32,13 @@ final class SignUpController: UIViewController {
     private lazy var usernameField = AppTextField(
         placeholder: "Username",
         textColor: .labelColor,
-        leftIcon: UIImage(named: "usericon")?.withRenderingMode(.alwaysTemplate)
+        leftIcon: AppIcon.user.image()
     )
 
     private lazy var emailField = AppTextField(
         placeholder: "Email",
         textColor: .labelColor,
-        leftIcon: UIImage(named: "emailicon")
+        leftIcon: AppIcon.email.image()
     )
 
     private lazy var passwordField: AppTextField = {
@@ -48,7 +48,7 @@ final class SignUpController: UIViewController {
             placeholder: "Password",
             isSecure: true,
             textColor: .labelColor,
-            leftIcon: UIImage(named: "passwordicon"),
+            leftIcon: AppIcon.password.image(),
             rightView: toggleButton)
         return passwordField
     }()
@@ -60,7 +60,7 @@ final class SignUpController: UIViewController {
             placeholder: "Confirm password",
             isSecure: true,
             textColor: .labelColor,
-            leftIcon: UIImage(named: "passwordicon"),
+            leftIcon: AppIcon.password.image(),
             rightView: toggleButton
         )
         return confirmPasswordField

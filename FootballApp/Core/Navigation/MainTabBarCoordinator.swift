@@ -16,13 +16,13 @@ final class MainTabBarCoordinator: Coordinator {
     func start() {
         tabBarController.viewControllers = [
             makeTab(HomeCoordinator(navigationController: UINavigationController()),
-                    title: "Home", image: UIImage(named: "home"), tag: 0),
+                    title: "Home", icon: .home, selectedIcon: .homeSelected, tag: 0),
             makeTab(ExploreCoordinator(),
-                    title: "Explore", image: UIImage(named: "Explore"), tag: 1),
+                    title: "Explore", icon: .explore, selectedIcon: .exploreSelected, tag: 1),
             makeTab(StandingCoordinator(),
-                    title: "Standing", image: UIImage(named: "Standing"), tag: 2),
+                    title: "Standing", icon: .standing, selectedIcon: .standingSelected, tag: 2),
             makeTab(makeAccountCoordinator(),
-                    title: "Account", image: UIImage(systemName: "person"), tag: 3)
+                    title: "Account", icon: .account, selectedIcon: .accountSelected, tag: 3)
         ]
     }
 
@@ -34,14 +34,14 @@ final class MainTabBarCoordinator: Coordinator {
     /// Hər tab eyni qaydada qurulur: coordinator start olur, tab item qoyulur, saxlanılır.
     private func makeTab(_ coordinator: NavigationCoordinator,
                          title: String,
-                         image: UIImage?,
+                         icon: AppIcon,
+                         selectedIcon: AppIcon,
                          tag: Int) -> UINavigationController {
         coordinator.start()
-        coordinator.navigationController.tabBarItem = UITabBarItem(
-            title: title,
-            image: image,
-            tag: tag
-        )
+        let item = UITabBarItem(title: title, image: icon.image(), tag: tag)
+        // Seçilmiş tab dolu ikonla göstərilir; rəngi tab bar-ın tintColor-u (AccentColor) verir.
+        item.selectedImage = selectedIcon.image()
+        coordinator.navigationController.tabBarItem = item
         childCoordinators.append(coordinator)
         return coordinator.navigationController
     }

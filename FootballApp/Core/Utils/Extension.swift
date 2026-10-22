@@ -170,9 +170,19 @@ extension UIViewController {
         present(alert, animated: true)
     }
 
+    /// Şifrə gizlidirsə "eye.slash", görünürsə "eye" göstərilir.
+    /// Düymə öz vəziyyətini özü dəyişir; `action` yalnız sahənin `isSecureTextEntry`-sini çevirir.
     func makePasswordToggleButton(action: Selector) -> UIButton {
-        let button = UIButton()
-        button.setImage(UIImage(named: "hidepassword"), for: .normal)
+        let button = UIButton(type: .custom)
+        button.setImage(AppIcon.hidePassword.image(), for: .normal)
+        button.setImage(AppIcon.showPassword.image(), for: .selected)
+        button.tintColor = AssetColors.labelColor.color
+        button.accessibilityLabel = "Show password"
+        button.addAction(UIAction { [weak button] _ in
+            guard let button else { return }
+            button.isSelected.toggle()
+            button.accessibilityLabel = button.isSelected ? "Hide password" : "Show password"
+        }, for: .touchUpInside)
         button.addTarget(self, action: action, for: .touchUpInside)
         return button
     }

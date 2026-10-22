@@ -32,7 +32,7 @@ final class SignInController: UIViewController {
     private let emailField = AppTextField(
         placeholder: "Email",
         textColor: .labelColor,
-        leftIcon: UIImage(named: "emailicon")
+        leftIcon: AppIcon.email.image()
     )
 
     private lazy var passwordField: AppTextField = {
@@ -42,7 +42,7 @@ final class SignInController: UIViewController {
             placeholder: "Password",
             isSecure: true,
             textColor: .labelColor,
-            leftIcon: UIImage(named: "passwordicon"),
+            leftIcon: AppIcon.password.image(),
             rightView: toggleButton
         )
         return passwordField

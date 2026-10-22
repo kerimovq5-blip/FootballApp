@@ -28,6 +28,11 @@ enum APIConfig {
     /// 419: Azərbaycan Premyer Liqası (id-ni `leagues?country=Azerbaijan` cavabı ilə təsdiqlə).
     static let homeLeagueIDs = [39, 140, 135, 78, 61, 203, 419, 2, 3]
 
+    /// Liqa loqosu. Şəkillər API limitinə sayılmır.
+    static func leagueLogoURL(id: Int) -> String {
+        "https://media.api-sports.io/football/leagues/\(id).png"
+    }
+
     /// Bu günə nisbətən verilən gün ("yyyy-MM-dd"): -1 dünən, 0 bu gün, 1 sabah.
     /// Pulsuz plan yalnız bu üç gün üçün oyun verir.
     static func date(dayOffset: Int) -> String {

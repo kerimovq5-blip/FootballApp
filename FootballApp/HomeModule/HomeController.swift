@@ -33,15 +33,18 @@ final class HomeController: UIViewController {
     }()
     private lazy var notificationButton: UIButton = {
         let button = UIButton(type: .system)
-        button.setImage(UIImage(named: "notificationicon")?.withRenderingMode(.alwaysOriginal),
-                        for: .normal)
+        button.setImage(AppIcon.notifications.image(pointSize: 20, weight: .medium), for: .normal)
+        button.tintColor = .white
+        button.accessibilityLabel = "Notifications"
         button.addTarget(self, action: #selector(notificationTapped), for: .touchUpInside)
         return button
     }()
 
     private lazy var searchButton: UIButton = {
         let button = UIButton(type: .system)
-        button.setImage(UIImage(named: "searchicon")?.withRenderingMode(.alwaysOriginal), for: .normal)
+        button.setImage(AppIcon.search.image(pointSize: 20, weight: .medium), for: .normal)
+        button.tintColor = .white
+        button.accessibilityLabel = "Search"
         button.addTarget(self, action: #selector(searchTapped), for: .touchUpInside)
         return button
     }()

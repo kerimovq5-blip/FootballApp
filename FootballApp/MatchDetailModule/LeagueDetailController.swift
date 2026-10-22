@@ -43,8 +43,17 @@ final class LeagueDetailController: UIViewController {
     }()
 
     private lazy var crestView: UIImageView = {
-        let iv = UIImageView(image: UIImage(named: "laLigaCrest"))
-        iv.contentMode = .scaleAspectFit
+        // Loqo yüklənənə qədər (və ya tapılmasa) kubok ikonu görünür.
+        let iv = UIImageView(image: AppIcon.league.image(pointSize: 40, weight: .light))
+        iv.tintColor = UIColor.white.withAlphaComponent(0.5)
+        iv.contentMode = .center
+        if let apiID = APILeagueCatalog.apiID(for: league) {
+            ImageLoader.shared.load(APIConfig.leagueLogoURL(id: apiID)) { [weak iv] image in
+                guard let iv, let image else { return }
+                iv.contentMode = .scaleAspectFit
+                iv.image = image
+            }
+        }
         iv.layer.cornerRadius = 50
         iv.backgroundColor = UIColor.white.withAlphaComponent(0.06)
         iv.clipsToBounds = true
