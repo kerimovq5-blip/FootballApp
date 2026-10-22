@@ -4,6 +4,7 @@
 //
 
 import Foundation
+import UIKit
 
 enum SearchScope: CaseIterable {
     case all, teams, players

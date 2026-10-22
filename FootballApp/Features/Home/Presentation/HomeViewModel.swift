@@ -5,6 +5,7 @@
 //  Created by Servan on 03.10.26.
 //
 import Foundation
+import UIKit
 
 enum HomeSection {
     case day
