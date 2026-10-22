@@ -8,8 +8,7 @@ import FirebaseAuth
 
 // MARK: - Model
 
-/// Firebase manages the tokens itself (stored in the Keychain),
-/// so the app only needs to know who the user is.
+
 struct AuthSession {
     let uid: String
     let name: String?
