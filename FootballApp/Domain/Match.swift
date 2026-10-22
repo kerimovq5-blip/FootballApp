@@ -37,6 +37,8 @@ struct Match: Identifiable {
     let homeScore: Int?
     let awayScore: Int?
     let status: MatchStatus
+    /// Oyunun başlama vaxtı (xatırlatma üçün). API vermirsə nil.
+    var kickoff: Date?
 }
 
 struct League: Identifiable {

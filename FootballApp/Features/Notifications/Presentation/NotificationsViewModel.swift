@@ -1,5 +1,5 @@
 import Foundation
-import UIKit
+
 final class NotificationsViewModel {
 
     /// Data yenilənəndə çağırılır; ekran reload edir.
@@ -10,12 +10,12 @@ final class NotificationsViewModel {
     private(set) var leagues: [League] = []
 
     private let service: HomeProviding
-    private let subscriptions: MatchSubscriptionStoring
+    private let alerts: MatchAlertsUseCase
 
     init(service: HomeProviding = AppEnvironment.current.home,
-         subscriptions: MatchSubscriptionStoring = UserDefaultsMatchSubscriptionStore.shared) {
+         alerts: MatchAlertsUseCase = AppEnvironment.current.matchAlerts) {
         self.service = service
-        self.subscriptions = subscriptions
+        self.alerts = alerts
     }
 
     func load() {
@@ -23,7 +23,7 @@ final class NotificationsViewModel {
             guard let self else { return }
             switch result {
             case .success(let content):
-                let ids = self.subscriptions.subscribedMatchIDs
+                let ids = self.alerts.followedMatchIDs
                 self.leagues = content.leagues.compactMap { league in
                     let matches = league.matches.filter { ids.contains($0.id) }
                     guard !matches.isEmpty else { return nil }
@@ -43,11 +43,9 @@ final class NotificationsViewModel {
         return leagues[indexPath.section].matches[indexPath.item]
     }
 
-    /// Oyunun bildirişini söndürür və siyahını yeniləyir.
+    /// Oyunu izləməni dayandırır (xatırlatma da silinir) və siyahını yeniləyir.
     func unsubscribe(matchID: Int) {
-        if subscriptions.isSubscribed(matchID) {
-            subscriptions.toggle(matchID)
-        }
+        alerts.unfollow(matchID: matchID)
         load()
     }
 }

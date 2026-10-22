@@ -47,6 +47,19 @@ Bu səbəbdən [`Core/Config/APIConfig.swift`](FootballApp/Core/Config/APIConfig
 Cavablar yaddaşda və diskdə keşlənir (`APIFootballClient`), ona görə eyni ekranı
 təkrar açmaq yeni sorğu göndərmir. Keşi silmək üçün tətbiqi silib yenidən qur.
 
+## Bildirişlər (oyun xatırlatmaları)
+
+Oyunun yanındakı zəngə basanda oyun izlənir və başlamazdan **15 dəqiqə əvvəl** telefonda
+bildiriş görünür (local notification, server lazım deyil). İcazə ilk dəfə zəngə basanda
+soruşulur. Bildirişə toxunanda oyunun səhifəsi açılır. Profil → Settings → *Match reminders*
+hamısını söndürür/açır.
+
+Pulsuz API köhnə mövsümü göstərdiyi üçün bütün oyunlar bitmiş olur. Yoxlamaq üçün
+scheme-ə `-testReminders` əlavə et (yalnız Debug): istənilən oyunu izləyəndə 5 saniyə
+sonra bildiriş gəlir. Tətbiqi arxa plana göndər (Cmd+Shift+H) ki, banner görünsün.
+
+Qol bildirişləri üçün server tərəfdən push (APNs) lazımdır, hələ yoxdur.
+
 ## Layihənin quruluşu (Clean Architecture)
 
 Kod feature-lara bölünüb, hər feature-un içində isə üç qat var:

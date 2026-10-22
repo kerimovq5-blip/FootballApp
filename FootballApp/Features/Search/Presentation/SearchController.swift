@@ -14,14 +14,14 @@ final class SearchController: UIViewController {
     weak var coordinator: HomeNavigating?
 
     private let viewModel: SearchViewModel
-    private let subscriptions: MatchSubscriptionStoring
+    private let alerts: MatchAlertsUseCase
     private var didFocusSearchField = false
     private let disposeBag = DisposeBag()
 
     init(viewModel: SearchViewModel,
-         subscriptions: MatchSubscriptionStoring = UserDefaultsMatchSubscriptionStore.shared) {
+         alerts: MatchAlertsUseCase = AppEnvironment.current.matchAlerts) {
         self.viewModel = viewModel
-        self.subscriptions = subscriptions
+        self.alerts = alerts
         super.init(nibName: nil, bundle: nil)
     }
 
@@ -332,11 +332,13 @@ extension SearchController: UICollectionViewDataSource {
                 withReuseIdentifier: MatchCell.reuseID, for: indexPath
             ) as? MatchCell,
                   let match = viewModel.match(at: indexPath) else { return UICollectionViewCell() }
-            cell.configure(with: match, isSubscribed: subscriptions.isSubscribed(match.id))
+            cell.configure(with: match, isSubscribed: alerts.isFollowing(match.id))
+            let competition = viewModel.league(forMatchSection: indexPath.section)?.name ?? ""
             cell.onBellTapped = { [weak self, weak cell] in
-                guard let self, let cell else { return }
-                let isSubscribed = self.subscriptions.toggle(match.id)
-                cell.setSubscribed(isSubscribed, animated: true)
+                guard let self else { return }
+                self.toggleMatchAlert(match, competition: competition, using: self.alerts) { isFollowing in
+                    cell?.setSubscribed(isFollowing, animated: true)
+                }
             }
             return cell
         }

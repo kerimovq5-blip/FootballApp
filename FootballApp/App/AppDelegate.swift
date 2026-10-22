@@ -16,6 +16,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         // Override point for customization after application launch.
         FirebaseApp.configure()
         CrashReportingSetup.configure()
+        NotificationRouter.shared.register()
+        // Keçmiş oyunların xatırlatmalarını təmizlə, qalanlarını yenilə.
+        Task {
+            await AppEnvironment.current.matchAlerts.rescheduleAll()
+        }
         return true
     }
 

@@ -16,11 +16,16 @@ final class ProfileViewController: UIViewController {
     private var profile: ProfileInfo
     private let activityStore: ActivityStoring
     private let settings: SettingsStoring
+    private let alerts: MatchAlertsUseCase
 
-    init(profile: ProfileInfo, activityStore: ActivityStoring, settings: SettingsStoring) {
+    init(profile: ProfileInfo,
+         activityStore: ActivityStoring,
+         settings: SettingsStoring,
+         alerts: MatchAlertsUseCase = AppEnvironment.current.matchAlerts) {
         self.profile = profile
         self.activityStore = activityStore
         self.settings = settings
+        self.alerts = alerts
         super.init(nibName: nil, bundle: nil)
     }
 
@@ -255,6 +260,19 @@ final class ProfileViewController: UIViewController {
 
         settingsView.onClearActivity = { [weak self] in
             self?.confirmClearActivity()
+        }
+        settingsView.onRemindersToggled = { [weak self] isOn in
+            self?.setReminders(isOn)
+        }
+    }
+
+    /// Açanda icazə soruşulur; verilməsə açar geri sönür və Settings-ə keçid təklif olunur.
+    private func setReminders(_ isOn: Bool) {
+        Task { [weak self, alerts] in
+            let isAllowed = await alerts.setNotificationsEnabled(isOn)
+            guard let self, !isAllowed else { return }
+            self.settingsView.setRemindersOn(false)
+            self.showNotificationsDeniedAlert()
         }
     }
 

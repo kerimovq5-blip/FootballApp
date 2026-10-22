@@ -1,20 +1,11 @@
 //
-//  NotificationSubscribtionStore.swift
+//  NotificationSubscriptionStore.swift
 //  FootballApp
 //
 //  Created by Servan on 08.10.26.
 //
 
 import Foundation
-
-protocol MatchSubscriptionStoring: AnyObject {
-    var subscribedMatchIDs: Set<Int> { get }
-    func isSubscribed(_ matchID: Int) -> Bool
-    /// Oyunun bildirişini açıb-söndürür və yeni vəziyyəti qaytarır.
-    @discardableResult
-    func toggle(_ matchID: Int) -> Bool
-    func clear()
-}
 
 /// Bildirişi açılmış oyunların id-ləri. Home-dakı zəng düyməsi yazır, Notifications ekranı oxuyur.
 final class UserDefaultsMatchSubscriptionStore: MatchSubscriptionStoring {

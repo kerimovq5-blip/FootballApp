@@ -11,7 +11,7 @@ final class AccountCoordinator: NSObject, NavigationCoordinator, ProfileNavigati
     private let activityStore: ActivityStoring
     private let settings: SettingsStoring
     private let matchDetailService: MatchDetailProviding
-    private let subscriptions: MatchSubscriptionStoring
+    private let alerts: MatchAlertsUseCase
 
     /// Saved profile if there is one; otherwise built from the Firebase user.
     private lazy var profile: ProfileInfo = {
@@ -32,20 +32,21 @@ final class AccountCoordinator: NSObject, NavigationCoordinator, ProfileNavigati
         activityStore: ActivityStoring = UserDefaultsActivityStore.shared,
         settings: SettingsStoring = UserDefaultsSettingsStore(),
         matchDetailService: MatchDetailProviding = AppEnvironment.current.matchDetail,
-        subscriptions: MatchSubscriptionStoring = UserDefaultsMatchSubscriptionStore.shared) {
+        alerts: MatchAlertsUseCase = AppEnvironment.current.matchAlerts) {
         self.navigationController = navigationController
         self.authService = authService
         self.profileStore = profileStore
         self.activityStore = activityStore
         self.settings = settings
         self.matchDetailService = matchDetailService
-        self.subscriptions = subscriptions
+        self.alerts = alerts
         super.init()
         navigationController.delegate = self
     }
 
     func start() {
-        let vc = ProfileViewController(profile: profile, activityStore: activityStore, settings: settings)
+        let vc = ProfileViewController(profile: profile, activityStore: activityStore,
+                                       settings: settings, alerts: alerts)
         vc.coordinator = self
         profileViewController = vc
         navigationController.setNavigationBarHidden(true, animated: false)
@@ -73,7 +74,7 @@ final class AccountCoordinator: NSObject, NavigationCoordinator, ProfileNavigati
           
            profileStore.clear()
            activityStore.clear()
-           subscriptions.clear()
+           alerts.clearAll()
            onLogout?()
        }
     // MARK: - EditProfileNavigating

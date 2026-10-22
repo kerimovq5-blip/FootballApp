@@ -73,6 +73,7 @@ final class AppCoordinator: Coordinator, OnboardingNavigating {
 
         tabBarCoordinator.onLogout = { [weak self, weak tabBarCoordinator] in
             self?.remove(tabBarCoordinator)
+            NotificationRouter.shared.onOpenMatch = nil
             self?.crashReporter.setUser(id: nil)
             self?.authService.logout { _ in }
             self?.showStart(animated: true)
@@ -81,6 +82,11 @@ final class AppCoordinator: Coordinator, OnboardingNavigating {
         childCoordinators.append(tabBarCoordinator)
         tabBarCoordinator.start()
         navigationController.setViewControllers([tabBarController], animated: animated)
+
+        // Xatırlatmaya toxunanda oyun Home tab-ında açılır.
+        NotificationRouter.shared.onOpenMatch = { [weak tabBarCoordinator] matchID in
+            tabBarCoordinator?.showMatchDetail(matchID: matchID)
+        }
     }
 
     private func remove(_ child: Coordinator?) {

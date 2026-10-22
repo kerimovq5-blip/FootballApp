@@ -184,3 +184,77 @@ final class FakeExploreService: ExploreProviding {
                      player: PlayerReference(name: name, id: rank))
     }
 }
+
+// MARK: - Bildirişlər
+
+@MainActor
+final class FakeReminderScheduler: MatchReminderScheduling {
+
+    var isAuthorized = true
+    private(set) var authorizationRequests = 0
+    private(set) var scheduled: [(matchID: Int, date: Date)] = []
+    private(set) var cancelledIDs: [Int] = []
+    private(set) var cancelAllCount = 0
+
+    func requestAuthorization() async -> Bool {
+        authorizationRequests += 1
+        return isAuthorized
+    }
+
+    func schedule(_ reminder: MatchReminder, at date: Date) async throws {
+        scheduled.append((matchID: reminder.matchID, date: date))
+    }
+
+    func cancel(matchID: Int) {
+        cancelledIDs.append(matchID)
+    }
+
+    func cancelAll() {
+        cancelAllCount += 1
+    }
+}
+
+@MainActor
+final class InMemorySubscriptionStore: MatchSubscriptionStoring {
+
+    private(set) var subscribedMatchIDs: Set<Int> = []
+
+    func isSubscribed(_ matchID: Int) -> Bool {
+        subscribedMatchIDs.contains(matchID)
+    }
+
+    @discardableResult
+    func toggle(_ matchID: Int) -> Bool {
+        if subscribedMatchIDs.remove(matchID) != nil { return false }
+        subscribedMatchIDs.insert(matchID)
+        return true
+    }
+
+    func clear() {
+        subscribedMatchIDs = []
+    }
+}
+
+@MainActor
+final class InMemoryReminderStore: MatchReminderStoring {
+
+    private(set) var reminders: [MatchReminder] = []
+
+    func save(_ reminder: MatchReminder) {
+        reminders.removeAll { $0.matchID == reminder.matchID }
+        reminders.append(reminder)
+    }
+
+    func remove(matchID: Int) {
+        reminders.removeAll { $0.matchID == matchID }
+    }
+
+    func clear() {
+        reminders = []
+    }
+}
+
+@MainActor
+final class InMemorySettingsStore: SettingsStoring {
+    var notificationsEnabled = true
+}

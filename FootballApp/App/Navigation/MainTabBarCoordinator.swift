@@ -26,6 +26,16 @@ final class MainTabBarCoordinator: Coordinator {
         ]
     }
 
+    /// Home tab-ına keçib oyunun səhifəsini açır (məs. bildirişə toxunanda).
+    func showMatchDetail(matchID: Int) {
+        guard let home = childCoordinators.first(where: { $0 is HomeCoordinator }) as? HomeCoordinator else {
+            return
+        }
+        tabBarController.selectedIndex = 0
+        home.navigationController.popToRootViewController(animated: false)
+        home.showMatchDetail(matchID: matchID)
+    }
+
     /// AccountCoordinator çıxış edəndə bunu çağırır.
     func logout() {
         onLogout?()

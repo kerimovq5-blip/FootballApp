@@ -11,14 +11,14 @@ final class HomeController: UIViewController {
     
     weak var coordinator: HomeNavigating?
     private let viewModel: HomeViewModel
-    private let subscriptions: MatchSubscriptionStoring
+    private let alerts: MatchAlertsUseCase
 
-        init(viewModel: HomeViewModel,
-             subscriptions: MatchSubscriptionStoring = UserDefaultsMatchSubscriptionStore.shared) {
-            self.viewModel = viewModel
-            self.subscriptions = subscriptions
-            super.init(nibName: nil, bundle: nil)
-        }
+    init(viewModel: HomeViewModel,
+         alerts: MatchAlertsUseCase = AppEnvironment.current.matchAlerts) {
+        self.viewModel = viewModel
+        self.alerts = alerts
+        super.init(nibName: nil, bundle: nil)
+    }
 
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
@@ -238,14 +238,15 @@ extension HomeController: UICollectionViewDataSource {
             ) as? MatchCell,
             let match = viewModel.match(at: indexPath)
             else { return UICollectionViewCell() }
-            cell
-                .configure(with: match, isSubscribed: subscriptions.isSubscribed(match.id))
-                        cell.onBellTapped = { [weak self, weak cell] in
-                            guard let self, let cell else { return }
-                            let isSubscribed = self.subscriptions.toggle(match.id)
-                            cell.setSubscribed(isSubscribed, animated: true)
-                        }
-                        return cell
+            cell.configure(with: match, isSubscribed: alerts.isFollowing(match.id))
+            let competition = viewModel.league(inSection: indexPath.section)?.name ?? ""
+            cell.onBellTapped = { [weak self, weak cell] in
+                guard let self else { return }
+                self.toggleMatchAlert(match, competition: competition, using: self.alerts) { isFollowing in
+                    cell?.setSubscribed(isFollowing, animated: true)
+                }
+            }
+            return cell
         }
         
         }

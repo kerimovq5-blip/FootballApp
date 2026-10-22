@@ -21,7 +21,8 @@ enum APIFootballMapper {
               away: dto.teams.away.name,
               homeScore: dto.goals.home,
               awayScore: dto.goals.away,
-              status: mapStatus(dto))
+              status: mapStatus(dto),
+              kickoff: isoParser.date(from: dto.fixture.date))
     }
 
     static func mapStatus(_ dto: FixtureDTO) -> MatchStatus {

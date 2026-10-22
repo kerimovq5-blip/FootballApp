@@ -10,20 +10,15 @@ import UIKit
 final class ProfileSettingsView: UIView {
 
     var onClearActivity: (() -> Void)?
+    /// "Match reminders" açarı dəyişəndə (icazəni ekran soruşur).
+    var onRemindersToggled: ((Bool) -> Void)?
 
     private let settings: SettingsStoring
 
     private lazy var notificationsRow = ProfileInfoRow(
         icon: "bell",
-        title: "Notifications",
-        value: "Match reminders and news",
-        accessory: .toggle
-    )
-
-    private lazy var goalAlertsRow = ProfileInfoRow(
-        icon: "soccerball",
-        title: "Goal alerts",
-        value: "Instant alerts when a goal is scored",
+        title: "Match reminders",
+        value: "\(MatchAlertsUseCase.minutesBefore) min before kick-off of followed matches",
         accessory: .toggle
     )
 
@@ -41,7 +36,7 @@ final class ProfileSettingsView: UIView {
     )
 
     private lazy var stack: UIStackView = {
-        let stack = UIStackView(arrangedSubviews: [notificationsRow, goalAlertsRow, clearActivityRow, versionRow])
+        let stack = UIStackView(arrangedSubviews: [notificationsRow, clearActivityRow, versionRow])
         stack.axis = .vertical
         return stack
     }()
@@ -58,20 +53,17 @@ final class ProfileSettingsView: UIView {
             .bottom(bottomAnchor)
 
         notificationsRow.setToggle(isOn: settings.notificationsEnabled)
-        goalAlertsRow.setToggle(isOn: settings.goalAlertsEnabled)
-        goalAlertsRow.setToggleEnabled(settings.notificationsEnabled)
-
         notificationsRow.onToggle = { [weak self] isOn in
-            self?.settings.notificationsEnabled = isOn
-            // Bildirişlər söndürülübsə qol xəbərdarlığı da mənasızdır.
-            self?.goalAlertsRow.setToggleEnabled(isOn)
-        }
-        goalAlertsRow.onToggle = { [weak self] isOn in
-            self?.settings.goalAlertsEnabled = isOn
+            self?.onRemindersToggled?(isOn)
         }
         clearActivityRow.onTap = { [weak self] in
             self?.onClearActivity?()
         }
+    }
+
+    /// İcazə verilməyəndə açarı geri qaytarmaq üçün.
+    func setRemindersOn(_ isOn: Bool) {
+        notificationsRow.setToggle(isOn: isOn)
     }
 
     required init?(coder: NSCoder) {
