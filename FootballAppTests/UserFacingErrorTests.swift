@@ -91,7 +91,7 @@ struct UserFacingErrorTests {
 
     // MARK: - Digər
 
-    @Test("Mock cədvəldə olmayan liqa \"Not available\" olur")
+    @Test("Cədvəli olmayan liqa \"Not available\" olur")
     func standingNotFound() {
         let error = UserFacingError(StandingError.leagueNotFound)
         #expect(error.kind == .notAvailable)

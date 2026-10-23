@@ -11,7 +11,7 @@ import Testing
 struct MatchDetailMappingTests {
 
     private func detail(_ fixture: FixtureDTO, h2h: [FixtureDTO] = []) -> MatchDetailData {
-        APIFootballMapper.matchDetail(fixture: fixture, headToHead: h2h, homeCrest: nil, awayCrest: nil)
+        APIFootballMapper.matchDetail(fixture: fixture, headToHead: h2h)
     }
 
     // MARK: - Hesab

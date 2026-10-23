@@ -1,0 +1,171 @@
+//
+//  AuthService.swift
+//  FootballApp
+//
+
+import Foundation
+import FirebaseAuth
+
+// MARK: - Model
+
+
+struct AuthSession {
+    let uid: String
+    let name: String?
+    let email: String
+}
+
+// MARK: - Protocol
+
+protocol AuthProviding {
+    /// The signed-in user, if any (read from Firebase's persisted session).
+    var currentUser: AuthSession? { get }
+
+    func login(email: String,
+               password: String,
+               completion: @escaping (Result<AuthSession, Error>) -> Void)
+
+    func register(name: String,
+                  email: String,
+                  password: String,
+                  completion: @escaping (Result<AuthSession, Error>) -> Void)
+
+    func sendPasswordReset(email: String,
+                           completion: @escaping (Result<Void, Error>) -> Void)
+
+    func logout(completion: @escaping (Result<Void, Error>) -> Void)
+}
+
+// MARK: - Firebase implementation
+
+struct FirebaseAuthService: AuthProviding {
+
+    var currentUser: AuthSession? {
+        guard let user = Auth.auth().currentUser else { return nil }
+        return AuthSession(uid: user.uid, name: user.displayName, email: user.email ?? "")
+    }
+
+    func login(email: String,
+               password: String,
+               completion: @escaping (Result<AuthSession, Error>) -> Void) {
+        Auth.auth().signIn(withEmail: email, password: password) { result, error in
+            if let error {
+                completion(.failure(AuthError(error)))
+                return
+            }
+            guard let user = result?.user else {
+                completion(.failure(AuthError.unknown(0)))
+                return
+            }
+            completion(.success(AuthSession(uid: user.uid,
+                                            name: user.displayName,
+                                            email: user.email ?? email)))
+        }
+    }
+
+    func register(name: String,
+                  email: String,
+                  password: String,
+                  completion: @escaping (Result<AuthSession, Error>) -> Void) {
+        Auth.auth().createUser(withEmail: email, password: password) { result, error in
+            if let error {
+                completion(.failure(AuthError(error)))
+                return
+            }
+            guard let user = result?.user else {
+                completion(.failure(AuthError.unknown(0)))
+                return
+            }
+            let change = user.createProfileChangeRequest()
+            change.displayName = name
+            change.commitChanges { _ in
+                completion(.success(AuthSession(uid: user.uid,
+                                                name: name,
+                                                email: user.email ?? email)))
+            }
+        }
+    }
+
+    func sendPasswordReset(email: String,
+                           completion: @escaping (Result<Void, Error>) -> Void) {
+        Auth.auth().sendPasswordReset(withEmail: email) { error in
+            if let error {
+                completion(.failure(AuthError(error)))
+            } else {
+                completion(.success(()))
+            }
+        }
+    }
+
+    func logout(completion: @escaping (Result<Void, Error>) -> Void) {
+        do {
+            try Auth.auth().signOut()
+            completion(.success(()))
+        } catch {
+            completion(.failure(AuthError(error)))
+        }
+    }
+}
+
+// MARK: - Errors
+
+/// Maps Firebase error codes to messages the user can understand.
+enum AuthError: LocalizedError {
+    case invalidEmail
+    case wrongCredentials
+    case emailAlreadyInUse
+    case weakPassword
+    case userDisabled
+    case network
+    case tooManyRequests
+    case operationNotAllowed
+    case unknown(Int)
+
+    init(_ error: Error) {
+        let nsError = error as NSError
+        #if DEBUG
+        print("Firebase auth error:", nsError.domain, nsError.code, nsError.localizedDescription)
+        #endif
+        guard nsError.domain == AuthErrorDomain,
+              let code = AuthErrorCode(rawValue: nsError.code) else {
+            self = .unknown(nsError.code)
+            return
+        }
+        switch code {
+        case .invalidEmail:
+            self = .invalidEmail
+        case .wrongPassword, .invalidCredential, .userNotFound:
+            self = .wrongCredentials
+        case .emailAlreadyInUse:
+            self = .emailAlreadyInUse
+        case .weakPassword:
+            self = .weakPassword
+        case .userDisabled:
+            self = .userDisabled
+        case .networkError:
+            self = .network
+        case .tooManyRequests:
+            self = .tooManyRequests
+        case .operationNotAllowed:
+            self = .operationNotAllowed
+        default:
+            self = .unknown(nsError.code)
+        }
+    }
+
+    var errorDescription: String? {
+        switch self {
+        case .invalidEmail:      return "Email format is invalid."
+        case .wrongCredentials:  return "Email or password is incorrect."
+        case .emailAlreadyInUse: return "This email is already registered."
+        case .weakPassword:      return "Password is too weak. Use at least 8 characters."
+        case .userDisabled:      return "This account has been disabled."
+        case .network:           return "No internet connection. Please try again."
+        case .tooManyRequests:   return "Too many attempts. Please try again later."
+        case .operationNotAllowed:
+            return "Email/Password sign-in is not enabled in the Firebase Console."
+        case .unknown(let code):
+            return "Something went wrong (code \(code)). Please try again."
+        }
+    }
+}

@@ -25,7 +25,6 @@ struct HomeViewModelTests {
     private var sectionNames: [String] {
         viewModel.sections.map { section in
             switch section {
-            case .banner: return "banner"
             case .day: return "day"
             case .filter: return "filter"
             case .league(let index): return "league\(index)"
@@ -67,7 +66,7 @@ struct HomeViewModelTests {
         viewModel.load()
         service.respond(0, leagues: [premierLeague, laLiga])
 
-        #expect(sectionNames == ["banner", "day", "filter", "league0", "league1"])
+        #expect(sectionNames == ["day", "filter", "league0", "league1"])
         #expect(viewModel.filteredLeagues.map(\.id) == [39, 140])
         #expect(changes == 1)
     }
@@ -75,7 +74,7 @@ struct HomeViewModelTests {
     @Test("Cavab gəlməmiş \"oyun yoxdur\" yox, yüklənmə göstərilir")
     func loadingStateWhileLoading() {
         viewModel.load()
-        #expect(sectionNames == ["banner", "day", "filter", "loading"])
+        #expect(sectionNames == ["day", "filter", "loading"])
     }
 
     @Test("Oyun olmayan gündə \"oyun yoxdur\" bölməsi göstərilir")
@@ -83,7 +82,7 @@ struct HomeViewModelTests {
         viewModel.load()
         service.respond(0, leagues: [])
 
-        #expect(sectionNames == ["banner", "day", "filter", "empty"])
+        #expect(sectionNames == ["day", "filter", "empty"])
         #expect(viewModel.emptyMessage == "No matches on this day.")
     }
 
@@ -97,7 +96,7 @@ struct HomeViewModelTests {
 
         #expect(failure?.message == "No internet")
         #expect(viewModel.loadError?.message == "No internet")
-        #expect(sectionNames == ["banner", "day", "filter", "error"])
+        #expect(sectionNames == ["day", "filter", "error"])
     }
 
     @Test("Try again: xəta silinir, yüklənmə göstərilir və yenidən soruşulur")
@@ -108,11 +107,11 @@ struct HomeViewModelTests {
         viewModel.retry()
 
         #expect(viewModel.loadError == nil)
-        #expect(sectionNames == ["banner", "day", "filter", "loading"])
+        #expect(sectionNames == ["day", "filter", "loading"])
         #expect(service.requestedOffsets == [0, 0])
 
         service.respond(1, leagues: [premierLeague])
-        #expect(sectionNames == ["banner", "day", "filter", "league0"])
+        #expect(sectionNames == ["day", "filter", "league0"])
     }
 
     @Test("Başqa gün seçəndə köhnə xəta silinir")
@@ -123,7 +122,7 @@ struct HomeViewModelTests {
         viewModel.selectDay(.yesterday)
 
         #expect(viewModel.loadError == nil)
-        #expect(sectionNames == ["banner", "day", "filter", "loading"])
+        #expect(sectionNames == ["day", "filter", "loading"])
     }
 
     // MARK: - Filtr
@@ -137,7 +136,7 @@ struct HomeViewModelTests {
 
         #expect(viewModel.filteredLeagues.map(\.id) == [39])
         #expect(viewModel.filteredLeagues.first?.matches.map(\.id) == [2])
-        #expect(sectionNames == ["banner", "day", "filter", "league0"])
+        #expect(sectionNames == ["day", "filter", "league0"])
     }
 
     @Test("Canlı oyun yoxdursa Live filtrinin öz mesajı göstərilir")
@@ -172,7 +171,7 @@ struct HomeViewModelTests {
         #expect(service.requestedOffsets == [0, 1])
         #expect(viewModel.selectedDay == .tomorrow)
         #expect(viewModel.filteredLeagues.isEmpty)
-        #expect(sectionNames == ["banner", "day", "filter", "loading"])   // yüklənir, hələ "boş" deyil
+        #expect(sectionNames == ["day", "filter", "loading"])   // yüklənir, hələ "boş" deyil
     }
 
     @Test("Eyni günü yenidən seçmək yeni sorğu göndərmir")
@@ -200,8 +199,8 @@ struct HomeViewModelTests {
         viewModel.load()
         service.respond(0, leagues: [premierLeague, laLiga])
 
-        #expect(viewModel.match(at: IndexPath(item: 1, section: 3))?.id == 2)
-        #expect(viewModel.match(at: IndexPath(item: 0, section: 4))?.id == 3)
-        #expect(viewModel.league(inSection: 0) == nil)    // banner bölməsi liqa deyil
+        #expect(viewModel.match(at: IndexPath(item: 1, section: 2))?.id == 2)
+        #expect(viewModel.match(at: IndexPath(item: 0, section: 3))?.id == 3)
+        #expect(viewModel.league(inSection: 0) == nil)    // gün seçimi bölməsi liqa deyil
     }
 }

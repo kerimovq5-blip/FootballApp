@@ -29,7 +29,7 @@ extension TestData {
     }
 
     static func standing(position: Int, team: String) -> Standing {
-        Standing(position: position, teamName: team, crestImageName: nil,
+        Standing(position: position, teamName: team,
                  played: 10, wins: 5, draws: 3, losses: 2, goalsFor: 15, goalsAgainst: 10,
                  zone: .none)
     }
@@ -51,7 +51,7 @@ final class FakeHomeService: HomeProviding {
 
     /// `index`-ci sorğuya cavab verir (0 = ilk sorğu).
     func respond(_ index: Int, leagues: [League]) {
-        pending[index](.success(HomeContent(banners: [], leagues: leagues)))
+        pending[index](.success(HomeContent(leagues: leagues)))
     }
 
     func fail(_ index: Int, message: String) {
@@ -82,17 +82,32 @@ final class FakeStandingService: StandingProviding {
 
 // MARK: - Search
 
+/// API kimi davranır: komanda və oyunçuları adında sorğu olanlara görə süzür.
 @MainActor
 final class FakeSearchService: SearchProviding {
 
     var result: Result<SearchContent, Error>
+    var remote: RemoteSearchResults
+    var remoteError: Error?
+    private(set) var remoteQueries: [String] = []
 
-    init(content: SearchContent) {
+    init(content: SearchContent, remote: RemoteSearchResults = RemoteSearchResults()) {
         result = .success(content)
+        self.remote = remote
     }
 
     func fetchSearchContent(completion: @escaping (Result<SearchContent, Error>) -> Void) {
         completion(result)
+    }
+
+    func searchRemote(_ query: String) async throws -> RemoteSearchResults {
+        remoteQueries.append(query)
+        if let remoteError { throw remoteError }
+        func matches(_ name: String) -> Bool {
+            name.range(of: query, options: [.caseInsensitive, .diacriticInsensitive]) != nil
+        }
+        return RemoteSearchResults(clubs: remote.clubs.filter { matches($0.name) },
+                                   players: remote.players.filter { matches($0.reference.name) })
     }
 }
 
@@ -144,4 +159,102 @@ final class FakeClubService: ClubProviding {
             squad: []
         )
     }
+}
+
+// MARK: - Explore
+
+@MainActor
+final class FakeExploreService: ExploreProviding {
+
+    let leagues: [League]
+    var result: Result<[RankingEntry], Error> = .success([])
+    private(set) var requests: [(kind: TopPlayersKind, leagueID: Int)] = []
+
+    init(leagues: [League]) {
+        self.leagues = leagues
+    }
+
+    func topPlayers(_ kind: TopPlayersKind, in league: League) async throws -> [RankingEntry] {
+        requests.append((kind: kind, leagueID: league.id))
+        return try result.get()
+    }
+
+    static func entry(rank: Int, name: String) -> RankingEntry {
+        RankingEntry(rank: rank, name: name, subtitle: "Arsenal", imageURL: nil, value: "10",
+                     player: PlayerReference(name: name, id: rank))
+    }
+}
+
+// MARK: - Bildirişlər
+
+@MainActor
+final class FakeReminderScheduler: MatchReminderScheduling {
+
+    var isAuthorized = true
+    private(set) var authorizationRequests = 0
+    private(set) var scheduled: [(matchID: Int, date: Date)] = []
+    private(set) var cancelledIDs: [Int] = []
+    private(set) var cancelAllCount = 0
+
+    func requestAuthorization() async -> Bool {
+        authorizationRequests += 1
+        return isAuthorized
+    }
+
+    func schedule(_ reminder: MatchReminder, at date: Date) async throws {
+        scheduled.append((matchID: reminder.matchID, date: date))
+    }
+
+    func cancel(matchID: Int) {
+        cancelledIDs.append(matchID)
+    }
+
+    func cancelAll() {
+        cancelAllCount += 1
+    }
+}
+
+@MainActor
+final class InMemorySubscriptionStore: MatchSubscriptionStoring {
+
+    private(set) var subscribedMatchIDs: Set<Int> = []
+
+    func isSubscribed(_ matchID: Int) -> Bool {
+        subscribedMatchIDs.contains(matchID)
+    }
+
+    @discardableResult
+    func toggle(_ matchID: Int) -> Bool {
+        if subscribedMatchIDs.remove(matchID) != nil { return false }
+        subscribedMatchIDs.insert(matchID)
+        return true
+    }
+
+    func clear() {
+        subscribedMatchIDs = []
+    }
+}
+
+@MainActor
+final class InMemoryReminderStore: MatchReminderStoring {
+
+    private(set) var reminders: [MatchReminder] = []
+
+    func save(_ reminder: MatchReminder) {
+        reminders.removeAll { $0.matchID == reminder.matchID }
+        reminders.append(reminder)
+    }
+
+    func remove(matchID: Int) {
+        reminders.removeAll { $0.matchID == matchID }
+    }
+
+    func clear() {
+        reminders = []
+    }
+}
+
+@MainActor
+final class InMemorySettingsStore: SettingsStoring {
+    var notificationsEnabled = true
 }
