@@ -6,13 +6,16 @@ final class AppCoordinator: Coordinator, OnboardingNavigating {
 
     private let authService: AuthProviding
     private let crashReporter: CrashReporting
-
+    private let sessionCleaner: UserSessionCleaner
+    
     init(navigationController: UINavigationController,
          authService: AuthProviding = FirebaseAuthService(),
-         crashReporter: CrashReporting = FirebaseCrashReporter.shared) {
+         crashReporter: CrashReporting = FirebaseCrashReporter.shared,
+         sessionCleaner: UserSessionCleaner = UserSessionCleaner()) {
         self.navigationController = navigationController
         self.authService = authService
         self.crashReporter = crashReporter
+        self.sessionCleaner = sessionCleaner
     }
 
     /// App always launches from the Start screen.
@@ -65,6 +68,8 @@ final class AppCoordinator: Coordinator, OnboardingNavigating {
     }
 
     private func showMain(animated: Bool) {
+        sessionCleaner.prepare(forUserID: authService.currentUser?.uid)
+
         let tabBarController = MainTabbarController()
         let tabBarCoordinator = MainTabBarCoordinator(tabBarController: tabBarController, authService: authService)
 
@@ -72,6 +77,7 @@ final class AppCoordinator: Coordinator, OnboardingNavigating {
         crashReporter.setUser(id: authService.currentUser?.uid)
 
         tabBarCoordinator.onLogout = { [weak self, weak tabBarCoordinator] in
+            self?.sessionCleaner.clearUserData()
             self?.remove(tabBarCoordinator)
             NotificationRouter.shared.onOpenMatch = nil
             self?.crashReporter.setUser(id: nil)
