@@ -72,9 +72,7 @@ final class AccountCoordinator: NSObject, NavigationCoordinator, ProfileNavigati
 
     func logout() {
           
-           profileStore.clear()
-           activityStore.clear()
-           alerts.clearAll()
+          
            onLogout?()
        }
     // MARK: - EditProfileNavigating

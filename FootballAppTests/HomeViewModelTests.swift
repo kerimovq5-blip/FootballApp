@@ -5,6 +5,7 @@
 
 import Foundation
 import Testing
+import UIKit
 @testable import FootballApp
 
 @Suite("HomeViewModel")
