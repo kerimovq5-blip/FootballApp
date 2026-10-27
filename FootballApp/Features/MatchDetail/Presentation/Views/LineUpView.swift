@@ -22,7 +22,7 @@ final class LineUpView: UIView {
         label.numberOfLines = 0
         label.font = UIFont.systemFont(ofSize: 13, weight: .regular)
         label.textColor = UIColor.white.withAlphaComponent(0.85)
-        label.text = "Predicted line-up. The official starting XI is usually announced about an hour before kick-off."
+        label.text = "Predicted line-up based on each team's last match. The official starting XI is usually announced about an hour before kick-off."
 
         let stack = UIStackView(arrangedSubviews: [icon, label])
         stack.axis = .horizontal

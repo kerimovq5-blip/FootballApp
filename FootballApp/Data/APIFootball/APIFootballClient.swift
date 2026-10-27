@@ -100,6 +100,10 @@ final class APIFootballClient {
     func squad(team: Int, completion: @escaping (Result<[SquadDTO], Error>) -> Void) {
         call(.squad(team: team), ttl: 24 * 60 * 60, completion: completion)
     }
+    /// Oyunun başlanğıc heyətləri. Bitmiş oyunun heyəti dəyişmir, ona görə keş uzundur.
+    func lineups(fixture id: Int) async throws -> [LineupDTO] {
+        try await fetch(.lineups(fixture: id), ttl: 24 * 60 * 60)
+    }
 
     // MARK: - Sorğular (async/await)
 

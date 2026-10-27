@@ -12,7 +12,8 @@ extension APIFootballMapper {
     // MARK: - Match detail
 
     static func matchDetail(fixture dto: FixtureDTO,
-                            headToHead h2hFixtures: [FixtureDTO]) -> MatchDetailData {
+                            headToHead h2hFixtures: [FixtureDTO],
+                            predictedLineups: MatchLineups? = nil) -> MatchDetailData {
         let current = mapMatch(dto)
         let started = current.status.hasStarted
         let homeID = dto.teams.home.id
@@ -29,7 +30,8 @@ extension APIFootballMapper {
             hasStarted: started,
             stats: mapStats(dto.statistics ?? [], homeID: homeID),
             events: mapEvents(dto.events ?? [], homeID: homeID, halftime: dto.score?.halftime),
-            lineups: mapLineups(dto),
+            // Təxmini heyət verilibsə (rəsmi heyət yoxdur) o göstərilir.
+            lineups: predictedLineups ?? mapLineups(dto),
             headToHead: mapHeadToHead(h2hFixtures, homeID: homeID)
         )
     }
@@ -132,6 +134,42 @@ extension APIFootballMapper {
                               name: dto.teams.away.name, events: events)
         return MatchLineups(home: home, away: away,
                             isConfirmed: !home.players.isEmpty && !away.players.isEmpty)
+    }
+    // MARK: - Təxmini heyət
+
+    /// Oyun başlamayıb və API rəsmi heyəti hələ verməyibsə true.
+    static func needsPredictedLineups(_ dto: FixtureDTO) -> Bool {
+        !mapStatus(dto).hasStarted && !mapLineups(dto).isConfirmed
+    }
+
+    /// `current` oyunundan əvvəl başlamış ən son bitmiş oyun (komandanın mövsüm siyahısından).
+    static func lastFinishedFixture(in fixtures: [FixtureDTO], before current: FixtureDTO) -> FixtureDTO? {
+        guard let cutoff = isoParser.date(from: current.fixture.date) else { return nil }
+        return fixtures
+            .filter { $0.fixture.id != current.fixture.id }
+            .filter { item in
+                if case .finished = mapStatus(item) { return true }
+                return false
+            }
+            .compactMap { item -> (fixture: FixtureDTO, date: Date)? in
+                guard let date = isoParser.date(from: item.fixture.date) else { return nil }
+                return (item, date)
+            }
+            .filter { $0.date < cutoff }
+            .max { $0.date < $1.date }?
+            .fixture
+    }
+
+    /// İki komandanın əvvəlki oyundakı heyətindən təxmini heyət. Biri belə yoxdursa nil.
+    /// Qol və kart nişanları göstərilmir (keçmiş oyunun hadisələridir).
+    static func predictedLineups(home: LineupDTO?,
+                                 away: LineupDTO?,
+                                 homeName: String,
+                                 awayName: String) -> MatchLineups? {
+        let homeLineup = teamLineup(home, name: homeName, events: [])
+        let awayLineup = teamLineup(away, name: awayName, events: [])
+        guard !homeLineup.players.isEmpty, !awayLineup.players.isEmpty else { return nil }
+        return MatchLineups(home: homeLineup, away: awayLineup, isConfirmed: false)
     }
 
     private static func teamLineup(_ dto: LineupDTO?, name: String, events: [EventDTO]) -> TeamLineup {

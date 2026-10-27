@@ -218,7 +218,70 @@ struct MatchDetailMappingTests {
         #expect(lineups.away.players.isEmpty)
         #expect(lineups.away.teamName == "Chelsea")
     }
+    // MARK: - Təxmini heyət
 
+    @Test("Təxmini heyət: cari oyundan əvvəlki ən son bitmiş oyun seçilir")
+    func lastFinishedFixturePick() {
+        let current = TestData.fixture(id: 100, date: "2024-10-19T12:00:00+00:00", status: "NS")
+        let older = TestData.fixture(id: 1, date: "2024-09-01T12:00:00+00:00")
+        let latest = TestData.fixture(id: 2, date: "2024-10-05T12:00:00+00:00")
+        let future = TestData.fixture(id: 3, date: "2024-10-26T12:00:00+00:00", status: "NS")
+
+        let result = APIFootballMapper.lastFinishedFixture(in: [older, future, latest, current], before: current)
+
+        #expect(result?.fixture.id == 2)
+    }
+
+    @Test("Təxmini heyət: əvvəlki bitmiş oyun yoxdursa nil qayıdır")
+    func lastFinishedFixtureNone() {
+        let current = TestData.fixture(id: 100, date: "2024-10-19T12:00:00+00:00", status: "NS")
+        let future = TestData.fixture(id: 3, date: "2024-10-26T12:00:00+00:00", status: "NS")
+
+        #expect(APIFootballMapper.lastFinishedFixture(in: [future, current], before: current) == nil)
+    }
+
+    @Test("Təxmini heyət: iki komanda üçün də heyət varsa təsdiqlənməmiş kimi qurulur")
+    func predictedLineupsBuilt() throws {
+        let home = TestData.lineup(teamID: 10, players: [(id: 1, name: "Keeper", number: 1, grid: "1:1")])
+        let away = TestData.lineup(teamID: 20, players: [(id: 2, name: "Away Keeper", number: 1, grid: "1:1")])
+
+        let lineups = try #require(
+            APIFootballMapper.predictedLineups(home: home, away: away, homeName: "Arsenal", awayName: "Chelsea")
+        )
+
+        #expect(!lineups.isConfirmed)
+        #expect(lineups.home.teamName == "Arsenal")
+        #expect(lineups.away.players.map(\.name) == ["Away Keeper"])
+    }
+
+    @Test("Təxmini heyət: bir komandanın heyəti yoxdursa nil qayıdır")
+    func predictedLineupsMissingTeam() {
+        let home = TestData.lineup(teamID: 10, players: [(id: 1, name: "Keeper", number: 1, grid: "1:1")])
+
+        #expect(APIFootballMapper.predictedLineups(home: home, away: nil,
+                                                   homeName: "Arsenal", awayName: "Chelsea") == nil)
+    }
+
+    @Test("Rəsmi heyət yoxdursa matchDetail təxmini heyəti göstərir")
+    func detailUsesPredictedLineups() throws {
+        let home = TestData.lineup(teamID: 10, players: [(id: 1, name: "Keeper", number: 1, grid: "1:1")])
+        let away = TestData.lineup(teamID: 20, players: [(id: 2, name: "Away Keeper", number: 1, grid: "1:1")])
+        let predicted = APIFootballMapper.predictedLineups(home: home, away: away,
+                                                           homeName: "Arsenal", awayName: "Chelsea")
+
+        let data = APIFootballMapper.matchDetail(fixture: TestData.fixture(status: "NS"),
+                                                 headToHead: [],
+                                                 predictedLineups: predicted)
+
+        #expect(!data.lineups.isConfirmed)
+        #expect(data.lineups.home.players.count == 1)
+    }
+
+    @Test("Başlamamış və heyəti olmayan oyun təxmini heyət tələb edir, bitmiş oyun yox")
+    func needsPredictedLineups() {
+        #expect(APIFootballMapper.needsPredictedLineups(TestData.fixture(status: "NS")))
+        #expect(!APIFootballMapper.needsPredictedLineups(TestData.fixture(status: "FT")))
+    }
     // MARK: - H2H
 
     @Test("H2H: qələbələr ev/qonaq yerindən asılı olmayaraq komandaya görə sayılır")
