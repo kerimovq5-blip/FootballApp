@@ -13,6 +13,7 @@ final class MatchCell: UICollectionViewCell {
 
     /// Zəng düyməsinə toxunanda çağırılır; vəziyyəti dəyişmək controller-in işidir.
     var onBellTapped: (() -> Void)?
+    private(set) var matchID: Int?
 
     private static let bellSymbolConfig = UIImage.SymbolConfiguration(pointSize: 17, weight: .medium)
 
@@ -93,6 +94,7 @@ final class MatchCell: UICollectionViewCell {
     override func prepareForReuse() {
         super.prepareForReuse()
         onBellTapped = nil
+        matchID = nil
     }
 
     private func teamLabel() -> UILabel {
@@ -103,6 +105,7 @@ final class MatchCell: UICollectionViewCell {
     }
 
     func configure(with match: Match, isSubscribed: Bool) {
+        matchID = match.id
         homeLabel.text = match.home
         awayLabel.text = match.away
         statusLabel.text = match.status.displayText
