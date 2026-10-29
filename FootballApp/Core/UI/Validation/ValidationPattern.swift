@@ -13,7 +13,8 @@ protocol ValidationPattern {
 
 struct EmailRule: ValidationPattern {
     func validate(_ value: String) -> String? {
-        Validator.isValidEmail(email: value) ? nil : "E-mail is not valid."
+        
+        Validator.isValidEmail(email: value) ? nil : "Email is not valid."
     }
 }
 
@@ -21,14 +22,14 @@ struct MinLengthRule: ValidationPattern {
     let length: Int
     let fieldName: String
     func validate(_ value: String) -> String? {
-        value.count >= length ? nil : "\(fieldName) en az \(length) should be characters."
+        value.count >= length ? nil : "\(fieldName) must be at least \(length) characters."
     }
 }
 
 struct NotEmptyRule: ValidationPattern {
     let fieldName: String
     func validate(_ value: String) -> String? {
-        value.isEmpty ? "\(fieldName) shoud not be empty." : nil
+        value.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? "\(fieldName) must not be empty." : nil
     }
 }
 
