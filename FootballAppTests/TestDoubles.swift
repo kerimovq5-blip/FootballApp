@@ -66,8 +66,11 @@ final class FakeStandingService: StandingProviding {
 
     let leagues: [League]
     var result: Result<[Standing], Error> = .success([])
+    /// true olanda cavablar saxlanılır və `respond` ilə istənilən sırada verilir.
+    var holdsResponses = false
     private(set) var requests: [(leagueID: Int, filter: StandingFilter)] = []
-
+    private var pending: [(Result<[Standing], Error>) -> Void] = []
+    
     init(leagues: [League]) {
         self.leagues = leagues
     }
@@ -76,7 +79,15 @@ final class FakeStandingService: StandingProviding {
                         filter: StandingFilter,
                         completion: @escaping (Result<[Standing], Error>) -> Void) {
         requests.append((leagueID: league.id, filter: filter))
+        if holdsResponses {
+            pending.append(completion)
+            return
+        }
         completion(result)
+    }
+
+    func respond(_ index: Int, with result: Result<[Standing], Error>) {
+        pending[index](result)
     }
 }
 
@@ -91,7 +102,10 @@ final class FakeSearchService: SearchProviding {
     var remoteError: Error?
     private(set) var remoteQueries: [String] = []
 
-    init(content: SearchContent, remote: RemoteSearchResults = RemoteSearchResults()) {
+    init(
+        content: SearchContent,
+        remote: RemoteSearchResults = RemoteSearchResults()
+    ) {
         result = .success(content)
         self.remote = remote
     }

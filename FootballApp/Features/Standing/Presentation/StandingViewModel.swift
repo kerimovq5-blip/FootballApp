@@ -17,14 +17,15 @@ final class StandingViewModel {
     /// Cədvəl dəyişəndə çağırılır; ekran reload edir.
     var onChange: (() -> Void)?
     var onFailed: ((UserFacingError) -> Void)?
+    var onLoadingStarted: (()-> Void)?
 
     private(set) var selectedLeagueIndex = 0
     private(set) var selectedFilter: StandingFilter = .all
     private(set) var standings: [Standing] = []
-
+    private var requestID = 0
     private let service: StandingProviding
 
-    init(service: StandingProviding) {
+    init(service: StandingProviding){
         self.service = service
     }
 
@@ -57,8 +58,12 @@ final class StandingViewModel {
         guard leagues.indices.contains(selectedLeagueIndex) else { return }
         let league = leagues[selectedLeagueIndex]
 
+        requestID += 1
+        let currentRequest = requestID
+        onLoadingStarted?()
+
         service.fetchStandings(for: league, filter: selectedFilter) { [weak self] result in
-            guard let self else { return }
+            guard let self, currentRequest == self.requestID else { return }
             switch result {
             case .success(let standings):
                 self.standings = standings

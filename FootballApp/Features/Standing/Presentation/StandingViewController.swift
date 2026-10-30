@@ -13,7 +13,7 @@ final class StandingViewController: UIViewController {
 
     private let viewModel: StandingViewModel
 
-    init(viewModel: StandingViewModel) {
+    init(viewModel: StandingViewModel){
         self.viewModel = viewModel
         super.init(nibName: nil, bundle: nil)
     }
@@ -70,7 +70,6 @@ final class StandingViewController: UIViewController {
     private lazy var stateView: StateView = {
         let stateView = StateView()
         stateView.onRetry = { [weak self] in
-            self?.showLoading()
             self?.viewModel.load()
         }
         return stateView
@@ -83,7 +82,6 @@ final class StandingViewController: UIViewController {
         view.backgroundColor = AssetColors.background.color
         setupLayout()
         bindViewModel()
-        showLoading()
         viewModel.load()
     }
 
@@ -125,6 +123,9 @@ final class StandingViewController: UIViewController {
         leagueTabBar.onSelect = { [weak self] index in
             self?.viewModel.selectLeague(at: index)
         }
+        viewModel.onLoadingStarted = { [weak self] in
+            self?.showLoading()
+            }
         viewModel.onChange = { [weak self] in
             self?.reload()
         }
