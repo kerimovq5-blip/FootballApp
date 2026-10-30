@@ -35,6 +35,9 @@ enum APIConfig {
 
     /// Bu günə nisbətən verilən gün ("yyyy-MM-dd"): -1 dünən, 0 bu gün, 1 sabah.
     /// Pulsuz plan yalnız bu üç gün üçün oyun verir.
+
+    static let availableDayOffsets = [-1, 0, 1]
+    
     static func date(dayOffset: Int) -> String {
         let date = Calendar.current.date(
             byAdding: .day,

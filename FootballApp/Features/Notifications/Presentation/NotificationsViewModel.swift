@@ -12,16 +12,27 @@ final class NotificationsViewModel {
 
     private let service: HomeProviding
     private let alerts: MatchAlertsUseCase
+    private var requestID = 0
 
     init(service: HomeProviding = AppEnvironment.current.home,
          alerts: MatchAlertsUseCase = AppEnvironment.current.matchAlerts) {
         self.service = service
         self.alerts = alerts
+        
     }
 
     func load() {
-        service.fetchHome { [weak self] result in
-            guard let self else { return }
+        requestID += 1
+        let currentRequest = requestID
+
+        guard !alerts.followedMatchIDs.isEmpty else {
+            leagues = []
+            onChange?()
+            return
+        }
+
+        service.fetchHome(dayOffsets: APIConfig.availableDayOffsets) { [weak self] result in
+            guard let self, currentRequest == self.requestID else { return }
             switch result {
             case .success(let content):
                 let ids = self.alerts.followedMatchIDs
