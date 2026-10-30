@@ -98,6 +98,42 @@ struct StandingViewModelTests {
         viewModel.load()
         #expect(emptyService.requests.isEmpty)
     }
+    @Test("Gec gələn köhnə cavab yeni seçilmiş liqanın üstünə yazılmır")
+    func staleResponseIgnored() {
+        service.holdsResponses = true
+        viewModel.load()
+        viewModel.selectLeague(at: 1)
+
+        service.respond(1, with: .success([TestData.standing(position: 1, team: "Barcelona")]))
+        service.respond(0, with: .success([TestData.standing(position: 1, team: "Liverpool")]))
+
+        #expect(viewModel.standings.map(\.teamName) == ["Barcelona"])
+    }
+
+    @Test("Gec gələn köhnə xəta ekrana ötürülmür")
+    func staleFailureIgnored() {
+        service.holdsResponses = true
+        var failures = 0
+        viewModel.onFailed = { _ in failures += 1 }
+
+        viewModel.load()
+        viewModel.selectLeague(at: 1)
+        service.respond(0, with: .failure(TestError(message: "Limit reached")))
+
+        #expect(failures == 0)
+    }
+
+    @Test("Hər yeni sorğuda yüklənmə xəbər verilir")
+    func loadingStarted() {
+        var starts = 0
+        viewModel.onLoadingStarted = { starts += 1 }
+
+        viewModel.load()
+        viewModel.selectLeague(at: 1)
+        viewModel.select(.home)
+
+        #expect(starts == 3)
+    }
 }
 
 @Suite("ClubDetailViewModel")
