@@ -337,6 +337,7 @@ extension SearchController: UICollectionViewDataSource {
             cell.onBellTapped = { [weak self, weak cell] in
                 guard let self else { return }
                 self.toggleMatchAlert(match, competition: competition, using: self.alerts) { isFollowing in
+                    guard cell?.matchID == match.id else { return }
                     cell?.setSubscribed(isFollowing, animated: true)
                 }
             }
